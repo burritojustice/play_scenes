@@ -1,0 +1,154 @@
+global:
+      
+    onestop_color: |
+          function(){
+            var str = feature.onestop_id;
+            var hash = 0;
+            for (var i = 0; i <str.length; i++) {
+                hash = str.charCodeAt(i) + ((hash << 5) - hash);
+            }
+            var hex = ((hash>>24)&0xFF).toString(16) + ((hash>>16)&0xFF).toString(16) + ((hash>>8)&0xFF).toString(16) + (hash&0xFF).toString(16);
+            hex += '000000';
+            var colorCode = hex.substring(0, 6);
+            colorCode.toString();
+            colorCode = "#" + colorCode;
+            return colorCode;
+            }
+    onestop_invert: |
+        function (){
+            var str = feature.onestop_id;
+            var hash = 0;
+            for (var i = 0; i <str.length; i++) {
+                hash = str.charCodeAt(i) + ((hash << 5) - hash);
+            }
+            var hex = ((hash>>24)&0xFF).toString(16) + ((hash>>16)&0xFF).toString(16) + ((hash>>8)&0xFF).toString(16) + (hash&0xFF).toString(16);
+            hex += '000000';
+            var colorCode = hex.substring(0, 6);
+            colorCode.toString();
+            var hexnum = colorCode;
+              if(hexnum.length != 6) {
+                return "badhex";
+              }
+              hexnum = hexnum.toUpperCase();
+              var splitnum = hexnum.split("");
+              var resultnum = "";
+              var simplenum = "FEDCBA9876".split("");
+              var complexnum = new Array();
+              complexnum.A = "5";
+              complexnum.B = "4";
+              complexnum.C = "3";
+              complexnum.D = "2";
+              complexnum.E = "1";
+              complexnum.F = "0";
+
+              for(i=0; i<6; i++){
+                if(!isNaN(splitnum[i])) {
+                  resultnum += simplenum[splitnum[i]]; 
+                } else if(complexnum[splitnum[i]]){
+                  resultnum += complexnum[splitnum[i]]; 
+                } else {
+                  return false;
+                }
+              }
+
+              return resultnum;
+            }
+    sdk_mapzen_api_key: mapzen-UJDfMvY
+import:
+    - https://www.nextzen.org/carto/refill-style/6/refill-style.yaml
+    
+sources:
+    routability:
+        type: GeoJSON
+        url: https://mapzen-assets.s3.amazonaws.com/images/transitland-one-year-of-submissions/connectivity3_2017-03-01.geojson
+        generate_label_centroids: true
+        
+    service_areas:
+        type: GeoJSON
+        # url: https://transit.land/api/v1/feeds.geojson?per_page=false
+        url: https://mapzen-assets.s3.amazonaws.com/images/transitland-one-year-of-submissions/agency_service_areas.geojson
+        generate_label_centroids: true
+        
+    subways:
+        type: GeoJSON
+        url: https://transit.land/api/v1/routes.geojson?vehicle_type=0,1,2
+
+styles:
+    _ontop:
+        base: text
+        #texture: pois
+        blend: overlay
+        blend_order: 3
+    _polygons:
+        base: polygons
+        blend: multiply
+        blend_order: 0
+    _lines:
+        base: lines
+    
+layers:
+    
+    _subways:
+        data: { source: subways}
+        filter: {$zoom: {min: 12}}
+        draw:
+            lines:
+                color: function(){return '#' + feature.color}
+                width: 2px
+                order: 1000
+            _ontop:
+                font:
+                    size: 12px
+                    fill: function(){return '#' + feature.color}
+                    stroke:
+                        color: lightgrey
+                        width: 3
+            
+            
+    _service_areas:
+        data: { source: service_areas}
+        _under_line:
+            filter: { $zoom: { min: 6, max: 12 } }
+            draw:
+                _lines:
+                    order: 901
+                    color: global.onestop_color
+                    width: 2px 
+        # _over_line:
+        #     draw:
+        #         lines:
+        #             order: 900
+        #             color: white
+        #             width: 4px            
+        labels:
+            filter: { label_placement: true, $zoom: {min: 7}}
+            draw:
+                _ontop:
+                    text_source: |
+                        function() {
+                            name = '';
+                            for(i=0; i<feature.operators_in_feed.length; i++) {
+                                if(i>0) {
+                                    name += '\n';
+                                }
+                                name += feature.operators_in_feed[i]['operator_onestop_id'].substr(feature.operators_in_feed[i]['operator_onestop_id'].lastIndexOf('-')+1);
+                            }
+                            return name;
+                        }
+                    font:
+                        size: 10px
+                        fill: global.onestop_color 
+                        stroke:
+                            color: global.onestop_invert
+                            width: 2
+                    
+    _routability:
+        data: { source: routability}
+        filter: { $zoom: { max: 6 } }
+        # filter: { label_placement: true}
+        draw:
+            _polygons:
+                order: 900
+                color: function(){return feature.fill}
+                width: 2px
+

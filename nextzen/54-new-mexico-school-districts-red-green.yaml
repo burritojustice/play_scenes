@@ -1,0 +1,155 @@
+# Author @patriciogv - 2015
+
+import:
+    - https://tangrams.github.io/blocks/global.yaml
+    - https://tangrams.github.io/blocks/filter/height.yaml
+    - https://tangrams.github.io/blocks/lines/dash.yaml
+    - https://www.nextzen.org/carto/refill-style/refill-style.yaml
+    # - https://www.nextzen.org/carto/zinc-style/zinc-style.yaml
+sources:
+    osm:
+        type: TopoJSON
+        url: https://tile.nextzen.org/tilezen/vector/v1/all/{z}/{x}/{y}.topojson?api_key=mapzen-D8mmijp
+        max_zoom: 16
+    nm_school_districts:
+        type: GeoJSON
+        url: https://gist.githubusercontent.com/burritojustice/5f4b0f570029b9cd7960f2b16aeb90b7/raw/c24eca8f4b0844be291d097c6fb7d2d059053a16/nm_school_districts.geojson
+        generate_label_centroids: true
+    nm_counties:
+        type: GeoJSON
+        url: https://gist.githubusercontent.com/burritojustice/5f4b0f570029b9cd7960f2b16aeb90b7/raw/64b9faf5792cee6ff173b603e2352c9201b8aaa3/New%2520Mexico_85688493_counties_33.geojson
+    nm_topojson:
+        type: TopoJSON
+        url: https://gist.githubusercontent.com/burritojustice/5f4b0f570029b9cd7960f2b16aeb90b7/raw/227fa9d49f3672e4bbd8c7a0ba1624ba05fbc770/nm.topojson
+        generate_label_centroids: true
+
+
+cameras:
+    cam:
+        type: perspective
+        # vanishing_point: [0, -500]
+
+lights:
+    dir:
+        type: directional
+        direction: [.1, .5, -1]
+        diffuse: .7
+        ambient: .5
+
+layers:
+    
+    nm_counties:
+        data: {source: nm_topojson}
+        draw:
+            lines:
+                color: grey
+                width: 1px
+                order: 1001
+        # labels:
+        #     filter: { label_placement: true }
+        #     draw:
+        #         text:
+        #             text_source: 'wof:name'
+        #             font:
+        #                 family: Helvetica
+        #                 fill: white
+        #                 size: 10px
+        #                 stroke:
+        #                     color: blue
+        #                     width: 1                
+    nm_school_districts:
+        data: { source: nm_school_districts }
+        draw:
+            lines:
+                color: white
+                width: 2px
+                order: 1000
+            polygons:
+                order: 300
+                color: |
+                    function(){
+                        var color;
+                        if (feature.DIST_CODE > 50) {
+                            color = "darkred";
+                            }
+                        else {
+                            color = "darkgreen";
+                            }
+                        return color;    
+                        }
+        labels:
+            filter: { label_placement: true }
+            draw:
+                text:
+                    text_source: NAMEPROPER
+                    font:
+                        family: Helvetica
+                        fill: white
+                        size: 10px
+                        style: italic
+                        stroke:
+                            color: blue
+                            width: 1
+#     water:
+#         data: { source: osm }
+#         draw:
+#             water:
+#                 order: global.order
+#                 color: '#353535'
+#     earth:
+#         data: { source: osm }
+#         draw:
+#             earth:
+#                 order: global.order
+#                 color: '#555'
+#     landuse:
+#         data: { source: osm }
+#         draw:
+#             landuse:
+#                 order: global.order
+#                 color: '#666'
+#     roads:
+#         data: { source: osm }
+#         filter: { not: { kind: [rail, ferry] } }
+#         draw:
+#             roads:
+#                 order: global.order
+#                 color: [0.988, 0.988, 0.988]
+#                 width: [[7,0.0px], [10, .5px], [15, .75px], [17, 5m]]
+#         highway:
+#             filter: { kind: highway }
+#             draw:
+#                 roads:
+#                     order: global.order
+#                     width: [[8,0px], [8,.25px], [11, 1.5px], [14, 2px], [16, 4px], [17, 10m]]
+#             link:
+#                 filter: { is_link: true } # on- and off-ramps, etc
+#                 draw:
+#                     roads:
+#                         width: [[8,0px], [14, 3px], [16, 5px], [18, 10m]]
+#                 tunnel-link:
+#                     filter: {is_tunnel: true, $zoom: {min: 13} }
+#         tunnel:
+#             filter: {is_tunnel: true }
+#             draw:
+#                 roads:
+#                     order: global.order
+#     buildings:
+#         data: { source: osm }
+#         draw:
+#             buildings:
+#                 order: global.order
+#                 color: '#999'
+#                 extrude: true
+# styles:
+#     lines-dash:
+#         shaders:
+#             defines:
+#                 DASH_SCALE: .22
+#                 DASH_SIZE: .9
+    
+#     overlines:
+#         base: lines
+#         mix: [dash]
+#         blend: multiply
+ 

@@ -1,0 +1,108 @@
+import:
+    - https://www.nextzen.org/carto/refill-style-more-labels/refill-style-more-labels.yaml
+    - https://tangrams.github.io/blocks/filter/grain.yaml
+
+global:
+    sdk_mapzen_api_key: mapzen-arpssXJ
+
+sources:
+    border_wall:
+        type: GeoJSON
+        url: https://gist.githubusercontent.com/burritojustice/5825df761bf60d51e7ec8846c6e2ce46/raw/wall.geojson
+    counties:
+        type: GeoJSON
+        url: https://gist.githubusercontent.com/burritojustice/4250f0b483e171875a00a7deac667425/raw/179058499bf499215e1518a86014a5d85007baac/counties.geojson
+        generate_label_centroids: true
+        
+layers:
+    _counties:
+        data: {source: counties}
+        draw:
+            lines:
+                color: orange
+                width: 3px
+                order: 900
+            polygons:
+                color: |
+                    function() {
+                        var clinton = feature.Clinton;
+                        var color =
+                        clinton = 0 ? "white" :
+                        clinton < 20 ? "darkred" :
+                        clinton < 40 ? "red" :
+                        clinton < 60 ? "purple" :
+                        clinton < 80 ? "blue" :
+                        "darkblue" ;
+                        return color;
+                        }
+                order: 800
+
+    labels:
+        data: {source: counties}
+        filter: 
+            label_placement: true 
+        draw:
+            text:
+  
+                text_source: |
+                     function() {
+                         return feature.Name + '\n' + feature.Margin;
+                         }
+                font:
+                    family: Helvetica
+                    fill: black
+                    size: [[13,10px],[17,14px]]
+                    weight: bold
+                    stroke:
+                        color: white
+                        width: 2
+
+    
+    _border_wall:
+        data: {source: border_wall }
+        draw:
+            _wall1:
+                color: '#603913'
+                width: [[5,10px],[10,4px],[14,7px],[18,20px],[20,30px]]
+                order: 1000 #sdk_order_over_everything_but_text_0
+                extrude: 250
+            #     color: red
+            #     width: [[5,10px],[10,4px],[14,7px],[18,20px],[20,30px]]
+            #     order: 1000 #sdk_order_over_everything_but_text_0
+            #     extrude: |
+            #         function(){
+            #             var z = 1000/$zoom
+            #             return z}
+                    
+            _wall2:
+                color: '#754C29'
+                width: [[10,1px],[14,7px],[18,20px],[20,30px]]
+                order: 1000 #sdk_order_over_everything_but_text_0
+                extrude: 200
+            _wall3:
+                color: '#8B5E3C'
+                width: [[10,1px],[14,7px],[18,20px],[20,30px]]
+                order: 1000 #sdk_order_over_everything_but_text_0
+                extrude: 150                
+            _wall4:
+                color: '#A97C50'
+                width: [[10,1px],[14,7px],[18,20px],[20,30px]]
+                order: 1000 #sdk_order_over_everything_but_text_0
+                extrude: 100
+            _wall5:
+                color: '#C49A6C'
+                width: [[10,1px],[14,7px],[18,20px],[20,30px]]
+                order: 1000 #sdk_order_over_everything_but_text_0
+                extrude: 50                                
+
+styles:
+    _wall1:
+        base: lines
+    _wall2:
+        base: lines
+    _wall3:
+        base: lines
+    _wall4:
+        base: lines
+    _wall5:
+        base: lines

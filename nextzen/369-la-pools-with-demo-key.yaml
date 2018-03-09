@@ -1,0 +1,109 @@
+import: 
+    - https://s3.amazonaws.com/carto.www.nextzen.org/carto/refill-style-no-labels/refill-style-no-labels.yaml
+    - https://mapzen-assets.s3.amazonaws.com/resources/demo.yaml
+
+
+
+styles:
+   choropleth:
+       base: polygons
+       blend: multiply
+   landblend:
+       base: polygons
+       blend: opaque
+
+sources:
+   mapzen:
+       type: TopoJSON
+       url: https://tile.nextzen.org/tilezen/vector/v1/all/{z}/{x}/{y}.topojson
+       url_params: 
+           api_key: global.sdk_mapzen_api_key       
+       
+   polygons_in_pools:
+       type: GeoJSON
+       url: https://mapzen-assets.s3.amazonaws.com/resources/coloring-choropleths/LA_pools_in_polygons.geojson
+       generate_label_centroids: true
+       
+   pools_of_interest:
+       type: GeoJSON
+       url: https://mapzen-assets.s3.amazonaws.com/resources/coloring-choropleths/pools_of_interest.geojson
+
+layers:
+   # GeoJSON GIST with single layer, so don't need to say layer name
+   pools_of_interest_z10:
+       data: { source: pools_of_interest}
+       filter: {  $zoom: { min: 10, max: 18} }
+       draw:
+           points:
+               color: [1,1,0,0.7]
+               size: [[10,4px],[18,14px]]
+               order: 500
+
+   # coming from Mapzen Vector Tiles, must specify layer
+   pools_of_interest_z18:
+       data: {source: mapzen, layer: water} 
+       filter:
+           all:
+               - { $zoom: {min: 16}}
+               - { kind: swimming_pool }
+       draw:
+           lines:
+               color: [1,1,0,0.7]
+               order: 1000
+               width: [[16,0.5px],[17,1px],[18,4px]]
+       pool_names:
+           filter: 
+               all:
+                   - { label_placement: true } 
+           draw:                    
+               text:
+                   anchor: top
+                   offset: [0,-10]
+                   text_wrap: 20
+                   font:
+                       family: Helvetica
+                       size: 12px
+                       fill: white
+                       stroke: { color: black, width: 2.5px }
+   neighbourhood_pools:
+       data: { source: polygons_in_pools}
+       filter:  function() { return feature.count > 0; } 
+       draw:
+           lines:
+               order: 500
+               color: aqua
+               width: [[8,0.1px],[18,4px]]
+           choropleth:
+               order: 500 # 354 is over roads in refill, 379 is under highways and over roads in zinc
+               color: |
+                   function() {
+                    return "hsl(" + (200 + (feature.count/500 * 55)) +",100%,55%)";
+                       }
+       label_counts:
+           filter:
+               all:
+                   - { $zoom: { min: 11 } }
+                   - { label_placement: true }
+           draw:
+               text:
+                   anchor: top
+                   text_source: |
+                       function() {
+                           return feature.name + "\n(" + feature.count + ')';
+                       }
+                   font:
+                       family: Helvetica
+                       fill: yellow
+                       size: 14px
+                       stroke:
+                           color: blue
+                           width: 2
+               
+   landuse:
+       filter: { $zoom: {min: 12}}
+       # visible: false
+       data: {source: mapzen}
+       draw:
+           landblend:
+               color: [1,1,1,0.9]
+               order: 200

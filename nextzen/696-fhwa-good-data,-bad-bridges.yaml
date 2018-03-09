@@ -1,0 +1,98 @@
+import:
+
+    # - https://www.nextzen.org/carto/bubble-wrap-style/6/bubble-wrap-style.zip
+    # - https://www.nextzen.org/carto/walkabout-style/5/walkabout-style.zip
+    - https://www.nextzen.org/carto/refill-style-more-labels/6/refill-style-more-labels.zip
+    - https://mapzen-assets.s3.amazonaws.com/resources/demo.yaml
+
+global:
+    # search_query: YMCA
+    # lat: '38.0293'
+    # lon: '-78.4767'
+    lat: 30.45064
+    lon: -91.1266
+    radius: '1000'
+    sdk_path_overlay: false
+    sdk_bike_overlay: true
+
+cameras:
+    perspective:
+        type: perspective
+        vanishing_point: [0, -500]
+lights:
+    directional1:
+        type: directional
+        direction: [.1, .5, -1]
+        diffuse: .7
+        ambient: .5
+
+# scene:
+#     background:
+#         color: [0.,0.5,0.8]
+styles:
+    _text:
+        base: text
+        blend_order: 3
+    _points:
+        base: points
+        blend_order: 3
+sources:
+    osm:
+        type: TopoJSON
+        url: https://vector.mapzen.com/osm/all/{z}/{x}/{y}.topojson
+        url_params:
+            api_key: global.sdk_mapzen_api_key
+    bridges:
+        type: GeoJSON
+        api_key: global.sdk_mapzen_api_key
+        url: https://gist.githubusercontent.com/burritojustice/6a4fa6137acdf04b43cc5fabaf33875a/raw/f34d94b8502e37a5086eea92d39ad290d29deed0/DeficientBridges_Static_v14.geojson
+  
+layers:
+    search:
+        data: { source: bridges }
+        pointilliste:
+            draw:
+                _points:
+                    collide: false
+                    color: |
+                        function(){
+                            var deficiency = feature.deficiency_score
+                            if (deficiency < 1) {
+                                 return [1,0,1,0.6] }
+                            if (deficiency < 2) {
+                                 return [1,0,0,0.4] }
+                            if (deficiency < 4) {
+                                 return [1,.5,0,0.4] } 
+                            if (deficiency < 10) {
+                                 return [1,1,0,0.6] } 
+                        }
+                    size: [[6,5px],[20,20px]]
+
+                    outline:
+                        color: |
+                            function(){
+                                 if ($zoom > 5) {
+                                     return "grey"
+                                }
+                             }
+
+                        width: [[5,0px],[9,0.5px],[18,4px]]
+                    order: 100
+                    # outline:
+                    #     color: black
+                    #     width: 2px
+                    text:
+                        text_source: |
+                            function(){
+                                 if ($zoom > 11) {
+                                 return feature.descrip1 + "\n(" + feature.descrip2 + ")\n" + feature.deficiency_score + "/" + feature.deck + "/" + feature.superstructure + "/" + feature.substructure + "/" + feature.channel + "/" + feature.culvert + "\n" + feature.year
+                                 }
+                            }
+                        text_wrap: 20
+                        font:
+                            size: 10px
+                            fill: black
+                            stroke:
+                                color: white
+                                width: 4
+                        optional: true

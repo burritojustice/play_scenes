@@ -1,0 +1,141 @@
+import:
+
+    # - https://www.nextzen.org/carto/bubble-wrap-style/6/bubble-wrap-style.zip
+    - https://www.nextzen.org/carto/refill-style-more-labels/6/refill-style-more-labels.zip
+    - https://mapzen-assets.s3.amazonaws.com/resources/demo.yaml
+
+global:
+    # search_query: YMCA
+    # lat: '38.0293'
+    # lon: '-78.4767'
+    lat: 30.45064
+    lon: -91.1266
+    radius: '1000'
+
+cameras:
+    perspective:
+        type: perspective
+        vanishing_point: [0, -500]
+lights:
+    directional1:
+        type: directional
+        direction: [.1, .5, -1]
+        diffuse: .7
+        ambient: .5
+
+# scene:
+#     background:
+#         color: [0.,0.5,0.8]
+styles:
+    _text:
+        base: text
+        blend_order: 3
+    _points:
+        base: points
+        blend_order: 3
+    _lines:
+        base: lines
+        blend_order: 1
+sources:
+    osm:
+        type: TopoJSON
+        url: https://vector.mapzen.com/osm/all/{z}/{x}/{y}.topojson
+        url_params:
+            api_key: global.sdk_mapzen_api_key
+    # bikes:
+    #     type: GeoJSON
+    #     api_key: global.sdk_mapzen_api_key
+    #     # url: https://gist.githubusercontent.com/burritojustice/eab61b50c3c04a589029cf03fe97cdfe/raw/94f9ab0b6931daf705bf0498df3062a355857fa3/bike_keyless.geojson
+    #     url: https://s3.amazonaws.com/mapzen-assets/resources/keyless_bikes/keyless_trip_start_stop_pairs.geojson
+    bike_trips:
+        type: GeoJSON
+        url: https://s3.amazonaws.com/mapzen-assets/resources/keyless_bikes/keyless_bike_trips.geojson
+layers:
+#     _dots:
+#         filter
+#         data: { source: bikes }
+#         draw:
+#             _points:
+#                 collide: false
+#                 color: |
+#                     function(){
+#                         if (feature.start_stop == 0){
+#                             return [0, 0, 1, .2]
+#                             }
+#                         else {
+#                             return [1, 0, 0, .2]
+#                             }
+#                     }
+#                 size: 10px
+#                 order: 100
+#                 text: 
+#                     text_source: id
+#                     font:
+#                         size: 10px
+#                         fill: |
+#                             function(){
+#                                 if (feature.start_stop == 0){
+#                                     return "blue"
+#                                     }
+#                                 else {
+#                                     return "red"
+#                                     }
+                                
+#                                 }
+#                         stroke:
+#                             color: white
+#                     optional: true
+#                 # outline:
+#                 #     color: black
+                #     width: 2px
+                
+    _keyless_bike_trips:
+        data: { source: bike_trips}
+        _dots:
+            filter: {$zoom: { max: 13}}
+            draw:
+                _points:
+                    color: [1,0,0,0.2]
+                    size: 10px
+                    collide: false
+        _trips:
+            filter: {$zoom: { min: 11}}
+            draw:
+                lines:
+                    color: |
+                        function(){
+                           var color_id = feature.group
+                           // hsl = color_id.slice(-2) * 3.6
+                           
+                            // hsl = color_id.slice(0,3)
+                            hsl = color_id * (1440/92592)
+                            return 'hsl(' + hsl + ',100%,50%)'
+                            }
+                        // [0,0,1,0.5]
+                    width: 2px
+                    order: 500
+                _text:
+                    text_source: |
+                        function(){
+                            // var ratio = (92592 - 86400)/92592
+                            // var s = feature.group * ratio
+                            var s = parseInt(feature.group * .933)
+                            var h  = Math.floor( s / ( 60 * 60 ) );
+                            s -= h * ( 60 * 60 );
+                            var m  = Math.floor( s / 60 );
+                            s -= m * 60;
+                            if (h < 10) {h = "0"+h;}
+                            if (m < 10) {m = "0"+m;}
+                            if (s < 10) {s = "0"+s;}
+                            // var d = new Date()
+                            // var time = d.format("hh:mm:ss tt");
+                            return h+":"+m+":"+s + "\n" + "(" + feature.group + ")"
+                            
+                        }
+                    font:
+                        size: 10px
+                        fill: black
+                        stroke:
+                            color: white
+                            width: 2px
+                    offset: [0px,12px]

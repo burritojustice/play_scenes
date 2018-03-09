@@ -1,0 +1,211 @@
+# global:
+#     closed_stations: 
+        
+import:
+    - https://tangrams.github.io/blocks/global.yaml
+    - https://tangrams.github.io/blocks/filter/height.yaml
+    - https://www.nextzen.org/carto/refill-style/refill-style.yaml
+    # - https://www.nextzen.org/carto/bubble-wrap-style/bubble-wrap.yaml
+    # - https://www.nextzen.org/carto/zinc-style/zinc-style.yaml
+    
+sources:
+    l_train:
+        type: GeoJSON
+        url: https://transit.land/api/v1/routes.geojson?onestop_id=r-dr5r-l
+        
+    isochrone_polygons:
+        type: GeoJSON
+        url: https://s3.amazonaws.com/mapzen-assets/images/isochrone/isochrone_polygons.geojson
+    l_2019:
+        type: GeoJSON
+        url: https://gist.githubusercontent.com/burritojustice/26fb4a377410435c0ddc36f7253ef56c/raw/map.geojson
+        
+    isochrone_2019:
+        type: GeoJSON
+        url: 'https://matrix.mapzen.com/isochrone?json={"locations":[{"lat":40.7178,"lon":-73.9575}],"costing":"transit","contours":[{"time":5},{"time":15},{"time":30},{"time":45}],"polygons":true,"denoise":0.2,"generalize":150,"costing_options":{"transit":{"filters":{"stops":{"ids":["s-dr5rswb4zp-1av<l06n","s-dr5rsrhyn3-3av<l05n","s-dr5rsr9975-unionsq~14st<l03n","s-dr5ru0j0jv-6av<l02n","s-dr5ru02yqu-8av<l01n"],"action":"exclude"}}}}}'
+        url_params:
+            api_key: mapzen-c4C1Lbb # (be sure to add your API key to pull in polygons from the server https://mapzen.com/developers)
+
+    isochrone_2017:
+        type: GeoJSON
+        url: 'https://matrix.mapzen.com/isochrone?json={"locations":[{"lat":40.7178,"lon":-73.9575}],"costing":"transit","contours":[{"time":5},{"time":15},{"time":30},{"time":45}],"polygons":true,"denoise":0.2,"generalize":150}'
+        url_params:
+            api_key: mapzen-c4C1Lbb # (be sure to add your API key to pull in polygons from the server https://mapzen.com/developers)
+
+    stops:
+        type: GeoJSON
+        url: https://transit.land/api/v1/stops.geojson?served_by=r-dr5r-l
+
+layers:
+    buildings:
+        visible: false
+        
+    places:
+        populated_places:
+                neighborhood-z14:
+                    draw:
+                        text-blend-order:
+                            font:
+                                stroke: { color: [1.0,1.0,1.0], width: 4}
+
+    stations:
+        data: {source: stops}
+        closed:
+            filter: 
+                name: ["8 Av","6 Av","3 Av","1 Av","Union Sq - 14 St"]
+            draw:
+                icons:
+                    color: red
+                    sprite: station
+                    # collide: false
+                    size: 24px
+                    priority: 1
+
+                    text:
+                        optional: true
+                        font:
+                            size: 12px
+                            fill: red
+                            stroke:
+                                color: white
+                                width: 4px
+        open:
+            filter: 
+                not: {name: ["8 Av","6 Av","3 Av","1 Av","Union Sq - 14 St"]}
+            draw:
+                icons:
+                    sprite: station
+                    # collide: false
+                    size: 20px
+                    priority: 2
+
+                    text:
+                        optional: true
+                        font:
+                            size: 12px
+                            fill: white
+                            stroke:
+                                color: black
+                                width: 4px            
+                
+    
+    _l_train:
+        data: {source: l_train} 
+        draw:
+            _under:
+                style: lines
+                width: 6px
+                color: grey
+                order: 900
+
+            _over:
+                style: lines
+                width: 3px
+                color: white
+                order: 1000
+            text:
+                priority: 4
+                # collide: true
+                font:
+                    size: 18
+                    fill: white
+                    stroke:
+                        color: black
+                        width: 3
+    _l_2019:
+        data: {source: l_2019}
+        _L:
+            filter: 
+                not: {name: "Canarsie Tunnel"}
+            draw:
+                dashed-lines:
+                    order: 1100
+                    color: black
+                    width: 3px
+                # text:
+                #     text_source: |
+                #         function() {
+                #             return "L CLOSED 2017-2019"
+                #             }
+
+        _canarsie:
+            filter: {name: "Canarsie Tunnel"}
+            draw:
+                text:
+                    # style: sdk-point-overlay
+                    priority: 1
+                    text_source: |
+                        function() {
+                            return "TUNNEL\nCLOSED"
+                            }
+                    font:
+                        size: 18
+                        fill: black
+                        stroke:
+                            color: white
+                            width: 3
+                    
+
+    isochrone_polygons:
+        data: { source: isochrone_2017 }
+        draw:
+            polygons:
+                order: |
+                    function() {
+                        return Math.floor(100 - ((feature.contour/120) * 50));
+                        }
+                color: |
+                    function() {
+                        return feature.fill;
+                        }
+                        
+            # lines:
+            #     order: 4000
+            #     color: |
+            #         function() {
+            #             return feature.fill;
+            #             }
+            #     width: [[10,2px],[18,10px]]
+            #     outline:
+            #         color: white
+            #         width: [[10,2px],[18,4px]]
+                
+
+    roads:
+        data: { source: mapzen, layer: roads }
+        filter: { not: { kind: rail } }
+        draw:
+            lines:
+                interactive: true
+                #color: black
+                width: 1px
+                order: global.feature_order
+                # but give them all the same outline
+                outline:
+                    style: _outline
+                    # color: white
+                    # width: 2px
+                    # blend: function() { if sdk_data_viz_road_friendly return 'multiply';  else return 'normal'}    
+
+styles:
+    dashed-lines:
+        base: lines
+        dash: [1, 1]
+    sdk-point-overlay:
+        base: points
+        #texture: pois
+        interactive: true
+        blend: overlay
+        blend_order: 3
+    sdk-text-overlay:
+        base: text
+        #texture: pois
+        interactive: true
+        blend: overlay
+        blend_order: 3
+
+
+# styles:
+#     _alpha_polygons:
+#         base: polygons
+#         blend: inlay

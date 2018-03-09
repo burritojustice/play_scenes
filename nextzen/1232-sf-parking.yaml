@@ -1,0 +1,159 @@
+# import: https://s3.amazonaws.com/carto.www.nextzen.org/carto/zinc-style-no-labels/zinc-style-no-labels.yaml
+import: 
+    - https://s3.amazonaws.com/carto.www.nextzen.org/carto/refill-style/9/refill-style.yaml
+    # - https://www.nextzen.org/carto/refill-style/8/themes/color-purple-green.zip
+    - https://www.nextzen.org/carto/refill-style/9/themes/color-inverted.zip
+    - https://mapzen-assets.s3.amazonaws.com/resources/demo.yaml
+
+
+
+styles:
+    _text:
+        base: text
+        #texture: pois
+        # blend: overlay
+        blend_order: 3
+    _points:
+        base: points
+        #texture: pois
+        blend: overlay
+        blend_order: 3
+    _points2:
+        base: points
+        #texture: pois
+        blend: overlay
+        blend_order: 2
+    _points4:
+        base: points
+        #texture: pois
+        blend: overlay
+        blend_order: 24
+sources:
+
+    _mapzen_search:
+        type: GeoJSON
+        url: https://search.mapzen.com/v1/search?
+        url_params:
+            text: 1007 N. Orange St., Wilmington, DE
+            api_key: global.sdk_mapzen_api_key
+            
+    _mapzen_categories:
+        type: GeoJSON
+        url: https://search.mapzen.com/v1/nearby?
+        url_params:
+            api_key: global.sdk_mapzen_api_key
+            size: 40
+            point.lat: 39.75
+            point.lon: -75.55
+            categories: nightlife
+            # layers: venue
+            categories: accommodation
+            # text: bar
+            
+    _geojson_gist:
+        type: GeoJSON
+        url: https://data.sfgov.org/api/geospatial/2ehv-6arf?method=export&format=GeoJSON
+
+    _delaware_traffic_circles:
+        type: GeoJSON
+        url: https://opendata.arcgis.com/datasets/d05efa2f95f84b26b915773372ec2b4b_0.geojson
+        # traffic circles locations from http://opendata.firstmap.delaware.gov/
+        
+    _delaware_light_poles:
+        type: GeoJSON
+        url: https://opendata.arcgis.com/datasets/e7f83b8e17784d4d92ab6f84ed8b756a_2.geojson
+        # light poles from http://opendata.firstmap.delaware.gov/
+        # http://opendata.firstmap.delaware.gov/datasets/e7f83b8e17784d4d92ab6f84ed8b756a_2
+
+layers:
+    buildings:
+        enabled: false
+        
+    _geojson_gist:
+        data: {source: _geojson_gist}
+        draw:
+            lines:
+                # outline:
+                #     color: [0,0,1,.2]
+                #     width: 2px
+                collide: false
+                order: 200
+                # offset: 4px
+                # color: red
+                color: |
+                    function(){
+                        if (feature.hour_limit == 1){
+                        // if (feature.regulation == 'Time limited'){
+                            return "red"
+                            }
+                        if (feature.hour_limit == 2){
+                        // if (feature.regulation == 'Time limited'){
+                            return "blue"
+                            }
+                        if (feature.hour_limit > 3){
+                        // if (feature.regulation == 'Time limited'){
+                            return "violet"
+                            }                        else {
+                            return "red"
+                            }
+                        }
+                width: [[10,1px],[18,8px]]
+                # collide: true
+            _text:
+                # text_source: days
+                text_source: |
+                    function(){
+                        if ($zoom > 16){
+                            var hrs_label = "hrs"
+                            var hrs = feature.hour_limit
+                            if (hrs == "1"){hrs_label = "hr"}
+                            var time = feature.hour_limit + hrs_label + "\n\n" + feature.hours + ', ' + feature.days 
+                            return time
+                            }
+                        }
+                # optional: true
+                font:
+                    # family: Helvetica
+                    fill: black
+                    size: 10px
+                    # size: [[13,10px],[17,16px]]
+                    stroke:
+                        color: white
+                        width: 3px                   
+                            
+    _delaware_traffic_circles:
+        enabled: false
+        data: {source: _delaware_traffic_circles}
+        draw:
+            _points:
+                outline:
+                    color: green
+                    width: 2px
+                collide: false
+                color: lightgreen
+                size: [[10,11px],[17,20px]]
+                # collide: true
+                text:
+                    text_source: LOCATION
+                    optional: true
+                    font:
+                        # family: Helvetica
+                        fill: green
+                        size: [[13,10px],[17,16px]]
+                        stroke:
+                            color: white
+                            width: 3                   
+                       
+
+       # _labels:
+       #      draw:
+       #          text:
+       #             collide: false
+       #             text_source: 'work_bgrp'
+       #             font:
+       #                 # family: Helvetica
+       #                 fill: black
+       #                 size: [[13,10px],[17,24px]]
+       #                 stroke:
+       #                     color: white
+       #                     width: 2

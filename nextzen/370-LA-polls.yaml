@@ -1,0 +1,137 @@
+# import: https://s3.amazonaws.com/carto.www.nextzen.org/carto/zinc-style-no-labels/zinc-style-no-labels.yaml
+import: 
+    - https://s3.amazonaws.com/carto.www.nextzen.org/carto/refill-style-no-labels/refill-style-no-labels.yaml
+    - https://mapzen-assets.s3.amazonaws.com/resources/demo.yaml
+
+
+styles:
+    choropleth:
+        base: polygons
+        blend: multiply
+    landblend:
+        base: polygons
+        blend: opaque
+        
+sources:
+    mapzen:
+        type: TopoJSON
+        url: https://tile.nextzen.org/tilezen/vector/v1/all/{z}/{x}/{y}.topojson
+        url_params: 
+            api_key: global.sdk_mapzen_api_key
+        
+    polygons_in_polls:
+        type: GeoJSON
+        url: https://mapzen-assets.s3.amazonaws.com/resources/coloring-choropleths/LAC_polling_places_per_neighborhood_2014_general.geojson
+        generate_label_centroids: true
+        
+    polls_of_interest:
+        type: GeoJSON
+        url: https://mapzen-assets.s3.amazonaws.com/resources/coloring-choropleths/LAC_neightborhoods_polling_places_2014_general.geojson
+
+
+layers:
+    
+    landuse:
+    #data: { source: mapzen }
+        visible: false
+                    
+    polls:
+        data: { source: polls_of_interest}
+        filter: { $zoom: { min: 11 } }
+        draw:
+            points:
+                # collide: false
+                color: [[11,[0,0,0,0.3]],[13,[0,0,0,0.5]]]
+                size: [[10,3px],[13,10px]]
+                order: 500
+        labels:
+            filter: {  $zoom: { min: 15 } }
+            draw:
+                points:
+                    text:
+                        align: center
+                        # collide: false
+                        #text_source: "Name"
+                        text_source: |
+                            function() {
+                                var _name = feature.Name;
+                                //var _name_titlecase = _name.charAt(0).toUpperCase() + _name.Name.slice(1);
+                                if ($zoom < 16 ) {
+                                    return _name;
+                                } else {
+                                    return _name + '\n(' + feature["Name Additional"] + ')';
+                                }
+                            }
+                        # text_wrap: 25
+                        font:
+                            # transform: capitalize
+                            family: Helvetica
+                            transform: capitalize
+                            fill: blue
+                            size: 14px
+                            weight: bold
+                            stroke:
+                                color: yellow
+                                width: 2                
+
+    
+    neighborhoods:
+        data: { source: polygons_in_polls}
+        # filter:  function() { return feature.poll_count > 0; } 
+        draw:
+            lines:
+                order: 500
+                color:  [0,0,0,0.7]
+                width: [[7,0.1px],[18,3px]]
+            choropleth:
+                order: 500 # 354 is over roads in refill, 379 is under highways and over roads in zinc
+                color: |
+                    function() {
+                        var count = feature.poll_count;
+                        var OrRd = ['fef0d9', 'fdcc8a', 'fc8d59', 'e34a33', 'b30000'];
+                        var color =
+                        count = 0 ? '000' :
+                        count < 15 ? OrRd[0] :
+                        count < 30 ? OrRd[1] :
+                        count < 60 ? OrRd[2] :
+                        count < 120 ? OrRd[3] :
+                        OrRd[4] ;
+                        return "#" + color;
+
+                     // 
+                     // var ratio = (count/maximum);
+                     // modifying the HSL luminosity. best to make max value higher than the actual max to avoid luminosity of 0
+                     // return "hsl(" + (210 + feature.count/5) +",100%,55%)";
+                     // return "hsl(" + 0 + ",75%," + (90 - ratio) + "%)";
+                     //    }
+
+                    }
+    hoods:
+        data: { source: polygons_in_polls}
+        filter:
+            all:
+                - function() { return feature.poll_count > 1; }
+                - { label_placement: true }
+                - { $zoom: { min: 12 }}
+        draw:
+            text:
+                text_source: |
+                     function() {
+                         return feature.name + '\n' + feature.poll_count;
+                         }
+                font:
+                    family: Helvetica
+                    fill: grey
+                    size: [[13,14px],[17,24px]]
+                    weight: bold
+                    stroke:
+                        color: white
+                        width: 2
+    landuse:
+        # visible: false
+        filter: { $zoom: {min: 14}}
+        data: {source: mapzen}
+        draw:
+            landblend:
+                color: [1,1,1,0.9]
+                order: 200

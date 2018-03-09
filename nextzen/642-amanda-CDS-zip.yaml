@@ -1,0 +1,197 @@
+import:
+    - https://www.nextzen.org/carto/refill-style-no-labels/refill-style-no-labels.yaml
+    # - https://www.nextzen.org/carto/refill-style-more-labels/refill-style-more-labels.yaml
+    - https://mapzen-assets.s3.amazonaws.com/resources/demo.yaml
+
+# global:
+    
+
+#     max: |
+#        function(feature){
+#             var counts = Object.keys(feature).map(key => feature[key])
+#             //var counts = Array.from(feature.cds_COUNT)
+#             max = Math.max(counts)
+#             return max
+#             }
+        
+
+
+styles:
+    _pois:
+        base: points
+        #texture: pois
+        blend: overlay
+        blend_order: 4
+    _points:
+        base: points
+        #texture: pois
+        blend: overlay
+        blend_order: 3
+    _polygons:
+        base: polygons
+        #texture: pois
+        blend: inlay
+        # blend_order: 3
+    _text:
+        base: text
+        blend_order: 3
+        
+sources:
+    # mapzen:
+    #     type: TopoJSON
+    #     url: https://tile.nextzen.org/tilezen/vector/v1/all/{z}/{x}/{y}.topojson
+    #     url_params: 
+    #         api_key: global.sdk_mapzen_api_key
+
+ 
+    zips:
+        type: TopoJSON
+        # url: https://gist.githubusercontent.com/burritojustice/11fcd129005f19e315b0c45020da30b5/raw/7742883e25b69aaa2d137489d3904c87e72e9ee4/bc_leg.topojson
+        # url: https://gist.githubusercontent.com/burritojustice/75d5a33f0b5882cef00214dbe6f689e7/raw/8089d787577f5ae20ead6c173fa3a4f5dbac2004/cds_by_zip.topojson
+        url: https://gist.githubusercontent.com/burritojustice/d9d5dc4e32d142d74c3e09d2b571a454/raw/add8eff2548194a8760576bfc96c234961c54f00/cds_by_zip_bay.topojson
+            
+        generate_label_centroids: true
+
+layers:
+  
+
+    _zips:
+        # filter: { $zoom: {min: 12}}
+        data: {source: zips}
+        draw:
+            _polygons:
+                color: |
+                   function(){ 
+                   
+                   if (feature.cds_COUNT) {
+                       return [1,0,0,(.03 + feature.cds_COUNT/130)]
+                       }
+                   }
+                order: 100
+            lines: 
+                color: |
+                    function(){ if (feature.cds_COUNT){return 'lightgrey'}
+                        // if (feature.cds_COUNT && (feature.cds_COUNT < 2)){ 
+                        //     return 'pink'}
+                        // else { 
+                        //     if (feature.cds_COUNT) {return 'lightgrey'} 
+                        //     }
+                        //return [1,0,0,0.2]
+                            // } else { if (feature.cds_COUNT){return 'lightgrey'}
+                        }
+                width: 2px
+                order: 100
+ 
+#         z_6_labels_spread:
+#             filter: 
+#                 all:
+#                     - label_placement: true
+#                     - $zoom: { min: 6, max: 8 }
+#             draw:
+#                 _text:
+#                     buffer: -5
+#                     text_wrap: 30
+#                     # collide: false
+#                     text_source: |
+#                         function(){
+#                             var winner = global.winner(feature)
+#                             // var winner = global.green_percent(feature)
+#                             var spread = winner[0][2] - winner[1][2]
+#                             if ( spread < 500 )
+#                                 { return feature.ED_ABBREV + "\n" +  spread + " votes"}
+#                             // else if ($zoom > 6) { return (winner[0][1]*100).toFixed(0) + '%' } 
+#                             // return feature.ED_NAME + "\n" + winner[2][0] + " " + winner[2][2]
+
+#                             }
+#                     font:
+#                         # transform: uppercase
+#                         fill: black
+#                         size: [[6,10px],[18,9px]]
+#                         stroke:
+#                             color: white
+#                             width: 2px
+
+#         z_7-12_labels:
+#             filter: 
+#                 all:
+#                     - label_placement: true
+#                     - $zoom: { min: 8, max: 12 }
+#             draw:
+#                 _text:
+#                     text_wrap: 30
+#                     text_source: |
+#                         function(){
+#                             var winner = global.winner(feature)
+#                             // var winner = global.green_percent(feature)
+#                             if ($zoom > 10) {
+#                                 return feature.ED_ABBREV + "\n" + winner[0][0] + ": " + (winner[0][1] * 100).toFixed(0) + "%\n" + winner[1][0] + ": " + (winner[1][1] * 100).toFixed(0) + "%"
+#                                 }
+                             
+#                             else { 
+#                                 return feature.ED_ABBREV + "\n" + winner[0][0].slice(0,1) + ": " + (winner[0][1]* 100).toFixed(0) + "%" 
+#                                 }
+#                             }
+#                     font:
+#                         # transform: uppercase
+#                         fill: black
+#                         size: [[6,10px],[18,9px]]
+#                         stroke:
+#                             color: white
+#                             width: 2px
+# #                     collide: |
+# #                         function(){
+# #                             // if ($zoom > 10) {
+# #                                 return "false"
+# #                                 // }
+
+# #                             }
+#                     buffer: -4
+#                     # collide: false
+                    
+                    
+#                 lines:
+#                     color: black
+#                     width: 2px
+#                     order: 2000
+                    
+        labels:
+            filter: 
+                all:
+                    - label_placement: true
+                    # - $zoom: { min: 12 }
+
+            draw:
+                _text:
+                    text_wrap: 35
+                    # collide: false
+                    # text_source: global.lib_percent
+                    # align: right
+                    text_source: |
+                        function(){
+                            if (feature.cds_COUNT) {
+                            return feature['wof:name'] + "\n" + feature.cds_COUNT + "\n" 
+                            }
+                            }
+                    font:
+                        # transform: uppercase
+                        fill: black
+                        size: [[9,8px],[18,12px]]
+                        stroke:
+                            color: white
+                            width: 2px
+    roads:
+        data: { source: mapzen, layer: roads }
+        filter: 
+            not: 
+                - kind: rail
+                - kind: highway 
+        # visible: false
+        draw:
+            lines:
+                interactive: true
+                #color: black
+                width: 1px
+                order: global.feature_order
+                # but give them all the same outline
+                outline:
+                    style: _outline # kills the white road outline

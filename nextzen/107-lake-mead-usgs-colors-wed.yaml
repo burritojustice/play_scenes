@@ -1,0 +1,410 @@
+import: https://www.nextzen.org/carto/walkabout-style/2/walkabout-style.yaml
+
+global:
+    # usgs:
+    volcanic:
+        1: '#FFE4FF'
+        2: '#F1BDCF'
+        3: '#E893B5'
+        4: '#E46D9F'
+        5: '#D8127D'
+        6: '#D47BA7'
+        7: '#B9639A'
+        8: '#A3257C'
+        9: '#CC8AB0'
+        10: '#A76199'
+        11: '#812C7C'
+        12: '#EB8F5B'
+        13: '#E3672A'
+        14: '#F4B774'
+        15: '#EFA15F'
+        16: '#EB8C2D'
+        17: '#F3BAA1'
+        18: '#EB9074'
+        19: '#E36A51'
+        20: '#D8232A'
+    Q:
+        0: '#FFF36F'
+        1: '#FFFCDF'
+        2: '#FFE37F'
+        3: '#FFF799'
+        4: '#FFF9BF'
+    T:
+        0: #F4B564
+        1: '#FDE7B6'
+        2: '#DD9B2F'
+        3: '#E1AF63'
+        4: '#F8CA79'
+        5: '#FBDBA0'
+        6: '#E4C488'
+        7: '#F8CD9A'
+    K:
+        0: '#7FC074'
+        1: '#DFE8A8'
+        2: '#83AB6D'
+        3: '#99B58B'
+        4: '#98CA83'
+        5: '#B3D594'
+    J:
+        0: '#5FBBA1'
+        1: '#CBE4CB'
+        2: '#3BB291'
+        3: '#7CC3A1'
+        4: '#B2D8B7'
+    Tr:
+        0: '#5ABEC1'
+        1: '#C8E6E2'
+        2: '#63B0AA'
+        3: '#95D0C5'
+        4: '#AFDBD4'
+    P:
+        0: '#4EC0E3'
+        1: '#ACDCEC'
+        2: '#25B7C8'
+        3: '#77C7CD'
+        4: '#91D1D9'
+    _P:
+        0: '#5E9FCA'
+        1: '#90C3DF'
+        2: '#4399BC'
+        3: '#60AAC5'
+        4: '#75B2D5'
+    M:
+        0: '#959EB0'
+        1: '#C4CAD0'
+        2: '#8097AE'
+        3: '#8097AE'
+        4: '#ACB5C5'
+    D:
+        0: '#7D88B5'
+        1: '#C2BED5'
+        2: '#6B74A9'
+        3: '#948EB8'
+        4: '#AAA5C6'    
+    S:
+        0: '#A981AD'
+        1: '#E1CAD9'
+        2: '#946EA2'
+        3: '#AB92AE'
+        4: '#C0ACC8'
+    O:
+        0: '#EA90A0'
+        1: '#F7D0CD'
+        2: '#D88CA0'
+        3: '#EEA5AD'
+        4: '#F2BBB9'
+    _C:
+        0: '#EA9180'
+        1: '#F7CEB9'
+        2: '#EEA497'
+        3: '#E0B39F'
+        4: '#F2BBB9'
+    p_C:
+        0: '#988A6C'
+    Z:
+        0: '#E5D5CA'
+        1: '#977B72'
+        2: '#AD9185'
+        3: '#C4AA9E'
+        4: '#D6C3B7'
+        5: '#D4C3C1'           
+        
+    Y:
+        0: '#E6D5BF'
+        1: '#987B5D'
+        2: '#AD906D'
+        3: '#C5A881'
+        4: '#D8C096'
+        5: '#E7D4AF'        
+    X:
+        0: '#DBD9B3'
+        1: '#859466'
+        2: '#999A73'
+        3: '#B1B179'
+        4: '#B0B395'
+        5: '#C9C79C'
+        
+
+
+styles:
+    _alpha_polygons:
+        base: polygons
+        blend: multiply
+    _dashed_lines:
+        base: lines
+        dash: [3, 1]
+        dash_background_color: rgb(149, 188, 141)
+
+sources:
+    _nps_boundary:
+        type: GeoJSON
+        url: https://gist.githubusercontent.com/rfriberg/684645c22f495b4a46f29fb312b6d268/raw/843ed38a3920ed199082636fe198ba995f5cfc04/san_juan_nhp.geojson
+
+    _nps_geology:
+        type: TopoJSON
+        url: https://gist.githubusercontent.com/burritojustice/5bcdf9a7874b1eceedffef8a8c7db17e/raw/4ddf2765e99101bcfc9875ba7fc5c8a530f4749d/lake_mead_4326.topojson
+        generate_label_centroids: true
+
+layers:
+    _national_park:
+        data: { source: _nps_boundary }
+        draw:
+            _dashed_lines:
+                width: [[8, 0.5px], [18, 5px]]
+                color: '#518946'
+                order: global.sdk_order_over_everything_but_text_1
+
+    _geology:
+        data: { source: _nps_geology }
+        filter:
+            all:
+                - { $zoom: { min: 7 } }
+                - not: { GEOFNT100K: lake }
+        draw:
+            # lines:
+            #     width: 2px
+            #     color: black
+            _alpha_polygons:
+                order: global.sdk_order_over_everything_but_text_0
+                color: |
+                    function() {
+                        // Note: this is a block of JavaScript so we can use JS comment syntax
+                        var category = feature.PTYPE100K;
+                        var color = category == 'Qa'       ? '#FFF79A' :
+                                    category == 'Qb'       ? '#FFF46E' :
+                                    category == 'Qd'       ? '#fff377' :
+                                    category == 'Qf'       ? '#dddddd' :
+                                    category == 'Qp'       ? '#EAC88D' :
+                                    category == 'Qgdm'     ? '#FCBB62' :
+                                    category == 'Qgdm(es)' ? '#FEE9BB' :
+                                    category == 'Qgdm(e)'  ? '#E8A121' :
+                                    category == 'Qgom(e)'  ? '#EAB564' :
+                                    category == 'Qgom'     ? '#FECE7A' :
+                                    category == 'Qgd'      ? '#FEDDA3' :
+                                    category == 'Qgt'      ? '#FCBB62' :
+                                    category == 'KJmm(c)'  ? '#86C879' :
+                                    category == 'KJm(ll)'  ? '#9FD08A' :
+                                    category == 'JTRmc(o)' ? '#27BB9D' :
+                                    category == 'TRn'      ? '#ED028C' :
+                                    category == 'TRPMv'    ? '#F172AC' :
+                                    category == 'TRPv'     ? '#F499C2' :
+                                    category == 'PDmt'     ? '#40C7F4' :
+                                    category == 'pPsh'     ? '#9BA5BE' :
+                                    category == 'pDi'      ? '#848FC7' :
+                                    category == 'pDit(t)'  ? '#B28ABF' :
+                                    // lake mead
+                                    
+                                    
+                                    category == 'af'       ? 'white' :
+                                    
+                                    category == 'Tg'       ? global.T[0] :
+                                    category == 'T2k'      ? global.T[1] :
+                                    category == 'Tmf'      ? global.T[2] :
+                                    category == 'Trsc'     ? global.T[3] :
+                                    category == 'Tvc'      ? global.T[4] :
+                                    category == 'Toacg'    ? global.T[5] :
+                                    category == 'T2a'      ? global.T[6] :
+                                    category == 'T2m'      ? global.T[7] :
+                                    category == 'Tmc'      ? global.T[7] :
+                                    category == 'Thbx'     ? global.T[1] :
+                                    category == 'Thlb'     ? global.T[4] :
+                                    category == 'Thtc'     ? global.T[6] :
+                                    category == 'Thtl'     ? global.T[5] :
+                                    category == 'Thtf'     ? global.T[4] :
+                                    category == 'Thtg'     ? global.T[3] :
+                                    category == 'Thtv'     ? global.T[6] :
+                                    category == 'Thr'      ? global.T[3] :
+                                    category == 'Thb'      ? global.T[2] :
+                                    category == 'Thbl'     ? global.T[2] :
+                                    category == 'Thblv'     ? global.T[6] :
+                                    category == 'Thl'      ? global.T[1] :
+                                    category == 'Tgwc'     ? global.T[2] :
+                                    category == 'Toac'     ? global.T[1] :
+                                    category == 'Tgwcp'    ? global.T[1] :
+                                    category == 'Tgwcb'    ? global.T[2] :
+                                    category == 'Tgwcx'    ? global.T[4] :
+                                    category == 'Twr'      ? global.T[2] :
+                                    category == 'Trmd'     ? global.T[2] :
+                                    category == 'Trmv'     ? global.T[3] :
+                                    category == 'Trmvb'    ? global.T[1] :
+                                    category == 'Trmi'     ? global.T[4] :
+                                    category == 'Tmb'      ? global.T[6] :
+                                    category == 'Tmg'      ? global.T[5] :
+                                    category == 'Tcm2'     ? global.T[6] :
+                                    category == 'Tcm4'     ? global.T[6] :
+                                    category == 'Tcm3'     ? global.T[5] :
+                                    category == 'Tml'      ? global.T[7] :
+                                    category == 'Tvh'      ? global.T[6] :
+                                    category == 'Tvhl'     ? global.T[5] :
+                                    category == 'Tvhm'     ? global.T[4] :
+                                    category == 'Tvhu'     ? global.T[3] :
+                                    category == 'Tb'       ? global.T[2] :
+                                    category == 'Tbwd'     ? global.T[1] :
+                                    category == 'Trs'      ? global.T[2] :
+                                    category == 'Tmv'      ? global.T[3] :
+                                    category == 'Tbi'      ? global.T[3] :
+                                    category == 'Toacg'    ? global.T[2] :
+                                    category == 'Tbgb'     ? global.T[2] :
+                                    category == 'Tboc'     ? global.T[1] :
+                                    category == 'Thoc'     ? global.T[3] :
+                                    category == 'Toacl'    ? global.T[2] :
+                                    category == 'Toab'     ? global.T[2] :
+                                    category == 'Thof'     ? global.T[2] :
+                                    category == 'Toas'     ? global.T[7] :
+                                    category == 'Th'       ? global.T[7] :
+                                    category == 'Toag'     ? global.T[7] :
+                                    category == 'Toas'     ? global.T[6] :
+                                    category == 'Toacv'    ? global.T[6] :
+                                    category == 'Tbwdb'    ? global.T[5] :
+                                    category == 'Tbwrb'    ? global.T[5] :
+                                    category == 'Ti'       ? global.T[4] :
+                                    category == 'Tbwdt'    ? global.T[5] :
+                                    category == 'Tax'      ? global.T[5] :
+                                    category == 'Tpm'      ? global.T[4] :
+                                    category == 'Tfb'      ? global.T[3] :
+                                    category == 'Twd'      ? global.T[1] :
+                                    category == 'Tpp'      ? global.T[1] :
+                                    category == 'Tvhd'     ? global.T[2] :
+                                    category == 'Tthd'     ? global.T[5] :
+                                    category == 'Tbci'     ? global.T[6] :
+                                    category == 'Tcm'      ? global.T[7] :
+                                    category == 'Trmb'     ? global.T[7] :
+                                    category == 'Trmip'    ? global.T[5] :
+                                    category == 'Trb'      ? global.T[3] :
+                                    category == 'Tafb'     ? global.T[2] :
+                                    category == 'Trbi'     ? global.T[1] :
+                                    category == 'Tob'      ? global.T[4] :
+                                    category == 'Tri'      ? global.T[0] :
+                                    category == 'Tril'     ? global.T[6] :
+                                    category == 'Tvsb'     ? global.T[3] :
+                                    category == 'Tmt'      ? global.T[3] :
+                                    category == 'Taf'      ? global.T[3] :
+                                    category == 'Tab'      ? global.T[2] :
+                                    category == 'Tm'       ? global.T[2] :
+                                    category == 'Tmml'     ? global.T[3] :
+                                    category == 'Tgb'      ? global.T[3] :
+                                    category == 'Tgwcl'    ? global.T[3] :
+                                    category == 'Tgws'     ? global.T[4] :
+                                    category == 'T1a'      ? global.T[2] :
+                                    category == 'Tgbg'     ? global.T[2] :
+                                    category == 'Tje'      ? global.T[3] :
+                                    category == 'Tj'       ? global.T[4] :
+                                    category == 'Tdi'      ? global.T[4] :
+                                    category == 'Toam'     ? global.T[3] :
+                                    category == 'Thtb'     ? global.T[4] :
+                                    category == 'Thtc'     ? global.T[4] :
+                                    category == 'Tmm'      ? global.T[4] :
+                                    category == 'Thu'      ? global.T[2] :
+
+                                    category == 'Kbw'      ? global.K[2] :
+                                    category == 'Kbr'      ? global.K[1] :
+                                    category == 'Kw'       ? global.K[0] :
+                                    category == 'Kbr'      ? global.K[3] :
+                                    category == 'Kbc'      ? global.K[5] :
+                                    category == 'Kbo'      ? global.K[4] :
+                                    category == 'Kmg'      ? global.K[5] :
+                                    
+                                    category == 'TRm'      ? global.Tr[0] :
+                                    category == 'TRc'      ? global.Tr[1] :
+                                    
+                                    category == 'Pr'       ? global.P[1] :
+                                    category == 'Phe'      ? global.P[1] :
+                                    category == 'Pp'       ? global.P[3] :
+                                    
+                                    category == 'Q1a'      ? global.Q[1] :
+                                    category == 'Q1s'      ? global.Q[2] :
+                                    category == 'Q2a'      ? global.Q[0] :
+                                    category == 'Q2s'      ? global.Q[3] :
+                                    category == 'QTk'      ? global.Q[2] :
+                                    category == 'QTa'      ? global.Q[3] :
+                                    category == 'Qct'      ? global.Q[4] :
+                                    category == 'Q2m'      ? global.Q[4] :
+                                    category == 'Qu'       ? global.Q[3] :
+                                    category == 'Qu'       ? global.Q[2] :
+                                    category == 'Q1m'      ? global.Q[2] :
+                                    category == 'QTm'      ? global.Q[2] :
+                                    category == 'Qe'       ? global.Q[1] :
+                                    category == 'Qu'       ? global.Q[1] :
+                                    category == 'QTl'      ? global.Q[2] :
+                                    category == 'QTk'      ? global.Q[3] :
+                                    category == 'QTa'      ? global.Q[4] :
+                                    category == 'Qa'       ? global.Q[5] :
+                                    category == 'QTs'      ? global.Q[2] :
+                                    category == 'Q2k'      ? global.Q[2] :
+                                    
+                                    category == 'Ja'       ? global.J[0] :
+                                    category == 'Jmk'      ? global.J[1] :
+                                    
+                                    category == 'Op'       ? global.O[1] :
+                                    category == 'OCp'      ? global.O[1] :
+                                    category == 'Oes'      ? global.O[2] :
+                                    
+                                    category == 'Cbk'      ? global._C[0] :
+                                    category == 'Cm'       ? global._C[1] :
+                                    category == 'Cm'       ? global._C[1] :
+                                    category == 'Cn'       ? global._C[2] :
+                                    category == 'Ctb'      ? global._C[2] :
+                                    
+                                    category == 'PMb'      ? global.P[0] :
+                                    category == 'Pkt'      ? global.P[1] :
+                                    category == 'PMpc'     ? global.P[2] :
+                                    
+                                    category == 'MDs'      ? global.M[0] :
+                                    category == 'Mm'       ? global.M[1] :
+                                    category == 'Mr'       ? global.M[2] :
+                                    category == 'MDcp'     ? global.M[3] :
+                                    
+                                    
+                                    
+                                    category == 'Dtb'      ? global.D[0] :
+                                    category == 'Dg'       ? global.D[1] :
+                                    
+                                    category == 'Xhg'      ? global.X[0] :
+                                    category == 'Xgp'      ? global.X[1] :
+                                    category == 'Xgn'      ? global.X[2] :
+                                    category == 'Xc'       ? global.X[3] :
+                                    category == 'Xqs'      ? global.X[4] :
+                                    category == 'Xgr'      ? global.X[5] :
+                                    category == 'Xwe'      ? global.X[5] :
+                                    category == 'Xgg'      ? global.X[4] :
+                                    category == 'Xwe'      ? global.X[3] :
+                                    category == 'Xgg'      ? global.X[2] :
+                                    category == 'Xlg'      ? global.X[1] :
+                                    category == 'Xwp'      ? global.X[0] :
+                                    category == 'Xgc'      ? global.X[2] :
+                                    category == 'Xu'       ? global.X[2] :
+                                    category == 'Xum'      ? global.X[5] :
+                                    category == 'Xgr'      ? global.X[3] :
+                                    category == 'Xqd'      ? global.X[1] :
+                                    category == 'Xcb'      ? global.X[1] :
+                                    
+                                    category == 'Yg'       ? global.Y[0] :
+                                    category == 'YXb'      ? global.Y[1] :
+                                    category == 'Ydg'      ? global.Y[2] :
+                                    // end
+                                    '#000';
+                                    
+
+                        return color;
+                    }
+
+        _geology_labels:
+          filter: { label_placement: true,  $zoom: { min: 10} }
+          draw:
+              text:
+                  text_source: PTYPE100K
+                  font:
+                      # fill: rgba(130, 84, 41, 0.9)
+                      size: [[10, 12px], [20, 24px]]
+                      weight: bold
+                      stroke:
+                          # color: rgba(242, 218, 193, 0.3)
+                          color: black
+                          width: 3
+
+    # Override Walkabout's layers
+    landuse:
+        visible: false
+    roads:
+        minor_road:
+            visible: false

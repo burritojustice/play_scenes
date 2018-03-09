@@ -1,0 +1,89 @@
+# import: https://s3.amazonaws.com/carto.www.nextzen.org/carto/zinc-style-no-labels/zinc-style-no-labels.yaml
+import: 
+    - https://s3.amazonaws.com/carto.www.nextzen.org/carto/refill-style-no-labels/refill-style-no-labels.yaml
+    - https://mapzen-assets.s3.amazonaws.com/resources/demo.yaml
+
+
+styles:
+    _points:
+        base: points
+        blend: overlay
+        blend_order: 3
+    _points4:
+        base: points
+        blend: overlay
+        blend_order: 4
+    _points2:
+        base: points
+        blend: overlay
+        blend_order: 2
+sources:
+    # mapzen:
+    #     type: TopoJSON
+    #     url: https://tile.nextzen.org/tilezen/vector/v1/all/{z}/{x}/{y}.topojson
+    #     url_params: 
+    #         api_key: global.sdk_mapzen_api_key
+
+    _totality:
+        type: GeoJSON
+        url: https://gist.githubusercontent.com/burritojustice/2df2e0d7ef8085b0c885978c1b4b0ca7/raw/0e69f69870314cb1ae693febe0800a1d3f16458e/2017_eclipse_totality.geojson
+    _eclipsed_monuments:
+        type: GeoJSON
+        url: https://gist.githubusercontent.com/burritojustice/2df2e0d7ef8085b0c885978c1b4b0ca7/raw/0e69f69870314cb1ae693febe0800a1d3f16458e/confederate_eclipse.geojson
+    _confederate_monuments:
+        type: GeoJSON
+        url: https://gist.githubusercontent.com/burritojustice/2df2e0d7ef8085b0c885978c1b4b0ca7/raw/11f091afde10334f75594cb3840203d4496b955c/confederate_symbols.geojson
+
+layers:
+    _totality:
+        data: {source: _totality}
+        draw:
+            polygons:
+               color: black
+               width: 4px
+               order: 100
+        
+    _eclipsed_monuments:
+        data: {source: _eclipsed_monuments}
+        draw:
+            _points:
+                collide: false
+                outline:
+                    color: white
+                    width: 1px
+                color: [1,0,0]
+                size: [[10,9px],[17,18px]]
+                text:
+                    # text_source: feature_name
+                    text_source: function(){ return feature.feature_name + '\n' + feature.city + ', ' + feature.state}
+                    optional: true
+                    # text_wrap: 20px
+                    font:
+                        # family: Helvetica
+                        fill: black
+                        size: [[13,10px],[17,16px]]
+                        stroke:
+                            color: white
+                            width: 3
+    _all_monuments:
+        data: {source: _confederate_monuments}
+        draw:
+            points:
+                # collide: false
+                outline:
+                    color: lightblue
+                    width: 1px
+                color: lightgrey
+                size: [[10,8px],[17,15px]]
+                # text:
+                #     # text_source: feature_name
+                #     text_source: function(){ return feature.feature_name + '\n' + feature.city + ', ' + feature.state}
+                #     optional: true
+                #     # text_wrap: 20px
+                #     font:
+                #         # family: Helvetica
+                #         fill: lightgrey
+                #         size: [[13,10px],[17,16px]]
+                #         stroke:
+                #             color: white
+                #             width: 3

@@ -1,0 +1,145 @@
+import:
+    - https://www.nextzen.org/carto/refill-style-no-labels/refill-style-no-labels.yaml
+    # - https://www.nextzen.org/carto/refill-style-more-labels/refill-style-more-labels.yaml
+    - https://mapzen-assets.s3.amazonaws.com/resources/demo.yaml
+
+# global:
+    
+
+#     max: |
+#        function(feature){
+#             var counts = Object.keys(feature).map(key => feature[key])
+#             //var counts = Array.from(feature.cds_COUNT)
+#             max = Math.max(counts)
+#             return max
+#             }
+        
+
+
+styles:
+    _pois:
+        base: points
+        #texture: pois
+        blend: overlay
+        blend_order: 4
+    _points:
+        base: points
+        #texture: pois
+        blend: overlay
+        blend_order: 3
+    _polygons:
+        base: polygons
+        #texture: pois
+        blend: inlay
+        # blend_order: 3
+    _text:
+        base: text
+        blend_order: 3
+        
+sources:
+    # mapzen:
+    #     type: TopoJSON
+    #     url: https://tile.nextzen.org/tilezen/vector/v1/all/{z}/{x}/{y}.topojson
+    #     url_params: 
+    #         api_key: global.sdk_mapzen_api_key
+
+ 
+    neighbourhoods:
+        type: GeoJSON
+        # url: https://gist.githubusercontent.com/burritojustice/11fcd129005f19e315b0c45020da30b5/raw/7742883e25b69aaa2d137489d3904c87e72e9ee4/bc_leg.topojson
+        # url: https://gist.githubusercontent.com/burritojustice/75d5a33f0b5882cef00214dbe6f689e7/raw/8089d787577f5ae20ead6c173fa3a4f5dbac2004/cds_by_zip.topojson
+        url: https://gist.githubusercontent.com/burritojustice/d125dfe0abe8432b3b98d1fbdc83ef3f/raw/664e584ab52d85e4dbd3553513f0d3b27782020e/1_wof_bundle_san-francisco_85922583_neighbourhood_simple.geojson
+        generate_label_centroids: true
+
+    macrohoods:
+        type: GeoJSON
+        url: https://gist.githubusercontent.com/burritojustice/c94a5b9bfa270b715bf770e4c014db95/raw/a4c5f1275a2fd90f54fbce620f7b14945ed50cd3/1_wof_bundle_san-francisco_85922583_macrohood.geojson
+        generate_label_centroids: true
+
+layers:
+  
+    _macrohoods:
+        data: {source: macrohoods}
+
+        draw:
+            _polygons: 
+                color: [1,0,0,0.3]
+                width: 2px
+                order: 101
+        labels:
+            filter: 
+                all:
+                    - label_placement: true
+                    # - $zoom: { min: 13 }
+
+            draw:
+                _text:
+                    text_source: wof:name
+                    text_wrap: 35
+                    # collide: false
+                    # text_source: global.lib_percent
+                    # align: right
+                    # text_source: |
+                    #     function(){
+                    #         if (feature.cds_COUNT) {
+                    #         return feature['wof:name'] + "\n" + feature.cds_COUNT + "\n" 
+                    #         }
+                    #         }
+                    font:
+                        transform: uppercase
+                        fill: red
+                        size: [[9,8px],[18,12px]]
+                        stroke:
+                            color: white
+                            width: 2px
+    _neighbourhoods:
+        data: {source: neighbourhoods}
+        filter: 
+            not:
+                name: Top of the Hill
+        draw:
+            lines: 
+                color: red
+                width: 2px
+                order: 100
+        labels:
+            filter: 
+                all:
+                    - label_placement: true
+                    # - $zoom: { min: 13 }
+
+            draw:
+                _text:
+                    text_wrap: 35
+                    # collide: false
+                    # text_source: global.lib_percent
+                    # align: right
+                    # text_source: |
+                    #     function(){
+                    #         if (feature.cds_COUNT) {
+                    #         return feature['wof:name'] + "\n" + feature.cds_COUNT + "\n" 
+                    #         }
+                    #         }
+                    font:
+                        # transform: uppercase
+                        fill: black
+                        size: [[9,8px],[18,12px]]
+                        stroke:
+                            color: white
+                            width: 2px
+    roads:
+        data: { source: mapzen, layer: roads }
+        filter: 
+            not: 
+                - kind: rail
+                - kind: highway 
+        # visible: false
+        draw:
+            lines:
+                interactive: true
+                #color: black
+                width: 1px
+                order: global.feature_order
+                # but give them all the same outline
+                outline:
+                    style: _outline # kills the white road outline

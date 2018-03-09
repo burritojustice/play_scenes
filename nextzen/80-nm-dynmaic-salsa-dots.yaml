@@ -1,0 +1,203 @@
+# Author @patriciogv - 2015
+
+import:
+    - https://tangrams.github.io/blocks/global.yaml
+    - https://tangrams.github.io/blocks/polygons/dots.yaml
+    - https://tangrams.github.io/blocks/functions/zoom.yaml
+    
+global:
+    salsa_dots: 0.3
+    salsa_dots: |
+        function() {
+            var size = 0.3;
+            // var size = feature.salsa_total/10;
+            return Number(size);
+            }
+    salsa_color: |
+        function(){
+            var _color;
+            if ((feature.salsa_red > feature.salsa_green) && (feature.salsa_red > feature.salsa_christmas)) {
+                _color = "red";
+                }
+            if ((feature.salsa_green > 0) && (feature.salsa_green > feature.salsa_christmas)) {
+                _color = "green";
+                }
+             if ((feature.salsa_christmas > 0) && (feature.salsa_christmas >= feature.salsa_green) && (feature.salsa_christmas >= feature.salsa_red)) {
+                _color = "lightblue";
+                }                           
+            return _color;    
+            }
+        
+            
+
+sources:
+    osm:
+        type: TopoJSON
+        url: https://tile.nextzen.org/tilezen/vector/v1/all/{z}/{x}/{y}.topojson
+        max_zoom: 16
+
+    nm_topojson:
+        type: TopoJSON
+        url: https://gist.githubusercontent.com/burritojustice/d9124d56e5afe1096361f73e9b3367a9/raw/9214a27e7065e914360371ab5e80dfe76ca26aa0/nm_red_green.topojson
+        generate_label_centroids: true
+        
+    nm_geojson:
+        type: GeoJSON
+        url: https://gist.githubusercontent.com/burritojustice/d9124d56e5afe1096361f73e9b3367a9/raw/1e98a4202c925b1adabc613693cf494561ce4194/nm_green_red.geojson
+        generate_label_centroids: true
+
+    nm_salsa:
+        type: GeoJSON
+        url: https://gist.githubusercontent.com/burritojustice/d9124d56e5afe1096361f73e9b3367a9/raw/17a65fee17eb48a846c4eae74f302dd6b1a6c4ae/nm_salsa.geojson
+        generate_label_centroids: true
+
+
+
+layers:
+    
+    # _nm:
+    #     data: { source: nm_red_green}
+    #     draw:
+    #         lines:
+    #             color: yellow
+    #             width: 2px
+    #             order: 9000
+    #         polygons:
+    #             order: 1000
+    #             # color: red
+    #             color: |
+    #                 function(){
+    #                     var color;
+    #                     var red = feature.'poll:red'
+    #                     var green = feature.'poll:green'
+    #                     if (red == 1) {
+    #                         color = "red";
+    #                         }
+    #                     else {
+    #                         color = "green";
+    #                         }
+    #                     return color;
+    #                     }
+                
+    _nm:
+        data: { source: nm_salsa }
+        # filter: { label_placement: true }
+        draw:
+            lines:
+                color: yellow
+                width: 2px
+                order: 1000
+            # big_dots:
+            #     order: 300
+            #     color: global.salsa_color
+                # color: green
+        _small_dots:
+            filter: 
+                salsa_red: {max: "2"}
+            draw:
+                small_dots:
+                    order: 300
+                    color: global.salsa_color
+        _medium_dots:
+            filter: 
+                salsa_red: {min: "2"}
+            draw:
+                medium_dots:
+                    order: 300
+                    color: global.salsa_color        
+        labels:
+            filter: { label_placement: true }
+            draw:
+                text:
+                    text_source: |
+                        function() {
+                            return feature['wof:name'] + "\nR:" + Number(feature.salsa_red) + " G:" + Number(feature.salsa_green) + " X:" +  Number(feature.salsa_christmas);
+                            // return _name;
+                            }
+                    # text_source: 'wof:name'
+                    # text_source: 'salsa_total'
+                    font:
+                        family: Helvetica
+                        fill: yellow
+                        size: 12px
+                        weight: bold
+                        stroke:
+                            color: black
+                            width: 2
+    water:
+        data: { source: osm }
+        draw:
+            water:
+                order: global.order
+                color: '#353535'
+    earth:
+        data: { source: osm }
+        draw:
+            earth:
+                order: global.order
+                color: '#555'
+
+styles:
+    water:
+        base: polygons
+    earth:
+        base: polygons
+    landuse:
+        base: polygons
+    roads:
+        base: lines
+        lighting: false
+    buildings:
+        base: polygons
+        mix: [filter-height]
+
+    small_dots:
+        base: polygons
+        # mix: [polygons-dots]
+        mix: [polygons-dots, functions-zoom]
+        shaders:
+            defines:
+                ZOOM_START: 5.
+                ZOOM_END: 10.
+                # DOTS_COLOR: vec3(1.,0.,0.)
+                DOTS_COLOR: color.rgb
+                # DOTS_BACKGROUND_COLOR: color.rgb
+                DOTS_BACKGROUND_COLOR: vec3(0.,0.,0.)
+                DOTS_SCALE: 10
+                DOTS_SIZE: 0.1
+                DOTS_TYPE: fill
+                DOTS_TILE_STYLE: brick
+
+    medium_dots:
+        base: polygons
+        # mix: [polygons-dots]
+        mix: [polygons-dots, functions-zoom]
+        shaders:
+            defines:
+                ZOOM_START: 5.
+                ZOOM_END: 10.
+                # DOTS_COLOR: vec3(1.,0.,0.)
+                DOTS_COLOR: color.rgb
+                # DOTS_BACKGROUND_COLOR: color.rgb
+                DOTS_BACKGROUND_COLOR: vec3(0.,0.,0.)
+                DOTS_SCALE: 10
+                DOTS_SIZE: 0.4
+                DOTS_TYPE: fill
+                DOTS_TILE_STYLE: brick
+    
+    big_dots:
+        base: polygons
+        # mix: [polygons-dots]
+        mix: [polygons-dots, functions-zoom]
+        shaders:
+            defines:
+                ZOOM_START: 5.
+                ZOOM_END: 10.
+                # DOTS_COLOR: vec3(1.,0.,0.)
+                DOTS_COLOR: color.rgb
+                # DOTS_BACKGROUND_COLOR: color.rgb
+                DOTS_BACKGROUND_COLOR: vec3(0.,0.,0.)
+                DOTS_SCALE: 10
+                DOTS_SIZE: 0.6
+                DOTS_TYPE: fill
+                DOTS_TILE_STYLE: brick

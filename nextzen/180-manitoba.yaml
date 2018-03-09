@@ -1,0 +1,29 @@
+sources:
+    mapzen:
+        type: TopoJSON
+        url: https://tile.nextzen.org/tilezen/vector/v1/all/{z}/{x}/{y}.topojson
+        
+    manitoba:
+        type: GeoJSON
+        url: https://whosonfirst.mapzen.com/data/856/820/85/85682085.geojson  
+
+layers:
+    earth:
+        data: { source: mapzen }
+        draw:
+            polygons:
+                order: 0
+                color: grey
+    water:
+        data: { source: mapzen }
+        draw:
+            polygons:
+                order: 1
+                color: lightblue
+    _manitoba:
+        data: { source: manitoba}
+        draw:
+            lines:
+                order: 2
+                color: orange
+                width: 2px

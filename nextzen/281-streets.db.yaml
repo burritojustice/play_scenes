@@ -1,0 +1,63 @@
+global:
+  sdk_mapzen_api_key: mapzen-UJDfMvY
+
+import:
+    - https://www.nextzen.org/carto/refill-style/6/refill-style.yaml
+
+sources:
+    # streets_api:
+    #     type: GeoJSON
+    #     url: http://interpolation.wiz.co.nz/street/near/geojson?lat=37.745828&lon=-122.42113
+
+    tiffany:
+        type: GeoJSON
+        url: https://gist.githubusercontent.com/burritojustice/17832198cc948b2abb8f09f5509e1267/raw/9ab72b6b7bb3f222a9d2ae025077e1e97a3a6b3a/map.geojson
+        
+    tiffany_01:
+        type: GeoJSON
+        url: https://gist.githubusercontent.com/burritojustice/38b128ceb066f958ad2b044229ed0a33/raw/05417479c5ffbcd031f1a6327f737efa10f15e3e/tiffany.geojson
+    peralta:
+        type: GeoJSON
+        url: https://gist.githubusercontent.com/burritojustice/adaf627629992e2c50a526e4eb2ceb9f/raw/b4fd6ba70615e38bd5f6cd181fbc51f9bd2ae50e/peralta.geojson
+        
+    hood:
+        type: GeoJSON
+        url: https://gist.githubusercontent.com/burritojustice/03fa4ac94f2136ddf74bfb9ed2949821/raw/db6814c3b932631d4d06fff4046991b85e3a62c1/hood.geojson
+layers:
+    _hood:
+        data: { source: hood}
+        draw:
+            lines:
+                order: 500
+                color: yellow
+                width: 2px
+    _tiffany_01:
+        data: { source: tiffany_01}
+        draw:
+            lines:
+                order: 502
+                color: orange
+                width: 3px
+    _tiffany:
+        data: { source: tiffany}
+        draw:
+            lines:
+                order: 502
+                color: blue
+                width: 3px
+    # _peralta:
+    #     data: { source: peralta}
+    #     draw:
+    #         lines:
+    #             order: 501
+    #             color: blue
+    #             width: 3px
+
+    roads:
+        peralta:
+            filter: {name: 'Peralta Ave.'}
+            draw:
+                lines:
+                    order: 501
+                    color: red
+                    width: 3px

@@ -1,0 +1,142 @@
+import:
+
+    # - https://www.nextzen.org/carto/bubble-wrap-style/6/bubble-wrap-style.zip
+    - https://www.nextzen.org/carto/refill-style/8/refill-style.zip
+    # - https://www.nextzen.org/carto/refill-style/8/refill-style.yaml
+    # - https://www.nextzen.org/carto/refill-style/8/themes/detail-11.zip
+    # - https://www.nextzen.org/carto/refill-style/8/themes/label-11.zip
+
+    - https://mapzen-assets.s3.amazonaws.com/resources/demo.yaml
+    
+
+
+styles:
+    _text:
+        base: text
+        blend_order: 3
+    _lines:
+        base: lines
+        blend_order: 3
+    _polygons:
+        base: polygons
+        blend_order: 3
+    _points:
+        base: points
+        blend_order: 3
+    __points:
+        base: points
+        blend_order: 2
+    _points4:
+        base: points
+        blend_order: 4       
+sources:
+    # osm:
+    #     type: TopoJSON
+    #     url: https://vector.mapzen.com/osm/all/{z}/{x}/{y}.topojson
+    #     url_params:
+    #         api_key: global.sdk_mapzen_api_key
+    
+
+    sutro_hour:
+        type: GeoJSON
+        url: https://gist.githubusercontent.com/burritojustice/573b0e091f50d6d8ad2738a1d627d7ff/raw/map.geojson
+
+    sutro_quarter:
+        type: GeoJSON
+        url: https://gist.githubusercontent.com/burritojustice/442fbe148f9e065cf5ec2a6a72323387/raw/map.geojson
+        generate_label_centroids: true
+layers:
+
+    _sutro_quarter:
+        data: { source: sutro_quarter }
+        draw:
+            _polygons:
+                # color: [1,0,0,0.3]
+                color: |
+                    function(){
+                        if (feature.start == '0500') {
+                            return [0,0,1,0.3]
+                        // if (feature.start.slice(2) == '00') {
+                            return [0,0,1,0.3]
+                            // return 'red'
+                        }
+                      
+                        }
+                size: 15px
+                order: 300
+            _lines:
+                color: [0,0,1,0.5]
+                width: 1px
+                order: 500
+        labels:
+            # filter: {label_placement: true}
+            draw:
+                _text: 
+                    collide: false
+                    text_source: |
+                        function() {
+                            var start, end, start_hour, start_min, end_hour, end_min
+                            start_min = ':' + feature.start.slice(2,4)
+                            end_min = ':' + feature.end.slice(2,4)
+
+                            if (feature.start.slice(0,1) == 0) {
+                                start_hour = feature.start.slice(1,2)
+                            } else {
+                                start_hour = feature.start.slice(0,2)
+                            }
+                            if (feature.end.slice(0,1) == 0) {
+                                end_hour = feature.end.slice(1,2)
+                            } else {
+                                end_hour = feature.end.slice(0,2)
+                            }
+                            if (start_hour == '0'){start_hour = 12}
+                            if (end_hour == '0'){end_hour = 12}
+
+                            start = start_hour + start_min
+                            end = end_hour + end_min
+
+                            return start + '-' + end 
+                        }
+                    font:
+                        size: 12px
+                        fill: blue
+                        stroke:
+                            color: white
+                            width: 3px
+
+
+
+    _sutro:
+         data: { source: sutro_hour }
+         # draw:
+#             _polygons:
+#                 # color: [1,0,0,0.3]
+#                 color: |
+#                     function(){
+#                         if (feature.time == 1) {
+#                             return [1,0,0,0.3]
+#                             }
+#                         else {
+#                             return [1,0,0,0.1]
+
+                        
+#                 size: 15px
+#                 order: 300
+#             _lines:
+#                 color: red
+#                 width: 2px
+#                 order: 500
+    _oclock:
+            filter: {sutro: true}
+            draw:
+                points:
+                    color: blue
+                    text:
+                        text_source: sutro
+                        font:
+                            size: 12px
+                            fill: blue
+                            stroke:
+                                color: white
+                                width: 3px
+         

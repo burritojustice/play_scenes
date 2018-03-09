@@ -1,0 +1,350 @@
+# global:
+
+  # sdk_path_overlay: false
+  # sdk_bike_overlay: true
+
+# import: - https://s3.amazonaws.com/carto.www.nextzen.org/carto/zinc-style-no-labels/zinc-style-no-labels.yaml
+import: 
+    - https://www.nextzen.org/carto/refill-style-no-labels/refill-style-no-labels.yaml
+    # - import: https://www.nextzen.org/carto/walkabout-style/4/walkabout-style.zip
+    - https://mapzen-assets.s3.amazonaws.com/resources/demo.yaml
+    # - https://tangrams.github.io/blocks/space/constant.yaml
+    # - https://tangrams.github.io/blocks/patterns/stripes.yaml
+    # # - https://tangrams.github.io/blocks/filter/grain.yaml
+    - https://tangrams.github.io/blocks/polygons/diagonal-stripes.yaml
+
+
+styles:
+    _text:
+        base: text
+        blend_order: 3
+            
+    _points:
+        base: points
+        #texture: pois
+        blend: overlay
+        blend_order: 3
+    dashed-lines:
+        base: lines
+        dash: [1, 1]
+    _polygons:
+        base: polygons
+        blend: inlay
+    _polygons_dots:
+        base: polygons
+        blend: inlay
+        mix: medium-dots
+    _polygons_stripes:
+        base: polygons
+        blend: inlay
+        mix: diagonal-stripes
+
+    # _dots:
+    #     base: polygons
+    # _stripes:
+    #     base: polygons
+    #     mix: patterns-stripes, space-constant
+    #     blend: inlay
+    #     shaders:
+    #         defines:
+    #             # GRAIN_AMOUNT: 2.
+    #             NUM_OCTAVES: 2
+    #         blocks:
+    #             color: |
+    #                 color = mix(color,vec4(0.),diagonalStripes( getConstantCoords()*33.))*.8;
+
+sources:
+    # mapzen:
+    #     type: TopoJSON
+    #     url: https://tile.nextzen.org/tilezen/vector/v1/all/{z}/{x}/{y}.topojson
+    #     url_params: 
+    #         api_key: global.sdk_mapzen_api_key
+        
+    25_treasure_island:
+        type: GeoJSON
+        url: https://transit.land/api/v1/routes.geojson?onestop_id=r-9q8zp-25
+
+    # treasure_island_venues:
+    #     type: GeoJSON
+    #     # url: https://whosonfirst.mapzen.com/data/336/682/941/336682941.geojson
+    #     url: https://gist.githubusercontent.com/burritojustice/7d2fb5261cd7766704df517044d738c2/raw/ebdfb6b70c3acc3a55bcbdb543f1da1e6d806b06/wof_bundle_TI_823321587_venue.geojson
+    bay_bridge_bike_path:
+        type: GeoJSON
+        url: https://gist.githubusercontent.com/burritojustice/cbc5c117e0dfecd8ebb032476bcddf3a/raw/a1832e18e312fca303988bd3a80f6200b5f5af32/alex_zuckerman_bike_path.geojson
+    # TI_1939:
+    #     type: TopoJSON
+    #     url: https://gist.githubusercontent.com/burritojustice/b30814c8c0d0aa60b696/raw/f3e87c4668222b65f35d708ce6c00b1ca1270398/1939%2520treasure%2520island%2520test.topojson
+    #     generate_label_centroids: true
+    TI_1939:
+        type: GeoJSON
+        url: https://gist.githubusercontent.com/burritojustice/f38381ce0dba2ce1908a79b67f1acea9/raw/87bb631aaf286dbdf577512f98a23eb5306c5bde/TI_1939_all.geojson
+        # url: https://gist.githubusercontent.com/burritojustice/f38381ce0dba2ce1908a79b67f1acea9/raw/TI_1939_all.geojson
+        # url: https://gist.githubusercontent.com/burritojustice/b96ab9869fe5be651e62f321329d7010/raw/9d9a72c83cfc1f5eac7294c082d2eff2f02fd4ff/TI_1939_all_rewound.geojson
+        generate_label_centroids: true
+
+    # TI_1939_water:
+    #     type: GeoJSON
+    #     url: https://gist.githubusercontent.com/burritojustice/e9bc464e9334c28f3842bbb276681aba/raw/7b8c5c9f4c24dbaa7dda9af203a3ad4f63ff6063/1939_TI_water.geojson
+    #     generate_label_centroids: true
+
+layers:
+    _25_TI:
+        data: {source: 25_treasure_island}
+        draw:
+            lines:
+               color: red
+               width: 4px
+               order: 1001
+               outline:
+                   color: black
+                   width: 2px
+        labels:
+            draw:
+                text:
+                    text_source: |
+                        function(){
+                             return feature.name + '-' + feature.tags.route_long_name;
+                            }
+                    font:
+                        fill: white
+                        size: 12px
+                        stroke:
+                            color: red
+                            width: 2px
+                    offset: [0px,-12px]
+
+
+    _bay_bridge_bike_path:
+        data: {source: bay_bridge_bike_path}
+        draw:
+            lines:
+                color: [0,1,0]
+                width: 4px
+                order: 1000
+                outline:
+                    color: black
+                    width: 2px
+        labels:
+            draw:
+                text:
+                    font:
+                        fill: grey
+                        size: 12px
+                        stroke:
+                            color: white
+                            width: 2
+    
+
+
+    _TI_1939:
+        data: { source: TI_1939}
+        # draw:
+        #     lines:
+        #         color: orange
+        #         width: [[10,0.1px],[18,3px]]
+        #         order: 1000
+        _buildings:
+            filter: 
+                any:
+                - building: true 
+                - leisure: yes
+                - kind: sports_centre
+            draw:
+                lines: 
+                    # color: orange
+                    color: |
+                        function(){
+                            // if (feature.name == "Italian Pavilion"){
+                            if ((feature.name.indexOf('Pavilion') > 0) && (feature.name != null)) {
+                                    return 'red'
+                                }
+                            // else if (feature.amenity == 'restaurant'){
+                            //     return 'green'
+                            //     }
+                            else {return 'orange'}
+                            }
+                    width: [[10,0.1px],[18,2px]]
+                    order: 999
+                _polygons:
+                    color: [1,1,0,0.3]
+                    order: 998
+        _things_unnamed:
+            filter: { name: false }
+
+            draw:
+              lines: 
+                    color: orange
+                    width: [[10,0.1px],[18,2px]]
+                    order: 999
+        _tourism:
+            filter: { tourism: attraction }
+            draw:
+                lines:
+                    color: blue
+                    width: [[10,0.1px],[18,2px]]
+                    order: 998
+                _polygons:
+                    color: [1,1,0,0.3]
+                    order: 998
+        _theme_park:
+            filter: { tourism: theme_park}
+            draw:
+                _polygons:
+                    order: 800
+                    color: [1,0,1,0.1]
+                lines:
+                    color: purple
+                    width: 1px
+                    order: 801
+        _parking:
+            filter: { amenity: parking }
+            draw:
+                _polygons:
+                    order: 800
+                    color: [0,0,0,0.2]
+                text:
+                    font:
+                        fill: black
+                        size: 12px
+                        stroke:
+                            color: white
+                            width: 2px
+                    text_source: "Parking"
+        _restaurants:
+            filter: { amenity: restaurant }
+            draw:
+                lines: 
+                    color: aqua
+                    width: 2px
+                    order: 1000
+        _grass:
+            filter: 
+                any:
+                    - landuse: grass
+                    - leisure: pitch
+            draw:
+                _polygons_dots:
+                    color: [0,1,0,0.5]
+                    # width: [[10,0.1px],[18,3px]]
+                    order: 1999
+                    outline:
+                        color: grey
+                        width: 1px
+                lines:
+                    color: [0,1,.5]
+                    width: 2px
+                    order: 2000
+        _roads:
+            filter: 
+                any:
+                    - highway: true 
+                    - railway: true
+                    # - label_placement: true 
+                not: 
+                    - building: true
+
+                        
+                
+            _plazas:
+                filter: 
+                    any:
+                    - area: yes
+                    - type: multipolygon
+                    - landuse: grass
+                    # all:
+                    # - label_placement: true
+
+                draw:
+                    _polygons:
+                        color: [0,1,0,0.5]
+                        # width: [[10,0.1px],[18,3px]]
+                        order: 999
+                        outline:
+                            color: grey
+                            width: 1px
+                    lines:
+                        color: [0,0,0,0.4]
+                        width: 2px
+                        order: 1000
+
+                    # text:
+                    #     # offset: [0px, -10px]
+                    #     font:
+                    #         size: 12
+                    #         fill: green
+                    #         stroke:
+                    #             color: white
+                    #             width: 2px                
+            _streets:
+                filter:
+                    not: 
+                        - area: yes 
+                        - pedestrian: true
+                        - type: multipolygon
+                draw:
+
+                    lines:
+                        color: orange
+                        width: [[10,0.1px],[18,3px]]
+                        order: 1000
+                        outline:
+                            color: grey
+                            width: 1px
+
+                    text:
+                        offset: [0px, -10px]
+                        font:
+                            size: 12
+                            fill: red
+                            stroke:
+                                color: white
+                                width: 2px
+                    # polygons:
+                    #     color: yellow
+                    #     order: 1001
+
+        _wharves:
+            filter: 
+                any: 
+                    - man_made: pier
+                    - aeroway: seaplane
+            draw:
+                _polygons:
+                    color: [1,1,1,0.5]
+                    order: 1000
+                lines:
+                    color: orange
+                    width: [[10,0.1px],[18,3px]]
+                    order: 1000
+        _labels:
+            filter: {label_placement: true }
+            draw:
+
+                text:
+                    font:
+                        fill: black
+                        size: 12px
+                        stroke:
+                            color: white
+                            width: 2px
+                        
+                        
+    _TI_1939_water:
+        data: { source: TI_1939}
+        filter: {natural: water}
+        water:
+            draw:
+                waves:
+                    color: blue
+                    order: 3000
+                    
+        _labels:
+            filter: { label_placement: true }
+            draw:
+                text:
+                    font:
+                        fill: black
+                        size: 12px
+                        stroke:
+                            color: white
+                            width: 2px

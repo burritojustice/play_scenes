@@ -1,0 +1,44 @@
+global:
+  sdk_mapzen_api_key: mapzen-UJDfMvY
+
+import:
+    - https://www.nextzen.org/carto/walkabout-style/walkabout-style.yaml
+sources:
+
+
+    streets:
+        type: GeoJSON
+        url: https://raw.githubusercontent.com/cirlabs/border_fence_map/master/geojson/border_fence_map.geojson
+    
+
+# styles:
+#     _ontop:
+#         base: text
+#         #texture: pois
+#         blend: overlay
+#         blend_order: 3
+#     _polygons:
+#         base: polygons
+#         blend: multiply
+#         blend_order: 0
+    
+layers:
+
+    _streets:
+        data: { source: streets}
+        _pedestrian:
+            filter: {gen_type: pedestrian}
+            draw:
+                lines:
+                    order: 500
+                    color: orange
+                    width: 2px
+        _vehicle:
+            filter: {gen_type: vehicle}
+            draw:
+                lines:
+                    order: 500
+                    color: red
+                    width: 2px
+
+

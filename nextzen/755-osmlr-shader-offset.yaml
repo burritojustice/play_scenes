@@ -1,0 +1,313 @@
+import:
+    # basemap style
+    - https://www.nextzen.org/carto/refill-style/7/refill-style.yaml
+    # - https://www.nextzen.org/carto/refill-style/7/refill-style.zip
+    # recolor basemap style with a theme color
+    # - https://www.nextzen.org/carto/refill-style/7/themes/gray-gold.zip
+    - https://www.nextzen.org/carto/refill-style/7/themes/gray-gold.yaml
+
+    # - https://www.nextzen.org/carto/bubble-wrap-style/6/bubble-wrap-style.zip
+    # - https://www.nextzen.org/carto/refill-style-more-labels/6/refill-style-more-labels.zip
+    - https://mapzen-assets.s3.amazonaws.com/resources/demo.yaml
+
+global:
+    osm_color: |
+        function(){
+            if ($zoom > 15) {
+                var id = feature.id
+                id = id.toString()
+                id = id.slice(-3)
+                id = Math.floor(id/2.778)
+                return 'hsl(' + id + ',100%,50%)'
+            }
+            else {return "black"}
+        }
+    osmlr_color: |
+        function(){
+            var id = feature.osmlr_id
+            id = id.toString()
+            id = id.slice(-3)                           
+            id = Math.floor(id/2.778)
+            return 'hsl(' + id + ',100%,50%)'
+            }
+
+cameras:
+    perspective:
+        type: isometric
+        vanishing_point: [1000, -500]
+lights:
+    directional1:
+        type: directional
+        direction: [.1, .5, -1]
+        diffuse: .7
+        ambient: .5
+
+# scene:
+#     background:
+#         color: [0.,0.5,0.8]
+styles:
+    _text:
+        base: text
+        blend_order: 3
+    _points:
+        base: points
+        blend_order: 3
+    _osm_points:
+        base: points
+        blend_order: 4
+    _lines:
+        base: lines
+        blend_order: 1
+    _dashed:
+        base: lines
+        dash: [1,1]
+    casing_left:
+        mix: casing_right
+        shaders:
+            uniforms:
+                FLIP: true
+    casing_right:
+        base: lines
+        texcoords: true
+        shaders:
+            uniforms:
+                FLIP: false
+                OFFSET: 0.9
+            blocks:
+                color: |
+                    vec2 st = v_texcoord.xy;
+                    if (FLIP) {
+                        st.x = 1. - st.x;
+                    }
+
+                    if (st.x < OFFSET) {
+                        discard;
+                    }
+sources:
+    sf_0:
+        type: GeoJSON
+        url: https://s3.amazonaws.com/mapzen-assets/resources/osmlr/sf_0_804.json
+    sf_1:
+        type: GeoJSON
+        url: https://s3.amazonaws.com/mapzen-assets/resources/osmlr/sf_1_777.json
+    sf_2:
+        type: GeoJSON
+        url: https://s3.amazonaws.com/mapzen-assets/resources/osmlr/sf_2.geojson
+    mapzen:
+        type: TopoJSON
+        url: https://tile.nextzen.org/tilezen/vector/v1/all/{z}/{x}/{y}.topojson
+        url_params:
+            api_key: global.sdk_mapzen_api_key
+
+layers:
+    buildings:
+        enabled: false
+    roads:
+        data: {source: mapzen}
+        # draw:
+        #     lines:
+        #         outline:
+        #             width: 0px
+        # default-outline-width:
+        #     # filter: { $zoom: { min: 16 } }
+        #     draw:
+        #         lines:
+        #             outline:
+        #                 width: 0px
+        major_road:
+            trunk:
+                primary: 
+                    filter: {$zoom: {min: 16}}
+                    draw:
+                        _dashed:
+                            # color: blue
+                            color: global.osm_color
+                            width: 3px
+                            order: 3000
+                            # outline:
+                            #     width: 2px
+                            #     color: global.osm_color
+
+                        text:
+                            text_source: id
+
+                            font:
+                                style: italic
+                                fill: global.osm_color
+
+                                width: 3px
+                                size: 12
+                                stroke:
+                                    width: 3px
+                                    color: global.dark_color
+                            # offset: [0,15]
+        minor_road:
+            trunk:
+                primary: 
+                    filter: {$zoom: {min: 16}}
+                    draw:
+                        _dashed:
+                            color: global.osm_color
+                            width: 2px
+                            order: 3000
+                            # outline:
+                            #     width: 2px
+                            #     color: global.osm_color
+
+                        text:
+                            text_source: id
+
+                            font:
+                                style: italic
+                                fill: global.osm_color
+
+                                width: 3px
+                                size: 12
+                                stroke:
+                                    width: 3px
+                                    color: global.dark_color
+                            # offset: [0,15]
+        highways:
+            trunk:
+                primary: 
+                    filter: {$zoom: {min: 14}}
+                    draw:
+                        _dashed:
+                            color: global.osm_color
+                            width: 2px
+                            order: 3000
+                            # outline:
+                            #     width: 2px
+                            #     color: global.osm_color
+
+                        text:
+                            text_source: id
+
+                            font:
+                                style: italic
+                                fill: global.osm_color
+
+                                width: 3px
+                                size: 12
+                                stroke:
+                                    width: 3px
+                                    color: global.dark_color
+                            # offset: [0,15]
+
+    _osmlr_0:
+        data: { source: sf_0}
+        _twoway:
+          
+            draw:
+                casing_right:
+                    color: global.osmlr_color
+                    width: 25px
+                    order: 500
+                casing_left:
+                    color: global.osmlr_color
+                    width: 25px
+                    order: 500
+
+                _text:
+                    repeat_distance: 200
+                    text_source: osmlr_id
+                    offset: [0,-20]
+                    font:
+                        fill: global.osmlr_color
+                        size: 12
+                        stroke:
+                            color: global.mid_color
+                            width: 4px
+                            
+    _osmlr_1:
+        data: { source: sf_1}
+        filter: {$zoom: {min: 14}}
+        _oneway:
+            filter: {oneway: 1}
+            draw:
+                casing_right:
+                    color: global.osmlr_color
+                    width: 25px
+                    order: 500
+                casing_left:
+                    color: global.osmlr_color
+                    width: 25px
+                    order: 500
+
+                _text:
+                    repeat_distance: 200
+                    text_source: osmlr_id
+                    offset: [0,-20]
+                    font:
+                        fill: global.osmlr_color
+                        size: 12
+                        stroke:
+                            color: global.mid_color
+                            width: 4px
+
+        _twoway:
+            filter: {oneway: 0}
+            draw:
+                casing_right:
+                    color: global.osmlr_color
+                    width: 25px
+                    order: 500
+
+
+                _text:
+                    repeat_distance: 200
+                    text_source: osmlr_id
+                    offset: [0,20]
+                    font:
+                        fill: global.osmlr_color
+                        size: 12
+                        stroke:
+                            color: global.mid_color
+                            width: 4px
+                            
+
+    _osmlr_2:
+        data: { source: sf_2}
+        filter: {$zoom: {min: 16}}
+        _oneway:
+            filter: {oneway: 1}
+            draw:
+                casing_right:
+                    color: global.osmlr_color
+                    width: 25px
+                    order: 500
+                casing_left:
+                    color: global.osmlr_color
+                    width: 25px
+                    order: 500
+
+                _text:
+                    repeat_distance: 200
+                    text_source: osmlr_id
+                    offset: [0,-20]
+                    font:
+                        fill: global.osmlr_color
+                        size: 12
+                        stroke:
+                            color: global.mid_color
+                            width: 4px
+
+        _twoway:
+            filter: {oneway: 0}
+            draw:
+                casing_right:
+                    color: global.osmlr_color
+                    width: 25px
+                    order: 500
+
+
+                _text:
+                    repeat_distance: 200
+                    text_source: osmlr_id
+                    offset: [0,-20]
+                    font:
+                        fill: global.osmlr_color
+                        size: 12
+                        stroke:
+                            color: global.mid_color
+                            width: 4px

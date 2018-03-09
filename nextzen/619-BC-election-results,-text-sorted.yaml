@@ -1,0 +1,240 @@
+import:
+    - https://www.nextzen.org/carto/refill-style-no-labels/refill-style-no-labels.yaml
+    # - https://www.nextzen.org/carto/refill-style-more-labels/refill-style-more-labels.yaml
+    - https://mapzen-assets.s3.amazonaws.com/resources/demo.yaml
+
+global:
+    green_percent: |
+        function(feature){return feature.Green / feature.votes}
+    lib_percent: |
+        function(feature){return feature.Liberal / feature.votes}
+    ndp_percent: |
+        function(feature){return feature.NDP / feature.votes}
+
+    vote_colors:  |
+        function(){
+            var lib = feature.Liberal * 1;
+            var ndp = feature.NDP * 1;
+            var green = feature.Green * 1;
+            // var green_percent = green / feature.votes
+            // var lib_percent = lib / feature.votes
+            // var ndp_percent = ndp / feature.votes
+            var adjustment = 0.25
+            var color =
+            ((lib > green) && (lib > ndp)) ? [1,0,0,global.lib_percent(feature)-adjustment] :
+            ((ndp > green) && (ndp > lib)) ? [1,.5,0,global.ndp_percent(feature)-adjustment] :
+            ((green > ndp) && (green > lib)) ? [0,1,0,global.green_percent(feature)-adjustment] :
+            'white';
+            return color;    
+            }
+    winner: |
+       function(feature){
+            // make an array of party name [0], percent of vote [1], and vote count [2], then add each party into a new array, andthen sort it
+            var _ndp = ["NDP", global.ndp_percent(feature), parseInt(feature.NDP)]
+            var _liberal = ["Liberals", global.lib_percent(feature), parseInt(feature.Liberal)]
+            var _green = ["Green", global.green_percent(feature), parseInt(feature.Green)]
+
+            var _ordered_results = [_ndp,_liberal,_green].sort(function(a,b) {
+                return b[2] - a[2]
+                    });
+            return _ordered_results
+            }
+        
+
+
+styles:
+    _pois:
+        base: points
+        #texture: pois
+        blend: overlay
+        blend_order: 4
+    _points:
+        base: points
+        #texture: pois
+        blend: overlay
+        blend_order: 3
+    _polygons:
+        base: polygons
+        #texture: pois
+        blend: inlay
+        # blend_order: 3
+    _text:
+        base: text
+        blend_order: 3
+        
+sources:
+    # mapzen:
+    #     type: TopoJSON
+    #     url: https://tile.nextzen.org/tilezen/vector/v1/all/{z}/{x}/{y}.topojson
+    #     url_params: 
+    #         api_key: global.sdk_mapzen_api_key
+
+ 
+    ridings:
+        type: TopoJSON
+        # url: https://gist.githubusercontent.com/burritojustice/11fcd129005f19e315b0c45020da30b5/raw/7742883e25b69aaa2d137489d3904c87e72e9ee4/bc_leg.topojson
+        url: https://gist.githubusercontent.com/burritojustice/0bb3955c2e986783adb584b9d0539e79/raw/60ebaa34b1bebbb0b91e284cc8ef068d5ebba219/2017_bc_leg_prelim_results_by_riding.topojson
+        generate_label_centroids: true
+
+layers:
+  
+
+    _ridings:
+        # filter: { $zoom: {min: 12}}
+        data: {source: ridings}
+        draw:
+            _polygons:
+                color: global.vote_colors
+                order: 100
+            lines: 
+                color: |
+                    function(){
+                        var winner = global.winner(feature)
+                        var spread = winner[0][2] - winner[1][2]
+                        if (( spread < 500 ) && ($zoom > 5)) {
+                            return 'grey'
+                        } else{
+                            return 'white'
+                        }
+                    }
+                width: 2px
+                order: |
+                    function(){
+                        var winner = global.winner(feature)
+                        var spread = winner[0][2] - winner[1][2]
+                        if ( spread < 500 ){
+                            return 300
+                        } else{
+                            return 200
+                        }
+                    }
+ 
+        z_6_labels_spread:
+            filter: 
+                all:
+                    - label_placement: true
+                    - $zoom: { min: 6, max: 8 }
+            draw:
+                _text:
+                    buffer: -5
+                    text_wrap: 30
+                    # collide: false
+                    text_source: |
+                        function(){
+                            var winner = global.winner(feature)
+                            // var winner = global.green_percent(feature)
+                            var spread = winner[0][2] - winner[1][2]
+                            if ( spread < 500 )
+                                { return feature.ED_ABBREV + "\n" +  spread + " votes"}
+                            // else if ($zoom > 6) { return (winner[0][1]*100).toFixed(0) + '%' } 
+                            // return feature.ED_NAME + "\n" + winner[2][0] + " " + winner[2][2]
+
+                            }
+                    font:
+                        # transform: uppercase
+                        fill: black
+                        size: [[6,10px],[18,9px]]
+                        stroke:
+                            color: white
+                            width: 2px
+
+        z_7-12_labels:
+            filter: 
+                all:
+                    - label_placement: true
+                    - $zoom: { min: 8, max: 12 }
+            draw:
+                _text:
+                    text_wrap: 30
+                    text_source: |
+                        function(){
+                            var winner = global.winner(feature)
+                            // var winner = global.green_percent(feature)
+                            if ($zoom > 10) {
+                                return feature.ED_ABBREV + "\n" + winner[0][0] + ": " + (winner[0][1] * 100).toFixed(0) + "%\n" + winner[1][0] + ": " + (winner[1][1] * 100).toFixed(0) + "%"
+                                }
+                             
+                            else { 
+                                return feature.ED_ABBREV + "\n" + winner[0][0].slice(0,1) + ": " + (winner[0][1]* 100).toFixed(0) + "%" 
+                                }
+                            }
+                    font:
+                        # transform: uppercase
+                        fill: black
+                        size: [[6,10px],[18,9px]]
+                        stroke:
+                            color: white
+                            width: 2px
+#                     collide: |
+#                         function(){
+#                             // if ($zoom > 10) {
+#                                 return "false"
+#                                 // }
+
+#                             }
+                    buffer: -4
+                    # collide: false
+                    
+                    
+                lines:
+                    color: black
+                    width: 2px
+                    order: 2000
+                    
+        z12_labels:
+            filter: 
+                all:
+                    - label_placement: true
+                    - $zoom: { min: 12 }
+
+            draw:
+                _text:
+                    text_wrap: 35
+                    collide: false
+                    # text_source: global.lib_percent
+                    align: right
+                    text_source: |
+                        function(){
+                            
+                            var _ndp = ["NDP", global.ndp_percent(feature), feature.NDP]
+                            var _liberal = ["Liberals", global.lib_percent(feature), feature.Liberal]
+                            var _green = ["Green", global.green_percent(feature), feature.Green]
+
+                            var _ordered_results = [_ndp,_liberal,_green].sort(function(a,b) {
+                                return b[2] - a[2]
+                                    });
+
+                            // _ordered_results = _ordered_results.sort(function(a,b) {
+                            //     return a[2] - b[2]
+                            //         });
+
+                            
+                            return feature.ED_NAME 
+                            + "\n" + _ordered_results[0][0] + ": " + (_ordered_results[0][1] * 100).toFixed(0) + "% (" + _ordered_results[0][2].replace(/\B(?=(\d{3})+(?!\d))/g, ",") + ")"
+                            + "\n" + _ordered_results[1][0] + ": " + (_ordered_results[1][1] * 100).toFixed(0) + "% (" + _ordered_results[1][2].replace(/\B(?=(\d{3})+(?!\d))/g, ",") + ")"
+                            + "\n" + _ordered_results[2][0] + ": " + (_ordered_results[2][1] * 100).toFixed(0) + "% (" + _ordered_results[2][2].replace(/\B(?=(\d{3})+(?!\d))/g, ",") + ")"
+                            
+                        }
+                    font:
+                        # transform: uppercase
+                        fill: black
+                        size: [[9,8px],[18,12px]]
+                        stroke:
+                            color: white
+                            width: 2px
+    roads:
+        data: { source: mapzen, layer: roads }
+        filter: 
+            not: 
+                - kind: rail
+                - kind: highway 
+        # visible: false
+        draw:
+            lines:
+                interactive: true
+                #color: black
+                width: 1px
+                order: global.feature_order
+                # but give them all the same outline
+                outline:
+                    style: _outline # kills the white road outline

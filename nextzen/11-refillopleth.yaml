@@ -1,0 +1,351 @@
+# Author @patriciogv - 2015
+global:
+    choropleth_color: |
+                function() {
+                    // scale population, div by 10 mil
+                    var popscale = 10000000;
+                    var hue = ""; // red,0; green,120; blue,220
+                    var population;
+                    var ratio = feature['gn:population']/popscale;
+                    var luminence = 95 - ratio;
+                    return "hsl(" + hue + ",100%," + (luminence) +"%)";
+                            }
+        
+        
+    text_stroke: [0,0,0,.0]
+    text_fill: '#ddd'    
+    disputed_filters: |
+                function() {
+                    switch (feature['wof:name']) {
+                        case "Azad Kashmir":
+                        case "Arunachal Pradesh":
+                        case "Aksai Chin":
+                        case "Bara Hotii Valleys":
+                        case "Demchok":
+                        case "Samdu Valleys":
+                        case "Shaksam Valley":
+                        case "Siachen Glacier":
+                        case "Tirpani Valleys":
+                        case "Valley near Chumur":
+                        case "Northern Areas":
+                            return true;
+                        default:
+                            return false;
+                    }
+                }
+    disputed_no_labels: |
+                function() {
+                    switch (feature['wof:name']) {
+                        case "Azad Kashmir":
+                        case "Bara Hotii Valleys":
+                        case "Demchok":
+                        case "Samdu Valleys":
+                        case "Shaksam Valley":
+                        case "Siachen Glacier":
+                        case "Tirpani Valleys":
+                        case "Valley near Chumur":
+                            return true;
+                        default:
+                            return false;
+                    }
+                }
+    line_param:
+        color: darkgrey
+        width: [[14,1px],[16,3px],[17,5px],[18,6px],[19,9px],[20,11px]]
+        order: 901
+    dashed_line_param:
+        color: darkdarkgreyblue
+        width: [[14,1px],[16,3px],[17,5px],[18,6px],[19,9px],[20,11px]]
+        order: 900
+    state_name: |
+                function() {
+                            // Population information for states
+                            var populationString = "";
+                            if (feature['gn:population']) {
+                                var pop = feature['gn:population'];
+                                var popNum = Number(pop);
+                                var californias = popNum / 39000000;
+                                var popComma = feature['gn:population'];
+                                popComma = popComma.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                                if (pop > 3800000) {
+                                populationString = popComma + "\n" + californias.toFixed(1) + " Californias";
+                                } else {
+                                    populationString = popComma
+                                    }
+                                
+                            }
+
+                            // Non-WOF Feature (Telangana)
+                            if (feature['OBJECTID'] == 1) {
+                                var californias = Number(35286757) / 39000000; // Population for http://www.telangana.gov.in/About/State-Profile
+                                return "à°¤à±à°²oà°à°¾à°£" + "\n" + //Telugu
+                                        "ØªÙÙÚ¯Ø§ÙÛ" + "\n" + //Urdu
+                                        "Telangana" + "\n" +
+                                        "Pop: " + "3,52,86,757" + "\n" +
+                                        californias.toFixed(1) + " Californias"; //Default/English
+                            }
+
+                            // WOF Features
+                            name = "";
+                            switch (feature['wof:name']) {
+                                case "Minor islands of India":
+                                    return "";
+                                case "Northern Areas":
+                                    return "POK";
+                                case "Jammu and Kashmir":
+                                    name = feature['name:urd_x_preferred'] + "\n" + //urdu
+                                            feature['name:hin_x_preferred']; //hindi
+                                    break;
+                                case "Punjab":
+                                    name = feature['name:pan_x_preferred'] + "\n" + //punjabi
+                                            feature['name:hin_x_preferred']; //hindi
+                                    break;
+                                case "Uttaranchal":
+                                    name = "à¤à¤¤à¥à¤¤à¤°à¤¾à¤à¤£à¥à¤¡" + "\n" + //hindi
+                                            feature['name:eng_x_preferred']; //wof has wrong default name!!
+                                    break;
+                                case "Haryana":
+                                    name = "à¤¹à¤°à¤¿à¤¯à¤¾à¤£à¤¾"; //hindi
+                                    break;
+                                case "Delhi":
+                                    name = "à¤¦à¤¿à¤²à¥à¤²à¥" + "\n"; //hindi
+                                    break;
+                                case "Uttar Pradesh":
+                                case "Bihar":
+                                case "Jharkhand":
+                                    name = feature['name:hin_x_preferred'] + "\n" + //hindi
+                                            feature['name:urd_x_preferred'] //urdu
+                                    break;
+                                case "Sikkim":
+                                    name = "à½¦à½´à¼à½à¾±à½²à½à¼" + "\n" + //sikkimese
+                                            feature['name:nep_x_preferred']; //nepali
+                                    break;
+                                case 'Assam':
+                                    name = feature['name:asm_x_preferred'] + "\n" + //assamese
+                                            feature['name:ben_x_preferred']; // bengali
+                                    break;
+                                case 'Arunachal Pradesh':
+                                    name = feature['name:ben_x_preferred'] + "\n" + //begali
+                                            feature['name:nep_x_preferred'] //nepali
+                                    break;
+                                case 'Meghalaya':
+                                case 'Tripura':
+                                    name = feature['name:ben_x_preferred'] + "\n" + //bengali
+                                            feature['name:hin_x_preferred'];
+                                    break;
+                                case "Manipur":
+                                    name = feature['name:ben_x_preferred'] + "\n" + //manipuri (written in bengali)
+                                            feature['name:hin_x_preferred'];
+                                    break;
+                                case "West Bengal":
+                                    name = "à¦ªà¦¶à§à¦à¦¿à¦®à¦¬à¦à§à¦" + "\n" +
+                                            "à¤ªà¤¶à¥à¤à¤¿à¤® à¤¬à¤à¤à¤¾à¤²";
+                                    break;
+                                case "Orissa":
+                                    name = feature['name:ori_x_preferred'] + "\n" +
+                                            feature['name:hin_x_preferred'];
+                                    break;
+                                case "Gujarat":
+                                    name = "àªà«àªàª°àª¾àª¤" + "\n" +
+                                            "à¤à¥à¤à¤°à¤¾à¤¤";
+                                    break;
+                                case "Goa":
+                                    name = "à¤à¥à¤à¤¯";
+                                    break;
+                                case "Tamil Nadu":
+                                    name = feature['name:tam_x_preferred'];
+                                    break;
+                                case "Kerala":
+                                    name = feature['name:mal_x_preferred'];
+                                    break;
+                                case "Karnataka":
+                                    name = feature['name:kan_x_preferred'];
+                                    break;
+                                case "Andhra Pradesh":
+                                    name = feature['name:tel_x_preferred'];
+                                    break;
+                                default:
+                                    if (feature['name:hin_x_preferred']) {
+                                        name = feature['name:hin_x_preferred'];
+                                    }
+                    }
+                    return name + "\n" + feature['wof:name'] + "\n" + populationString;
+                }
+
+import:
+    - https://tangrams.github.io/blocks/global.yaml
+    - https://tangrams.github.io/blocks/filter/height.yaml
+    - https://tangrams.github.io/blocks/space/constant.yaml
+    - https://s3.amazonaws.com/mapzen-assets/images/languages-of-india/india_refill_fader.yaml
+sources:
+    osm:
+        type: TopoJSON
+        url: https://tile.nextzen.org/tilezen/vector/v1/all/{z}/{x}/{y}.topojson
+        max_zoom: 16
+    india:
+        type: GeoJSON
+        url: https://gist.githubusercontent.com/tallytalwar/be57aec0c937e06c86c016b6ab191c6c/raw/2f2e68fbe9c9bcfc973df1913bc8d521550eb953/india-merged-with-telengana.geojson
+        generate_label_centroids: true
+
+cameras:
+    cam:
+        type: perspective
+        # vanishing_point: [0, -500]
+
+lights:
+    dir:
+        type: directional
+        direction: [.1, .5, -1]
+        diffuse: .7
+        ambient: .5
+
+layers:
+    labels:
+        data: { source: mapzen}
+        draw:
+            text:
+                font:
+                    family: Helvetica
+                    fill: grey
+                    size: [[3,6px],[5,17px]]
+            
+    india:
+        data: { source: india }
+        early:
+            filter: { $zoom: {max: 5} }
+            non-disputed:
+                filter: |
+                        function() {
+                            if (feature['wof:name'] == "India" ||
+                                feature['wof:name'] == "Jammu and Kashmir") { return true; }
+                            else { return false;
+                        }}
+                draw:
+                    lines:
+                        global.line_param
+
+                labels:
+                    filter: 
+                        all:
+                            - { label_placement: true, $zoom: {min: 3, max: 5} }
+                            - |
+                                function() {
+                                    if (feature['wof:name'] == "India") { return true; }
+                                    else { return false;
+                                }}
+                    draw:
+                        text-overlay:
+                            max_lines: 12
+                            text_wrap: 30
+                            offset: [0,] # should not work! Bug in tangram?
+                            text_source: |
+                                function() {
+                                    return feature['name:mai_x_preferred'] + ", " + //hindi
+                                            feature['name:ben_x_preferred'] + ", " + //bengali
+                                            feature['name:tel_x_preferred'] + ", " + //telugu
+                                            feature['name:tam_x_preferred'] + ", " + //tamil
+                                            feature['name:mar_x_preferred'] + ", " + //marathi
+                                            feature['name:guj_x_preferred'] + ", " + //gujrati
+                                            feature['name:kan_x_preferred'] + ", " + //kannada
+                                            feature['name:urd_x_preferred'] + ", " + //Urdu
+                                            feature['name:mal_x_preferred'] + ", " + //malayalam
+                                            feature['name:ori_x_preferred'] + ", " + //Odia
+                                            feature['name:pan_x_preferred'] + ", " + //punjabi
+                                            feature['name:asm_x_preferred'] + ", " + //assamese
+                                            feature['name:mai_x_preferred'] + ", " + //maithili
+                                            feature['name:san_x_preferred'] + ", " + //santali
+                                            feature['name:kas_x_preferred'] + ", " + //kashmiri
+                                            feature['name:nep_x_preferred'] + ", " + //nepali
+                                            feature['name:sin_x_preferred'] + "," + //sindhi
+                                            "à¤­à¤¾à¤°à¤¤" + ", " + //konkani
+                                            "à¦­à¦¾à¦°à¦¤" + ", " + //manipuri/meitei
+                                            feature['name:bod_x_preferred'] + ", " + //bodo
+                                            feature['name:san_x_preferred'] + ", " + //sanskrit
+                                            feature['wof:name'];
+                                }
+                            font:
+                                # weight: bold
+                                family: Helvetica
+                                fill: black
+                                size: [[3,6px],[5,17px]]
+                                stroke: 
+                                    color: white
+                                    width: 1
+            disputed:
+                filter: global.disputed_filters
+                draw:
+                    dashed:
+                        global.dashed_line_param
+                labels:
+                    filter: 
+                        all: 
+                            - { label_placement: true, $zoom: {min: 3, max: 5} }
+                            - |
+                                function() {
+                                    if (feature['wof:name'] == "Northern Areas" ||
+                                        feature['wof:name'] == "Aksai Chin") { return true; }
+                                    else { return false; }
+                                }
+                    draw:
+                        text-overlay:
+                            text_source: global.state_name
+                            font:
+                                weight: bold
+                                family: Helvetica
+                                fill: black
+                                size: [[5,9px],[16,60px]]
+        later:
+            filter: { $zoom: {min: 5} }
+            states:
+                filter: |
+                    function() {
+                    if ( (feature['wof:name'] != "India") &&
+                         (feature['wof:name'] != "Kashmir")) { return true; }}
+                draw:
+                    lines:
+                        global.line_param
+                    polygons:
+                        color: global.choropleth_color
+                            # |
+                            # function() {
+                            #     // scale population, div by 10 mil
+                            #     var popscale = 10000000;
+                            #     var hue = "120"; // red,0; green,120; blue,220
+                            #     var ratio = feature['gn:population']/popscale;
+                            #     var luminence = 95 - ratio;
+                            #     return "hsl(" + hue + ",100%," + (luminence) +"%)";
+                            # }
+                            
+                        order: 499                        
+                labels:
+                    filter: { label_placement: true, not: global.disputed_no_labels }
+                    draw:
+                        text-overlay:
+                            text_wrap: 30
+                            max_lines: 6
+                            text_source: global.state_name
+                            font:
+                                # weight: bold
+                                family: Helvetica
+                                fill: black
+                                size: [[5,9px],[16,60px]]
+                                stroke:
+                                    color: white
+                                    width: 3
+            disputed:
+                filter: global.disputed_filters
+                draw:
+                    lines:
+                        visible: false
+                    dashed:
+                        global.dashed_line_param
+
+
+
+styles:
+    text-overlay:
+        base: text
+        blend: overlay
+        blend_order: 100
+        
+

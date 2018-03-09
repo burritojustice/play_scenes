@@ -1,0 +1,142 @@
+import:
+    - https://www.nextzen.org/carto/refill-style/refill-style.yaml
+
+
+sources:
+    # mapzen:
+    #     type: TopoJSON
+    #     url: https://vector.mapzen.com/osm/all/{z}/{x}/{y}.topojson
+        
+    folsom:
+        type: GeoJSON
+        url: https://gist.githubusercontent.com/burritojustice/7af6cc721b7a03380504d58bcd71b38f/raw/map.geojson
+    sutrito:
+        type: GeoJSON
+        url: https://whosonfirst.mapzen.com/data/420/780/697/420780697.geojson
+
+styles:
+    ants:
+        base: lines
+        blend: overlay
+        texcoords: true
+        animated: true
+        shaders:
+            blocks:
+                color: |
+                    color.a = step(.5,fract((u_time/1.0)-v_texcoord.y*.5));
+                    
+        
+    emojis:
+        base: text
+        #texture: pois
+        interactive: true
+        blend: overlay
+        blend_order: 3
+    
+
+        
+    
+    
+layers:
+#     folsom:
+#         data: { source: folsom}
+#     #     park:
+#     #         filter: {name: "Folsom Bike Park"}
+#     #         draw:    
+#     #             polygons:
+#     #                 order: 500
+#     #                 color: green
+#     #                 width: 2px
+#     #             lines:
+#     #                 order: 501
+#     #                 color: lightgreen
+#     #                 width: 2px
+#         lift:
+#             filter: {name: "bike lift"}
+#             draw:
+#                 ants:
+#                     order: 504
+#                     color: yellow
+#                     width: 8px
+#     sutrito:
+#         data: { source: sutrito}
+#         draw:
+#             polygons:
+#                 order: 603
+#                 color: green
+#             lines:
+#                 order: 503
+#                 width: 5px
+#                 color: lightgreen
+                
+#     parks:
+#         data: { source: mapzen, layer: landuse}
+#         filter: {name: ["Rincon Park"]}
+#         draw:
+#             polygons:
+#                 order: 505
+#                 color: green
+#             lines:
+#                 order: 503
+#                 width: 3px
+#                 color: lightgreen            
+    
+#     roads:
+#         data: { source: mapzen }
+#         filter: { not: { kind: ferry }}
+#         draw:
+#             lines:
+#                 order: 2
+#                 color: '#777'
+#                 width: 5
+#         labels:
+#             filter: { name: true }
+#             highway:
+#                 filter: { kind: highway, $zoom: { min: 7 } }
+#                 draw:
+#                     text:
+#                         font:
+#                             family: Helvetica
+#                             fill: white
+#                             size: 12px
+#                             weight: bold
+#             not_highway:
+#                 filter: { not: { kind: highway }, $zoom: { min: 13 } }
+#                 draw:
+#                     text:
+#                         font:
+#                             family: Helvetica
+#                             fill: white
+#                             size: 11px
+#         folsom:
+#             filter: { name: "Folsom St."}
+#             draw:
+#                   text_blend_order:
+#                         font:
+#                             family: Helvetica
+#                             fill: white
+#                             size: 25px
+#                         text_source: function() {return "FOLSOM ST";}
+                
+    
+    roads:
+        # data: { source: mapzen , layer: roads}
+        # # filter: {name: "Folsom St.", not: {id: [255178074, 47184166, 8917418]}}
+        # draw:
+        #     lines:
+        #         order: 600
+        #         color: green
+        #         width: 15px
+        #         outline:
+        #             color: lightgreen
+        #             width: 4px
+        labels:
+            # filter: { name: true }
+            draw:
+                emojis:
+                    collide: true
+                    font:
+                        size: 40px
+                    text_source: function() {return "ð®";}
+
+

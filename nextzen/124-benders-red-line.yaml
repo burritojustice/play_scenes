@@ -1,0 +1,42 @@
+import:
+    https://www.nextzen.org/carto/refill-style-more-labels/refill-style-more-labels.yaml
+
+sources:
+    osm:
+        type: TopoJSON
+        url: https://tile.nextzen.org/tilezen/vector/v1/all/{z}/{x}/{y}.topojson
+        max_zoom: 16
+
+cameras:
+    cam:
+        type: perspective
+        # vanishing_point: [0, -500]
+
+lights:
+    dir:
+        type: directional
+        direction: [.1, .5, -1]
+        diffuse: .7
+        ambient: .5
+
+layers:
+    # buildings:
+    #     data: { source: osm }
+    #     filter: { id: 261109926}
+    #     draw:
+    #         lines:
+    #             color: red
+    #             width: 2px
+    #             order: global.order
+                
+    _benders:
+        data: { source: osm }
+        filter: { id: 261109926}
+        draw:
+            lines:
+                color: red
+                width: 2px
+                order: global.order
+        
+
+

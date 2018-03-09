@@ -1,0 +1,75 @@
+import: https://raw.githubusercontent.com/tangrams/tangram-sandbox/f84ccd766f7e087ab7d7422171dbc27d5ab8169f/styles/press.yaml
+
+
+sources: 
+    shipping_ba-sf:
+        type: GeoJSON
+        url: https://gist.githubusercontent.com/ghidorahnotweak/d7c67a1b2925b7a82a6a02b6d0177f09/raw/Buenos%2520Aires%2520to%2520Panama%2520Canal%2520to%2520SF.geojson
+
+    railroad:
+        type: GeoJSON
+  #      url: https://transit.land/api/v1/routes.geojson?operated_by=o-9-amtrak
+ #      url: https://transit.land/api/v1/routes/r-9-sunsetlimited.geojson
+#
+        url: https://transit.land/api/v1/route_stop_patterns.geojson?onestop_id=r-9-sunsetlimited-12b436-74af76
+
+
+styles:
+
+    ants:
+        base: lines
+        blend: overlay
+        texcoords: true
+        animated: true
+        shaders:
+            blocks:
+                color: |
+                    color.a = step(.5,fract(u_time-v_texcoord.y*.5));
+
+    reverse_ants:
+        base: lines
+        blend: overlay
+        texcoords: true
+        animated: true
+        shaders:
+            blocks:
+                color: |
+                    color.a = step(.5,fract(u_time+v_texcoord.y*.5));
+
+layers:
+    ba_sf:
+        data: { source: shipping_ba-sf}
+        filter: {name: SF}
+        draw:
+            ants:
+                order: 600
+                color: [0.645, 0.139, 0.102]
+                width: 5px
+
+    new_orleans:
+        data: { source: shipping_ba-sf}
+        filter: {name: NO}
+        draw:
+            reverse_ants:
+                order: 600
+                color: [0.645, 0.139, 0.102]
+                width: 5px
+
+    places:
+        data: { source: osm }
+        filter: { name: true }
+        draw:
+            text:
+                font:
+                    typeface: Italic 14px Times
+                    fill: black
+                    stroke: { color: [1,1,1,.6] ,
+                    width: 5 }
+
+    rail:
+        data: { source: railroad }
+        draw:
+            ants:
+                order: [0.757, 0.510, 0.176, 1.00]
+                color: [0.227, 0.682, 0.898, 1.00]
+                width: 5px

@@ -1,0 +1,162 @@
+import:
+    - https://www.nextzen.org/carto/refill-style-no-labels/7/refill-style-no-labels.zip
+    # - https://www.nextzen.org/carto/refill-style/7/themes/purple-green.zip
+    - https://www.nextzen.org/carto/refill-style/7/themes/gray-gold.zip
+
+
+global:
+  sdk_mapzen_api_key: mapzen-Nv28m8Y
+  source: 4
+  # from_fixed: {from_1: true}
+  from: |
+      function(){
+          var name = 'from_' + global.source
+          if (feature[name]) {return true}
+          else {return false}
+      }
+
+sources:
+    mapzen:
+        type: TopoJSON
+        url: https://tile.nextzen.org/tilezen/vector/v1/all/{z}/{x}/{y}.topojson
+        url_params:
+            api_key: global.sdk_mapzen_api_key
+
+
+    bufano_lines:
+        type: GeoJSON
+        url: https://gist.githubusercontent.com/burritojustice/d6f571511b09ae69385152df052d5653/raw/7e1e0087b4e4d73e6d98ced4d9123cbd7ea9624a/bufano_lines.geojson
+
+    bufano_points:
+        type: GeoJSON
+        # url: https://gist.githubusercontent.com/burritojustice/8c509aa93200d292a60de2a9cc3a679e/raw/e57d7dce091ebaf654958e34d61d353e7f3fd940/1_wof_bundle_canada_85633041_region.geojson 
+        url: https://gist.githubusercontent.com/burritojustice/d6f571511b09ae69385152df052d5653/raw/7e1e0087b4e4d73e6d98ced4d9123cbd7ea9624a/bufano.geojson
+    sf_roasters:
+        type: GeoJSON    
+        url: https://gist.githubusercontent.com/burritojustice/674e34f0afcce17e9574deb949e70536/raw/sf_roasters.geojson
+        
+layers:
+    _points:
+        data: { source: sf_roasters}
+        filter: {layer: venue}
+        draw:
+            points:
+                order: sdk_order_over_everything_but_text_0
+                # order: 1000
+                # color: red
+                # color: '#dc0200'
+                color: '#7811ff'
+                size: 30px
+            _text:
+                text_source: marker-symbol
+                font:
+                    color: white
+                    weight: bold
+                    size: 15px
+                collide: false
+                
+                
+    _lines:
+        data: { source: sf_roasters}
+        filter: global.from
+        draw:
+            lines:
+                color: orange
+                # color: '#dc0200'
+                # color: '#7811ff'
+
+                width: 4px
+                order: 999
+            __text:
+                font:
+                    color: white
+                    size: 14px
+                    weight: bold
+                # text_source: from_1 #make this the same as the data filter in _lines
+                buffer: -15px
+                # repeat_distance: 2px
+                offset: [0,-10px]
+                text_source: |
+                    function(){
+                        var source = global.source // this needs to be the same digit as from_# in the filter and text_source
+                        var from = []
+                        if (feature.from_0) {
+                            from[0] = feature.from_0.split(",")
+                            from[0] = parseInt(from[0][1]).toFixed(1) + 'km '
+                            } else {from[0] = ''}
+                        if (feature.from_1) {
+                            from[1] = feature.from_1.split(",")
+                            from[1] = parseInt(from[1][1]).toFixed(1) + 'km '
+                            } else {from[1] = ''}
+                        if (feature.from_2) {
+                            from[2] = feature.from_2.split(",")
+                            from[2] = parseInt(from[2][1]).toFixed(1) + 'km '
+                            } else {from[2] = ''}
+                        if (feature.from_3) {
+                            from[3] = feature.from_3.split(",")
+                            from[3] = parseInt(from[3][1]).toFixed(1) + 'km '
+                            } else {from[3] = ''}
+                        if (feature.from_4) {
+                            from[4] = feature.from_4.split(",")
+                            from[4] = parseInt(from[4][1]).toFixed(1) + 'km '
+                            } else {from[4] = ''}
+                        if (feature.matrix) {
+                            var matrix = feature.matrix.toString()
+                            var destination = matrix.slice(1,2) != source ? matrix.slice(1,2) : matrix.slice(0,1)
+                            }
+                        else {var matrix = ''}
+                        
+                        // return source + "â" + destination + ", " + from[source]
+                        return "ð " + from[source]
+                    }
+            _text:
+                font:
+                    color: white
+                    size: 14px
+                    weight: bold
+                # text_source: from_0 #make this the same as the data filter in _lines
+                # buffer: -15px
+                # repeat_distance: 2px
+                offset: [0,10px]
+                text_source: |
+                    function(){
+                        var source = global.source // this needs to be the same digit as from_# in the filter and text_source
+                        var from_0, from_1, from_2, from_3, from_4
+                        if (feature.from_0) {
+                            from_0 = feature.from_0.split(",")
+                            from_0 = Math.floor(from_0[0]/60)+':'+(from_0[0] % 60 < 10 ? "0" : "") + from_0[0] % 60
+                            } else {from_0 = ''}
+                        if (feature.from_1) {
+                            from_1 = feature.from_1.split(",")
+                            from_1 = Math.floor(from_1[0]/60)+':'+(from_1[0] % 60 < 10 ? "0" : "") + from_1[0] % 60
+                            } else {from_1 = ''}
+                        if (feature.from_2) {
+                            from_2 = feature.from_2.split(",")
+                            from_2 = Math.floor(from_2[0]/60)+':'+(from_2[0] % 60 < 10 ? "0" : "") + from_2[0] % 60
+                            } else {from_2 = ''}
+                        if (feature.from_3) {
+                            from_3 = feature.from_3.split(",")
+                            from_3 = Math.floor(from_3[0]/60)+":"+(from_3[0] % 60 < 10 ? "0" : "") + from_3[0] % 60
+                            } else {from_3 = ''}
+                        if (feature.from_4) {
+                            from_4 = feature.from_4.split(",")
+                            from_4 = Math.floor(from_4[0]/60)+':'+(from_4[0] % 60 < 10 ? "0" : "") + from_4[0] % 60
+                            } else {from_4 = ''}
+                        // var time = Math.floor(matrix[0]/60)+':'+Math.floor(matrix[0] % 60)
+                        // var distance = matrix[1]/1609.toFixed(1)
+                        // return from_0[0]
+                        // return from_four[0]
+                        var from = [from_0,from_1,from_2,from_3,from_4]
+                        return from[source]
+                        // return feature.from_4
+                        // return from_0 + from_1 + from_2 + from_3 + from_4
+                    }
+                    
+
+styles:
+    _text:
+        base: text
+        blend_order: 3
+    __text:
+        base: text
+        blend_order: 3

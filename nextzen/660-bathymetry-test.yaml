@@ -1,0 +1,31 @@
+import:
+    - https://www.nextzen.org/carto/walkabout-style-more-labels/walkabout-style-more-labels.yaml
+    - https://mapzen-assets.s3.amazonaws.com/resources/demo.yaml
+
+global:
+    ferry1: [1,1,1]
+
+layers:
+    water:
+        data: { source: mapzen, layer: water }
+        draw:
+            terrain:
+                order: function() { return feature.sort_rank + 1;}
+                color: [0.608,0.925,0.965]
+        later:
+            filter: { $zoom: { min: 12 } }
+            draw:
+                terrain:
+                    order: function() { return feature.sort_rank + 2; }
+                    color:  [0.608,0.925,0.965]
+        # lakes:
+        #     draw:
+        #         terrain:
+        #             order: function() { return feature.sort_rank; }
+        #             color: [0.608,0.925,0.965]
+    roads:        
+        ferry:
+            filter: { kind: ferry }
+            draw:
+                lines:
+                    color: white

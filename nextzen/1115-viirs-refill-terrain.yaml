@@ -1,0 +1,431 @@
+import: 
+    # - https://www.nextzen.org/carto/walkabout-style/6/walkabout-style.zip
+    - https://www.nextzen.org/carto/refill-style/9/refill-style.zip
+    # - https://www.nextzen.org/carto/refill-style/9/themes/color-zinc.zip
+    # - https://www.nextzen.org/carto/refill-style/9/themes/color-inverted.zip
+    - https://www.nextzen.org/carto/refill-style/9/themes/color-gray-gold.zip
+    - https://www.nextzen.org/carto/refill-style/9/themes/label-11.zip
+    - https://www.nextzen.org/carto/refill-style/9/themes/detail-11.zip
+    - https://mapzen-assets.s3.amazonaws.com/resources/demo.yaml
+    #- https://raw.githubusercontent.com/tangrams/walkabout-style/gh-pages/layers/bike-interlay.yaml
+    # - https://www.nextzen.org/carto/walkabout-style/5/layers/bike-interlay.yaml
+    # - https://www.nextzen.org/carto/refill-style/8/themes/detail-8.zip
+    # - https://www.nextzen.org/carto/refill-style/8/themes/label-5.zip
+    # - https://www.nextzen.org/carto/refill-style/8/themes/color-gray-gold.zip
+global:
+    color_6: [0,0,1]
+    color_5: [.8,0,.5]
+    color_4: [1,0,0]
+    color_3: [1,.5,0]
+    color_2: [1,1,0]
+    color_1: [.9,.9,.9]
+    date: | 
+        function(feature){
+            var date = feature.ACQ_DATE
+            var time = feature.ACQ_TIME
+            var date = date.replace(/\//g, '-');
+            var hour = time.slice(0, 2)
+            var minute = time.slice(2, 4)
+            var date_string = date + 'T' + hour + ':' + minute + 'Z'
+            var d = new Date(date_string);
+            return d
+            }
+        
+
+styles:
+    colorized_icons:
+        shaders:
+            uniforms:
+                u_tint: [0.00,0.00,0.00]
+    _text:
+        base: text
+        blend_order: 2
+    _text_high:
+        base: text
+        blend_order: 5
+    _points:
+        base: points
+        blend_order: 3
+    _lines:
+        base: lines
+        blend_order: 4
+    terrain:
+        base: polygons
+        lighting: false
+        raster: normal
+        shaders:
+            uniforms:
+                # u_envmap: https://mapzen-assets.s3.amazonaws.com/resources/viirs-375-napa/dark-terrain.jpeg
+                u_envmap: https://s3.amazonaws.com/mapzen-assets/resources/viirs-375-napa/spheremap-refill-terrain-dark-2.jpeg
+                u_contrast: 2.
+                u_zoom_scale: 4.5
+                u_brightness_base: 0.5
+                u_brightness_scaler: 0.5
+            blocks:
+                global: |
+                    // Simplified view-independent environment map
+                    vec4 applyEnvmap (in sampler2D _tex, in vec3 _normal, in float scale) {
+                        _normal.z *= scale;
+                        return texture2D(_tex, .5*(normalize(_normal).xy + 1.));
+                    }
+                color: |
+                    // turn terrain exaggeration up/down
+                    // fade out spheremap normals with a function
+                    float scale1 = 20./(u_map_position.z) + 1.5;
+                    float m = u_zoom_scale * (u_map_position.z - 0.28) * exp(u_map_position.z * -.29);
+                    m = clamp(m, 0., 1.5);
+                    color = applyEnvmap(u_envmap, normal, 1./scale1);
+                    // apply contrast and brightness
+                    float contrast = m;
+                    color.rgb = ((color.rgb - 0.9) * max(contrast, 0.)) + 0.5;
+                    float brightness = u_brightness_base - m * u_brightness_scaler;
+                    color.rgb += brightness/2.;
+                    // apply layer color
+                    color *= v_color;
+
+
+sources:
+    mapzen:
+        # type: TopoJSON
+        # prod
+        rasters: [normals]
+        # tile_size: 512
+        # max_zoom: 16
+    normals: # normals
+        type: Raster
+        # prod
+        url: https://tile.nextzen.org/tilezen/terrain/v1/512/normal/{z}/{x}/{y}.png
+        url_params:
+            api_key: global.sdk_mapzen_api_key
+        tile_size: 512
+        max_zoom: 14
+    viirs_fires:
+        type: GeoJSON
+        url: https://s3.amazonaws.com/mapzen-assets/resources/viirs-375-napa/viirs_24_2017_10_24.geojson
+    modis_fires:
+        type: GeoJSON
+        url: https://s3.amazonaws.com/mapzen-assets/resources/viirs-375-napa/modis_24_2017_10_24.geojson
+    viirs_24_2017_10_9_1954:
+        type: GeoJSON
+        url: https://s3.amazonaws.com/mapzen-assets/resources/viirs-375-napa/viirs_24_2017_10_9_1954.geojson
+    modis_48_2017_10_9:
+        type: GeoJSON
+        url: https://s3.amazonaws.com/mapzen-assets/resources/viirs-375-napa/modis_48_2017_10_9.geojson
+    modis_48_2017_10_10_0950:
+        type: GeoJSON
+        url: https://s3.amazonaws.com/mapzen-assets/resources/viirs-375-napa/modis_7d_2017_10_10_0950.geojson
+    viirs_48_2017_10_10:
+        type: GeoJSON
+        url: https://s3.amazonaws.com/mapzen-assets/resources/viirs-375-napa/viirs_48_2017_10_10.geojson
+    viirs_48_2017_10_10_2118:
+        type: GeoJSON
+        url: https://s3.amazonaws.com/mapzen-assets/resources/viirs-375-napa/viirs_48_2017_10_10_2118.geojson
+    viirs_7_2017_10_10:
+        type: GeoJSON
+        url: https://s3.amazonaws.com/mapzen-assets/resources/viirs-375-napa/viirs_7_2017_10_10.geojson
+    viirs_7_2017_10_11:
+        type: GeoJSON
+        url: https://mapzen-assets.s3.amazonaws.com/resources/viirs-375-napa/viirs_7_2017_10_11.geojson
+    viirs_7_2017_10_11_2054:
+        type: GeoJSON
+        url: https://s3.amazonaws.com/mapzen-assets/resources/viirs-375-napa/viirs_7_2017_10_11_2054.geojson
+    active_perimeters_2017_10_11_1117:
+        type: GeoJSON
+        url: https://s3.amazonaws.com/mapzen-assets/resources/viirs-375-napa/active_perimeters_2017_10_11_1117.geojson
+        generate_label_centroids: true
+    viirs_7_2017_10_12_1054:
+        type: GeoJSON
+        url: https://s3.amazonaws.com/mapzen-assets/resources/viirs-375-napa/viirs_7_2017_10_12_1054.geojson
+    viirs_7_2017_10_12_2036:
+        type: GeoJSON
+        url: https://s3.amazonaws.com/mapzen-assets/resources/viirs-375-napa/viirs_7_2017_10_12_2036.geojson
+layers:
+    landuse:
+        enabled: false
+
+    earth:
+        data: { source: mapzen}
+        draw:
+            terrain:
+                order: function() { return feature.sort_rank || 0; }
+                color: [1.0, 1.0, 1.0]
+            text-blend-order:
+                text_source: global.ux_language_text_source
+            lines:
+                visible: false
+                
+    _viirs_48_time:
+        # enabled: false
+        data: { source: viirs_7_2017_10_12_2036 }
+
+        draw:
+            _points:
+                # interactive: true
+                collide: false
+                # color: red
+                color: |
+                    function() {
+                        var opacity
+                        var color
+
+                        if ($zoom < 8){opacity = '0.3' }
+                        else if ($zoom > 12) {opacity = '0.3'}
+                        else if ($zoom > 7) {opacity = '0.8'}
+                        var color_8 = [0,0,1,.4]
+                        var color_7 = [.2,0,1,.4]
+                        var color_6 = [.5,0,.5,opacity-.2]
+                        var color_5 = [.8,0,.5,opacity-.2]
+                        var color_4 = [1,0,0,opacity-.2]
+                        var color_3 = [1,.5,0,opacity]
+                        var color_2 = [1,1,0,opacity]
+                        var color_1 = [1,1,1,opacity]
+                        var color_0 = [0,1,0,opacity]
+                        var day = feature.ACQ_DATE
+                        var time = parseInt(feature.ACQ_TIME)
+                        var date = global.date(feature)
+                        var now = new Date()
+                        color = [0,1,1,0.2]
+                        if ((day == '2017/10/09') && (time < 1200)){color = color_8}
+                        if ((day == '2017/10/09') && (time > 1200)){color = color_7}
+                        if ((day == '2017/10/10') && (time < 1200)){color = color_6}
+                        if ((day == '2017/10/10') && (time > 1200)){color = color_5}
+                        if ((day == '2017/10/11') && (time < 1200)){color = color_4}
+                        if ((day == '2017/10/11') && (time > 1200)){color = color_3}
+                        if ((day == '2017/10/12') && (time < 1200) ){color = color_2}
+                        if ((day == '2017/10/12') && (time > 1200) ){color = color_1}
+                        if ((day == '2017/10/13') && (time > 1200) ){color = [0,1,1,opacity]}
+                        // color = [0,1,0,opacity]
+
+                        // if ((day == '2017/10/09')&& (time < 1200)){color = [1,0,0,.5]}
+                        // if ((day == '2017/10/09') && (time > 1200)){color = [1,0,0,.5]}
+                        // if ((day == '2017/10/10') && (time < 1200)){color = [1,0,0,.5]}
+                        // if ((day == '2017/10/10') && (time > 1200)){color = [1,0,0,.5]}
+                        // if ((day == '2017/10/11') && (time < 1200)){color = [1,0,0,.5]}
+                        // if ((day == '2017/10/11') && (time > 1200)){color = [1,0,0,.5]}
+                        // if ((day == '2017/10/12') && (time < 1200) ){color = [1,0,0,.5]}
+                        // if ((day == '2017/10/13') && (time < 1200) ){color = [0,1,0,opacity]}
+
+
+                        // if ((day == '2017/10/10') && (time > 1000)){return [.8,.8,.8,opacity-.2]}
+                        // if ((day == '2017/10/10') && (time > 1000)){return [.3,.4,.8,opacity-.2]}
+                        // return [0,.4,1,opacity]
+
+
+                        return color
+                    }
+                # size: [[10,5px],[14,15px],[18,375m]]
+                size: [[10,5px],[13,20px],[14,45px],[15,100px],[17,200px]]
+                # size: function(){ return 375 * $meters_per_pixel }
+                # size: function() { return 375/$meters_per_pixel }
+#                 outline:
+#                     # color: red
+#                     color: |
+#                         function(){
+#                             var opacity = 0.9
+#                             // var temp = feature.BRIGHT_TI4
+#                             // temp = temp - 315
+#                             // return 'hsla(' + temp + ',100%,50%,' + opacity + ')'
+#                             // return [temp,0.2,0]
+#                             // if ((feature.ACQ_TIME == '1954') && ($zoom > 9)){
+#                             //     return [1,1,1,0.9]}
+#                             if ($zoom > 12){
+
+#                         var day = feature.ACQ_DATE
+#                         var time = parseInt(feature.ACQ_TIME)
+#                         // var date = Date.parse(day+time)
+#                         if ((day == '2017/10/09')&& (time < 1200)){color = [.2,0,1,.4]}
+#                         if ((day == '2017/10/09') && (time > 1200)){color = [.5,0,.5,opacity-.2]}
+#                         if ((day == '2017/10/10') && (time < 1200)){color = [.8,0,.5,opacity-.2]}
+#                         if ((day == '2017/10/10') && (time > 1200)){color = [1,0,0,opacity-.2]}
+#                         if ((day == '2017/10/11') && (time < 1200)){color = [1,.5,0,opacity]}
+#                         if ((day == '2017/10/11') && (time > 1200)){color = [1,1,0,opacity]}
+#                         if ((day == '2017/10/12') && (time < 1200) ){color = [1,1,1,opacity]}
+#                         if ((day == '2017/10/13') && (time < 1200) ){color = [0,1,0,opacity]}
+#                             } else {
+#                                  color = [0,0,0,0]}
+#                         return color
+#                         }
+#                     width: 1.5px
+                    # width: 375 m
+                    # width: |
+                    #     function(){
+                    #         return '375m'
+                    #     }
+        labels:
+            filter: {$zoom: {min: 15}}
+            draw:
+                # _points:
+                text:
+                    style: _text
+                    optional: false
+                    collide: false
+                    # text_source: function(){return feature.Name}
+                    # text_source: BRIGHT_TI4
+                    text_wrap: 30
+                    text_source: |
+                        function(){
+                            var date = feature.ACQ_DATE
+                            var time = feature.ACQ_TIME
+                            var date = date.replace(/\//g, '-');
+                            var hour = time.slice(0, 2)
+                            var minute = time.slice(2, 4)
+                            var date_string = date + 'T' + hour + ':' + minute + 'Z'
+                            var d = new Date(date_string);
+                            // return date
+                            var options = { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+                            return d.toLocaleDateString('en-US', options)
+                            // return d.toDateString() + '\n' + d.getHours() + ':' + d.getMinutes()
+                            }
+                    # text_source: function(){return feature.ACQ_TIME +'\n'+ feature.ACQ_DATE}
+                    font:
+                        style: bold
+                        size: 10px
+                        fill: black
+                        stroke:
+                            color: white
+                            width: 3px
+
+    _viirs_fires:
+        enabled: false
+        # data: { source: viirs_fires}
+        data: { source: viirs_24_2017_10_9_1954 }
+        # filter: {ACQ_TIME: '1012'}
+        draw:
+            _points:
+                # interactive: true
+                collide: false
+                # color: red
+                color: |
+                    function() {
+                        var opacity
+                        if ($zoom < 8){opacity = '0.3' }
+                        else if ($zoom > 12) {opacity = '0.3'}
+                        else if ($zoom > 7) {opacity = '0.8'}
+                        var temp = feature.BRIGHT_TI4
+                        // temp = temp/400
+                        temp = temp - 315
+                        // return [temp,0.2,0]
+                        return 'hsla(' + temp + ',100%,50%,' + opacity + ')'
+                    }
+                # size: [[10,5px],[14,15px],[18,375m]]
+                size: [[10,5px],[13,23px],[14,45px],[15,100m],[17,300m]]
+                outline:
+                    # color: red
+                    color: |
+                        function(){
+                            var opacity = 0.9
+                            var temp = feature.BRIGHT_TI4
+                            temp = temp - 315
+                            // return 'hsla(' + temp + ',100%,50%,' + opacity + ')'
+                            // return [temp,0.2,0]
+                            if ((feature.ACQ_TIME == '1954') && ($zoom > 9)){
+                                return [1,1,1,0.9]}
+                            if ($zoom > 12){
+                                return 'hsla(' + temp + ',100%,50%,' + opacity + ')'
+                            } else {
+                                 return [0,0,0,0]}
+                        }
+                    width: 1.5px
+                    # width: 375 m
+                    # width: |
+                    #     function(){
+                    #         return '375m'
+                    #     }
+        labels:
+            filter: {$zoom: {min: 15}}
+            draw:
+                # _points:
+                text:
+                    style: _text
+                    optional: false
+                    collide: false
+                    # text_source: function(){return feature.Name}
+                    # text_source: BRIGHT_TI4
+                    text_source: ACQ_TIME
+                    font:
+                        style: bold
+                        size: 10px
+                        fill: black
+                        stroke:
+                            color: white
+                            width: 3px
+
+
+    _modis_fires:
+        enabled: false
+        data: { source: modis_48_2017_10_10_0950}
+        # filter: {ACQ_DATE: 2017/10/10}
+        # filter: {ACQ_TIME: '2145'}
+        filter: {ACQ_TIME: '0950'}
+
+        draw:
+            _points:
+                # interactive: true
+                collide: false
+                # color: orange
+                color: |
+                    function() {
+                        var temp = feature.BRIGHTNESS
+                        temp = (temp - 300)
+                        temp = (temp / 270) * 64
+                        // return [temp,0.2,0]
+                        return 'hsla(' + temp + ',100%,50%,0.6)'
+                        // temp = temp/400
+                        // return [temp,0,0]
+                    }
+                text:
+                    style: _text
+                    optional: true
+                    collide: false
+                    # text_source: function(){return feature.Name}
+                    # text_source: BRIGHTNESS
+                    text_source: ACQ_TIME
+                    font:
+                        style: bold
+                        size: 10px
+                        fill: black
+                        stroke:
+                            color: white
+                            width: 3px
+
+                size: [[10,10px],[18,16px]]
+                outline:
+                    color: violet
+                    # color: |
+                    #     function(){
+                    #         var opacity = 0.7
+                    #         var temp = feature.BRIGHT_TI4
+                    #         temp = temp - 315
+                    #         // return 'hsla(' + temp + ',100%,50%,' + opacity + ')'
+                    #         // return [temp,0.2,0]
+                    #         if ((feature.ACQ_TIME == '1954') && ($zoom > 9)){
+                    #             return 'white'}
+                    #         if ($zoom > 12){
+                    #             return 'hsla(' + temp + ',100%,50%,' + opacity + ')'
+                    #         } else {
+                    #              return [0,0,0,0]}
+                    #     }
+                    width: 2px
+    perimeters:
+        data: {source: active_perimeters_2017_10_11_1117}
+        # draw:
+        #     lines:
+        #         color: red
+        #         width: 2px
+        #         order: 1000
+        labels:
+            filter: {label_placement: true}
+            draw:
+                _text_high:
+                    text_source: function(){ return feature.FIRENAME + " FIRE"}
+                    font:
+                        # transform: uppercase
+                        transform: lowercase
+                        style: bold
+                        size: 10px
+                        fill: black
+                        stroke:
+                            color: white
+                            width: 3px
+                
+

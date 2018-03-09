@@ -1,0 +1,346 @@
+import:
+    - https://www.nextzen.org/carto/refill-style-no-labels/refill-style-no-labels.yaml
+    # - https://www.nextzen.org/carto/refill-style-more-labels/refill-style-more-labels.yaml
+    - https://mapzen-assets.s3.amazonaws.com/resources/demo.yaml
+    - https://www.nextzen.org/carto/refill-style/8/themes/color-gray-gold.zip
+    # - https://www.nextzen.org/carto/refill-style/8/themes/color-inverted.zip
+global:
+    population: |
+        function(){
+            var pop = feature['statoids:population']
+            var ratio
+            if (pop < 10000){ratio = 0.1} else
+            if (pop < 20000){ratio = 0.2} else
+            if (pop < 40000){ratio = 0.3} else
+            if (pop < 80000){ratio = 0.4} else
+            if (pop < 160000){ratio = 0.5} else
+            if (pop < 320000){ratio = 0.6} else
+            if (pop < 640000){ratio = 0.7} else
+            if (pop < 1280000){ratio = 0.8} else
+            if (pop < 2560000){ratio = 0.9} else
+            if (pop < 5120000) {ratio = 1}
+            if (pop == null){ratio = 0}
+            // var area = feature['statoids:area_km']
+            // area = area.replace(/,/g, '')
+            // var density = 100 * (pop/area)
+            return [0,0,1,ratio]
+        }
+    population_x: |
+        function(){
+            var pop = feature['statoids:population']
+            var ratio
+            if (pop < 100000){ratio = 0.05} else
+            if (pop < 200000){ratio = 0.1} else
+            if (pop < 400000){ratio = 0.2} else
+            if (pop < 800000){ratio = 0.4} else
+            if (pop < 1600000){ratio = 0.6} else
+            if (pop < 3200000){ratio = 0.8} else
+            if (pop < 6400000){ratio = 1.0} 
+            // var area = feature['statoids:area_km']
+            // area = area.replace(/,/g, '')
+            // var density = 100 * (pop/area)
+            return [0,0,1,ratio]
+        }
+
+
+
+styles:
+    _pois:
+        base: points
+        #texture: pois
+        blend: overlay
+        blend_order: 4
+    _points:
+        base: points
+        blend: overlay
+        blend_order: 3
+    _lines:
+        base: lines
+        blend: overlay
+        blend_order: 3
+    _polygons:
+        base: polygons
+        blend: inlay
+        # blend_order: 3
+    _text:
+        base: text
+        blend_order: 3
+        
+sources:
+    # mapzen:
+    #     type: TopoJSON
+    #     url: https://tile.nextzen.org/tilezen/vector/v1/512/all/{z}/{x}/{y}.topojson
+    #     url_params: 
+    #         api_key: global.sdk_mapzen_api_key
+
+
+    mng:
+        type: GeoJSON
+        url: https://gist.githubusercontent.com/burritojustice/d382797922925dce66e4d6d7b71af704/raw/3fb88fdc334fd3be818eb77f1838893a23abcfee/1_wof_bundle_mongolia_85632439_region-county.geojson
+        generate_label_centroids: true
+
+    caf:
+        type: GeoJSON
+        url: https://gist.githubusercontent.com/burritojustice/884e2b04d9a52bcd3392dc4698c3f650/raw/cc339e7236d21f0f8b82f92e9cb369ea76189dd3/1_wof_bundle_central-african%20republic_85632391_region-county.geojson
+        generate_label_centroids: true
+    mex:
+        type: TopoJSON
+        # url: https://gist.githubusercontent.com/burritojustice/8af181daf832bceaa8cbe013b58e12f3/raw/2f6795d54db30209ced9b4459595a3ffe9611cc9/1_wof_bundle_mexico_85633293_region.geojson
+        url: https://gist.githubusercontent.com/burritojustice/96e47723cd1ced8ae11c7ea42f6433b9/raw/fd01a503f0097c9668bde9ea5d07e9734cef58a1/mexico_region_county.topojson
+        generate_label_centroids: true
+        
+    pan: 
+        type: GeoJSON
+        url: https://gist.githubusercontent.com/stepps00/0b02b3e61ef521e0b373ffddf72dc0b7/raw/3b6712b956f57c9d17943f47ca487b84f554e130/1_wof_bundle_panama_85632179_region-county.geojson
+        generate_label_centroids: true
+    car2: 
+        type: GeoJSON
+        url: https://gist.githubusercontent.com/stepps00/7cc79510ae52b3860fe69f72996e0d2d/raw/1e69de4c4241ff70be20a2d5c7034a58d70487c3/1_wof_bundle_central-african%2520republic_85632391_region-county.geojson
+        generate_label_centroids: true
+    yem: 
+        type: GeoJSON
+        url: https://gist.githubusercontent.com/stepps00/24feb46c0cdd72ae84084ca44e976f54/raw/2d9decaf3897917916828d846c21a0e3ec5ddc19/1_wof_bundle_yemen_85632499_region-county.geojson
+        generate_label_centroids: true
+
+layers:
+    boundaries:
+        filter: {not: {kind: region}}
+    panama:
+        data: {source: pan}
+        region:
+            filter:
+                all:
+                    - 'wof:placetype': region
+                    - $zoom: { max: 9 }
+            draw:
+                _lines: 
+                    color: [0,.5,1,0.5]
+                    width: 2px
+                    order: 1001
+                _polygons:
+                    color: global.population
+                    order: 900
+                    
+            labels:
+                filter: 
+                    all:
+                        - label_placement: true
+                        - $zoom: {max: 9}
+                draw:
+                    _text:
+                        # collide: false
+                        buffer: -15
+                        text_source: |
+                            function(){
+                                var pop = Number(feature['statoids:population'])
+                                pop = pop.toLocaleString()
+                                if ($zoom < 6){return feature['statoids:hasc']}
+                                if (($zoom < 7) && ($zoom > 5)){
+                                return feature['statoids:name'] + '\n' +  feature['statoids:hasc'] + '\n' 
+                                } else
+                                    {return feature['statoids:name'] + ' ' + feature['statoids:type'] + '\n' +  feature['statoids:hasc'] + '\n' + pop
+                                        }
+                            }
+                        font:
+                            fill: white
+                            size: 10px
+                            stroke:
+                                color: blue
+                                width: 2px
+        county:
+            filter: 
+                all:
+                    - 'wof:placetype': county
+                    - $zoom: { min: 8 } 
+                not:
+                    - wof:id: [421171341,1108693239]
+            draw:
+                _lines:
+                    color: |
+                        function(){
+                            if ($zoom > 8){
+                                return [0,.5,1,0.3]}
+                            }
+                    width: 2px
+                    order: 1000
+                _polygons:
+                    color: global.population
+                    order: 900
+            labels:
+                filter: 
+                    all:
+                        - label_placement: true
+                        - $zoom: {min: 9}
+                draw:
+                    _text:
+                        text_source: |
+                            function(){ 
+                            var pop = Number(feature['statoids:population'] ).toLocaleString()
+                            if (!pop || pop == 0 || pop == 'NaN'){pop ='n/a'}
+                            return feature['statoids:name'] + ' ' + feature['statoids:type']  + '\n' + feature['statoids:statoid'] + '\npop ' +  pop + '\n' }
+                        font:
+                            fill: skyblue
+                            size: 12px
+                            stroke:
+                                color: black
+                                width: 2px
+    
+    yemen:
+        data: {source: yem}
+        region:
+            filter:
+                all:
+                    - 'wof:placetype': region
+                    - $zoom: { max: 9 }
+            draw:
+                _lines: 
+                    color: [0,.5,1,0.5]
+                    width: 2px
+                    order: 1001
+                _polygons:
+                    color: global.population
+                    order: 900
+                    
+            labels:
+                filter: 
+                    all:
+                        - label_placement: true
+                        - $zoom: {max: 9}
+                draw:
+                    _text:
+                        # collide: false
+                        buffer: -15
+                        text_source: |
+                            function(){
+                                var pop = Number(feature['statoids:population'])
+                                pop = pop.toLocaleString()
+                                if ($zoom < 6){return feature['statoids:hasc']}
+                                if (($zoom < 7) && ($zoom > 5)){
+                                return feature['statoids:name'] + '\n' +  feature['statoids:hasc'] + '\n' 
+                                } else
+                                    {return feature['statoids:name'] + ' ' + feature['statoids:type'] + '\n' +  feature['statoids:hasc'] + '\n' + pop
+                                        }
+                            }
+                        font:
+                            fill: white
+                            size: 10px
+                            stroke:
+                                color: blue
+                                width: 2px
+        county:
+            filter: 
+                all:
+                    - 'wof:placetype': county
+                    - $zoom: { min: 8 } 
+                not:
+                    - wof:id: [421171341,1108693239]
+            draw:
+                _lines:
+                    color: |
+                        function(){
+                            if ($zoom > 8){
+                                return [0,.5,1,0.3]}
+                            }
+                    width: 2px
+                    order: 1000
+                _polygons:
+                    color: global.population
+                    order: 900
+            labels:
+                filter: 
+                    all:
+                        - label_placement: true
+                        - $zoom: {min: 9}
+                draw:
+                    _text:
+                        text_source: |
+                            function(){ 
+                            var pop = Number(feature['statoids:population'] ).toLocaleString()
+                            if (!pop || pop == 0 || pop == 'NaN'){pop ='n/a'}
+                            return feature['statoids:name'] + ' ' + feature['statoids:type']  + '\n' + feature['statoids:statoid'] + '\npop ' +  pop + '\n' }
+                        font:
+                            fill: skyblue
+                            size: 12px
+                            stroke:
+                                color: black
+                                width: 2px
+    car:
+        data: {source: caf}
+        region:
+            filter:
+                all:
+                    - 'wof:placetype': region
+                    - $zoom: { max: 9 }
+            draw:
+                _lines: 
+                    color: [0,.5,1,0.5]
+                    width: 2px
+                    order: 1001
+                _polygons:
+                    color: global.population
+                    order: 900
+                    
+            labels:
+                filter: 
+                    all:
+                        - label_placement: true
+                        - $zoom: {max: 9}
+                draw:
+                    _text:
+                        # collide: false
+                        buffer: -15
+                        text_source: |
+                            function(){
+                                var pop = Number(feature['statoids:population'])
+                                pop = pop.toLocaleString()
+                                if ($zoom < 6){return feature['statoids:hasc']}
+                                if (($zoom < 7) && ($zoom > 5)){
+                                return feature['statoids:name'] + '\n' +  feature['statoids:hasc'] + '\n' 
+                                } else
+                                    {return feature['statoids:name'] + ' ' + feature['statoids:type'] + '\n' +  feature['statoids:hasc'] + '\n' + pop
+                                        }
+                            }
+                        font:
+                            fill: white
+                            size: 10px
+                            stroke:
+                                color: blue
+                                width: 2px
+        county:
+            filter: 
+                all:
+                    - 'wof:placetype': county
+                    - $zoom: { min: 8 } 
+                not:
+                    - wof:id: [421171341,1108693239]
+            draw:
+                _lines:
+                    color: |
+                        function(){
+                            if ($zoom > 8){
+                                return [0,.5,1,0.3]}
+                            }
+                    width: 2px
+                    order: 1000
+                _polygons:
+                    color: global.population
+                    order: 900
+            labels:
+                filter: 
+                    all:
+                        - label_placement: true
+                        - $zoom: {min: 9}
+                draw:
+                    _text:
+                        text_source: |
+                            function(){ 
+                            var pop = Number(feature['statoids:population'] ).toLocaleString()
+                            if (!pop || pop == 0 || pop == 'NaN'){pop ='n/a'}
+                            return feature['statoids:name'] + ' ' + feature['statoids:type']  + '\n' + feature['statoids:statoid'] + '\npop ' +  pop + '\n' }
+                        font:
+                            fill: skyblue
+                            size: 12px
+                            stroke:
+                                color: black
+                                width: 2px
+    

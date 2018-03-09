@@ -1,0 +1,26 @@
+# Author @patriciogv - 2015
+
+import:
+    - grain.yaml
+    - https://tangrams.github.io/blocks/filter/grain.yaml
+    - https://tangrams.github.io/blocks/space/constant.yaml
+    - https://tangrams.github.io/blocks/patterns/stripes.yaml
+
+layers:
+    landuse:
+        draw:
+            landuse:
+                color: [1.000,0.014,0.187]
+
+styles:
+    landuse:
+        base: polygons
+        mix: [patterns-stripes, space-constant]
+        blend: inlay
+        shaders:
+            defines:
+                GRAIN_AMOUNT: 2.
+                NUM_OCTAVES: 2
+            blocks:
+                color: |
+                    color = mix(color,vec4(0.),diagonalStripes( getConstantCoords()*33.))*.8;

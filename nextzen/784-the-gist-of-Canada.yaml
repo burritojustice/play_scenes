@@ -1,0 +1,32 @@
+import: https://www.nextzen.org/carto/refill-style/6/refill-style.yaml
+
+global:
+  sdk_mapzen_api_key: mapzen-Nv28m8Y
+
+sources:
+    mapzen:
+        type: TopoJSON
+        url: https://tile.nextzen.org/tilezen/vector/v1/all/{z}/{x}/{y}.topojson
+        url_params:
+            api_key: global.sdk_mapzen_api_key
+
+
+    geo_canada:
+        type: GeoJSON
+        url: https://gist.githubusercontent.com/burritojustice/8c509aa93200d292a60de2a9cc3a679e/raw/e57d7dce091ebaf654958e34d61d353e7f3fd940/1_wof_bundle_canada_85633041_region.geojson 
+
+    topo_canada:
+        type: TopoJSON
+        # url: https://gist.githubusercontent.com/burritojustice/8c509aa93200d292a60de2a9cc3a679e/raw/e57d7dce091ebaf654958e34d61d353e7f3fd940/1_wof_bundle_canada_85633041_region.geojson 
+        url: https://gist.githubusercontent.com/burritojustice/1108dbf47eb628e8974b403309df9bc1/raw/2250bd7338860b0b691b27775402c4e32e5212ff/canada.topojson
+
+layers:
+    _canada:
+        data: { source: topo_canada}
+            
+        draw:
+            lines:
+                # order: sdk_order_over_everything_but_text_0
+                order: 1000
+                color: red
+                width: 3px

@@ -1,0 +1,74 @@
+import: https://www.nextzen.org/carto/tron-style-more-labels/tron-style-more-labels.zip
+
+styles:
+    
+    fast-traffic-animation:
+        mix: [lines-traffic-animation]
+        shaders:
+            defines:
+                ZOOM_START: 13.
+                DATASTREAM_SPEED: 5.
+    fast-traffic-animation-twoways:
+        mix: [lines-traffic-animation]
+        shaders:
+            defines:
+                ZOOM_START: 13.
+                DATASTREAM_SPEED: 10.
+                DATASTREAM_TWOWAYS: true
+    slow-traffic-animation:
+        mix: [lines-traffic-animation]
+        shaders:
+            defines:
+                ZOOM_START: 18.
+                ZOOM_END: 20.
+                DATASTREAM_SPEED: 10.
+    slow-traffic-animation-twoways:
+        mix: [lines-traffic-animation]
+        shaders:
+            defines:
+                ZOOM_START: 17.
+                ZOOM_END: 20.
+                DATASTREAM_SPEED: 10.
+                DATASTREAM_TWOWAYS: true
+
+    
+    lines-traffic-animation:
+        base: lines
+        mix: [generative-random, tron-palette, functions-zoom]
+        texcoords: true
+        shaders:
+            defines:
+                ZOOM_START: 11.
+                ZOOM_END: 18.
+                DATASTREAM_SPEED: 50.
+                DATASTREAM_ROADS: 5.0 
+                DATASTREAM_MARGIN: z*.3
+                DATASTREAM_COLOR: palette( fract(floor(v_texcoord.x*DATASTREAM_ROADS)/DATASTREAM_ROADS+u_time*.05)*z )
+                DATASTREAM_AMOUNT: .8
+                DATASTREAM_ANIMATED: global.animated
+            blocks:
+                global: |
+                    float datastream_pattern(vec2 st, float v, float t) {
+                        float p = floor(st.y+v);
+                        return step(t, (random(p*.000001)+random(p))*.5 );
+                    }
+                color: |
+                    #ifdef DATASTREAM_ANIMATED
+                    vec2 st = v_texcoord.xy;
+                    float z = zoom();
+                    float datastream_speed = (-.5 * random(floor(v_texcoord.x*DATASTREAM_ROADS)) - .5);
+                    #ifdef DATASTREAM_TWOWAYS
+                    if (st.x < 0.5) {
+                      datastream_speed *= -1.;
+                    }
+                    #endif
+                    
+                    color.rgb = mix(color.rgb,
+                                    DATASTREAM_COLOR,
+                                    z*
+                                    datastream_pattern( st, 
+                                                        (u_time*DATASTREAM_SPEED)*datastream_speed,
+                                                        DATASTREAM_AMOUNT)*
+                                                    smoothstep(DATASTREAM_MARGIN,1.,sin(fract(v_texcoord.x*DATASTREAM_ROADS)*3.1415))
+                                    );
+                    #endif

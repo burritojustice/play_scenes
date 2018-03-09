@@ -1,0 +1,116 @@
+import: 
+    - https://www.nextzen.org/carto/refill-style/8/refill-style.zip
+    - https://mapzen-assets.s3.amazonaws.com/resources/demo.yaml
+
+styles:
+    _text:
+        base: text
+        blend_order: 2
+    _points:
+        base: points
+        blend_order: 3
+    _lines:
+        base: lines
+        blend_order: 4
+    _polygons:
+        base: polygons
+        blend_order: 4
+global:
+    fade: 0.7
+    airports:
+        _points:
+            collide: false
+            color: |
+                function(){
+                    if (feature['oa:type'] == 'large_airport')  {
+                        return [0,0,1,0.5] 
+                        }
+                    if (feature['oa:type'] == 'medium_airport')  {
+                        return [1,0,0,0.2]  
+                        }
+                    if (feature['oa:type'] == 'closed')  {
+                        return [1,1,0,0.0]  
+                        }
+                     else {
+                        return [1,1,0,0.5] //small_airports
+                        }
+                }
+            size: [[5,8px],[15,24px]]
+            outline:
+                color:  [1,0,1,0.4]
+                width: 1px
+            text:
+                text_source: |
+                    function(){
+                        if (feature['name:eng_x_variant'])
+                        {
+                            switch(true) {
+                                case ($zoom > 9): 
+                                    return feature['wof:name'] + '\nelevation\n' + feature['oa:elevation_ft'] + ' ft'
+                                    break
+                                case ($zoom > 8): 
+                                    return feature['wof:name'] 
+                                    break
+                                case ($zoom > 7):
+                                    return feature['name:eng_x_variant'][1]
+                                    break
+                                case ($zoom > 4):
+                                    return feature['name:eng_x_variant'][0]
+                                    break
+                                case (($zoom > 2) && (feature['oa:type'] == 'large_airport')):
+                                    return feature['name:eng_x_variant'][0]
+                                    break
+                                default:
+                                    // return feature['name:eng_x_variant'][0]
+                                    return feature['wof:concordances']['iaco']
+                            }
+                        }
+                    }
+                style: _text
+                font:
+                    style: bold
+                    size: 10px
+                    fill: black
+                    stroke:
+                        color: white
+                        width: 3px
+                optional: true
+    airport_color: |
+        function(){
+            if (feature['oa:type'] == 'large_airport')  {
+                return [0,0,1,0.5] 
+                }
+            if (feature['oa:type'] == 'medium_airport')  {
+                return [1,1,0,0.5]  
+                }
+            if (feature['oa:type'] == 'closed')  {
+                return [1,1,0,0.0]  
+                }
+             else {
+                return [1,0,0,0.5]
+                }
+        }
+sources:
+    venues:
+        type: GeoJSON
+        url: https://places.mapzen.com/v1/?
+        url_params:
+            method: mapzen.places.getDescendants
+            id: 102191573 #africa
+            # id: 85632203 #indonesia
+            # id: 85633057 # chile
+            api_key: global.sdk_mapzen_api_key
+            placetype: campus
+            tags: airport
+            format: geojson
+            per_page: 500
+            extras: wof:tags,wof:concordances,mz:is_current,name:eng_x_variant,oa:type,oa:elevation_ft,wof:name
+layers:
+    _venues:
+        filter: 
+            not:
+                'geom:latitude': 0
+        data: {source: venues}
+        draw:
+            global.airports
+

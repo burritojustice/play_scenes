@@ -1,0 +1,68 @@
+import:
+    https://www.nextzen.org/carto/refill-style-more-labels/refill-style-more-labels.yaml
+    # https://www.nextzen.org/carto/zinc-style-more-labels/zinc-style-more-labels.yaml
+    # https://www.nextzen.org/carto/bubble-wrap-style/bubble-wrap.yaml
+    # https://www.nextzen.org/carto/refill-style/refill-style.yaml
+        
+styles:
+    _mz_icon_style:
+        base: points
+        blend_order: 1
+        texture: https://s3.amazonaws.com/mapzen-assets/images/office-hours/mz_white_sharp_144.png
+    
+layers:
+    roads:
+        major_road:
+            secondary:
+                labels-secondary-z17:
+                    _new_montgomery:
+                        filter: {id: 88572948}
+                        draw:
+                            text-blend-order:
+                                priority: 1
+    buildings:
+        _structure:
+            filter: { id: 261109926}
+            draw:
+                lines:
+                    color: red
+                    width: 2px
+                    order: global.feature_order
+                polygons:
+                    color: red
+                    order: global.feature_order
+                icons:
+                    placement: centroid
+                    color: red
+                    size: [[12, 12px], [15, 24px], [18, 24px], [18, 24px], [22, 30px]]
+                    collide: false
+                    sprite: bicycle
+                # points:
+                #     color: red
+                #     # size: [[16,15px],[17,0]]
+                #     size: 30px
+                #     placement: centroid
+                    priority: 1
+                    
+                    text:
+                        text_source: |
+                            function() {return "Bikes to Books!";}
+                        font:
+                            fill: red
+                            size: 14px    
+                            stroke:
+                                color: white
+                                width: 3
+                            style: bold
+                # _mz_icon_style:
+                #     placement: centroid
+                #     size: 22px
+                #     collide: false
+        footprints:
+            extrude:
+                _office_hours:
+                    filter: { id: 261109926}
+                    draw:
+                        polygons:
+                            color: '#FFD6D6'
+                            order: global.feature_order

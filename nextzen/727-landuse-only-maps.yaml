@@ -1,0 +1,184 @@
+import: 
+    # - https://www.nextzen.org/carto/walkabout-style/5/walkabout-style.zip
+    # - https://www.nextzen.org/carto/walkabout-style-no-labels/5/walkabout-style-no-labels.yaml
+    - https://www.nextzen.org/carto/walkabout-style/5/walkabout-style.yaml
+    - https://mapzen-assets.s3.amazonaws.com/resources/demo.yaml
+
+global:     
+    ux_language: en
+    sdk_path_overlay: false
+    sea_name: |
+        function(feature){
+            var sea_name = feature.name
+            if (sea_name.match(/Mission/i)) {
+                sea_name = sea_name.replace(/district/i, "Gulf")
+                }
+            if (sea_name.match(/Richmond/i)) {
+                sea_name = sea_name.replace(/district/i, "Sound")
+                }
+            if (sea_name.match(/beach/i)) {
+                sea_name = sea_name.replace(/beach/i, "Trench")
+                }
+                
+            if (sea_name.match(/hill/i)) {
+                sea_name = sea_name.replace(/ hill.*/i, " Beach")
+                }
+            if (sea_name.match(/district/i)) {
+                if (sea_name.length > 15)
+                    {sea_name = sea_name.replace(/district/i, "Shoals")}
+                else {sea_name = sea_name.replace(/district/i, "Reef")}
+                }
+            if (sea_name.match(/Mission/i)) {
+                sea_name = sea_name.replace(/district/i, "Gulf")
+                }
+            if (sea_name.match(/valley/i)) {
+                sea_name = sea_name.replace(/valley/i, "Harbor")
+                }
+            if (sea_name.match(/park/i)) {
+                sea_name = sea_name.replace(/park/i, "Anchorage")
+                }
+            if (sea_name.match(/slope/i)) {
+                sea_name = sea_name.replace(/slope/i, "Sloop")
+                }
+            if (sea_name.match(/addition/i)) {
+                sea_name = sea_name.replace(/addition/i, "Subduction")
+                }
+            if (sea_name.match(/heights/i)) {
+                sea_name = sea_name.replace(/heights/i, "Shoals")
+                }
+            if (sea_name.match(/lake/i)) {
+                sea_name = sea_name.replace(/lake/i, " Coast")
+                }
+            if (sea_name.match(/downtown|uptown|midtown/i)) {
+                sea_name = sea_name.replace(/town/i, "Stream")
+                }
+            if (sea_name.match(/side/i)) {
+                sea_name = sea_name.replace(/side/i, " Bay")
+                }
+            if (sea_name.match(/cow/i)) {
+                sea_name = sea_name.replace(/cow/i, "Manatee")
+                }                
+            if (sea_name.match(/creek/i)) {
+                sea_name = sea_name.replace(/creek/i, "Spit")
+                }
+            if (sea_name.match(/ward/i)) {
+                sea_name = sea_name.replace(/ ward/i, " Wave")
+                }
+            if (sea_name.match(/Chelsea/i)) {
+                sea_name = sea_name.replace(/sea/i, "-sea")
+                }
+            if (sea_name.match(/land/i) && !sea_name.match(/island/i)) {
+                sea_name = sea_name.replace(/land/i, " Landing")
+                }
+            if (sea_name.match(/Anchorage Bay/i)) {
+                sea_name = sea_name.replace(/Anchorage Bay/i, "Seaside")
+                }
+            if (sea_name.match(/outer/i)) {
+                sea_name = sea_name.split(' ')
+                sea_name = sea_name[1] + " Depths"
+                }
+            if (sea_name.match(/inner/i)) {
+                sea_name = sea_name.split(' ')
+                sea_name = sea_name[1] + " Shallows"
+                }
+            if (sea_name.match(/castro/i)) {
+                sea_name = sea_name.replace(/Castro/i, "Castrow")
+                }
+            return sea_name
+            }
+        
+scene:
+    background: 
+        color: [0.608,0.925,0.965]
+
+  
+layers:
+    earth:
+        enabled: false
+    water:
+        enabled: false
+    roads:
+        enabled: false
+
+#             any:
+#                 # - bicycle_network: true
+#                 - is_bicycle_related: true
+#             not: 
+#                 - kind: ferry
+    
+    landuse:
+        filter: 
+            not: 
+                - kind: parking
+                - kind: industrial
+                - kind: retail
+                - kind: residential
+                - kind: commercial
+                - kind: bridge
+                # - kind: hospital
+                # - kind: college
+    buildings:
+        enabled: false
+    places:
+        # visible: true
+        neighbourhoods:
+            neighborhood-z16:
+                draw:
+                    text-blend-order:
+                        text_source: |
+                            function(){
+                                return global.sea_name(feature)
+                                }
+                        text_wrap: 15
+
+            neighborhood-z15:
+                draw:
+                    text-blend-order:
+                        text_source: |
+                            function(){
+                                return global.sea_name(feature)
+                                }
+                        text_wrap: 15
+
+            neighborhood-z14:
+                draw:
+                    text-blend-order:
+                        text_source:  |
+                            function(){
+                                return global.sea_name(feature)
+                                }
+                        text_wrap: 15
+            neighborhood-z13:
+                filter:
+                    min_zoom: [11,12,13,14]
+                    # max_zoom: { min: 14 }
+                draw:
+                    text-blend-order:
+                        text_source: |
+                            function(){
+                                return global.sea_name(feature)
+                                }
+                        text_wrap: 15
+
+
+            neighborhood-z12:
+                filter:
+                    min_zoom: [11,12,13,14]
+                draw:
+                    text-blend-order:
+                        text_source: |
+                            function(){
+                                return global.sea_name(feature)
+                                }
+                        text_wrap: 15
+
+
+    pois:
+        # visible: false
+        filter:
+            not:
+                - area: false
+
+                
+    transit:
+        enabled: false

@@ -1,0 +1,296 @@
+global:
+  sdk_mapzen_api_key: mapzen-UJDfMvY
+
+import:
+    - https://www.nextzen.org/carto/refill-style/6/refill-style.yaml
+    - https://s3.amazonaws.com/mapzen-assets/images/blocks/colorbrewer.yaml
+sources:
+
+    sfmta_bike_routes:
+        type: GeoJSON
+        url: https://data.sfgov.org/api/geospatial/x3cv-qums?method=export&format=GeoJSON
+
+#     manhattan_tiger_voronoi:
+#         type: GeoJSON
+#         url: https://mapzen-assets.s3.amazonaws.com/images/test/manhattan_tiger_voronoi.geojson
+#         generate_label_centroids: true
+#     sf_tiger_points:
+#         type: GeoJSON
+#         # url: https://mapzen-assets.s3.amazonaws.com/images/test/SF_TIGER_intersection_points.geojson
+#         url: https://gist.githubusercontent.com/burritojustice/c1b55060efcba94cd1916d561e7b1c74/raw/cc9ad1eb656c12d54bb7d4f4915e3a4a3ff8944e/SF_TIGER_intersection_points.geojson
+#     sf_tiger_voronoi_color:
+#         type: GeoJSON
+#         # url: https://mapzen-assets.s3.amazonaws.com/images/test/SF_TIGER_intersection_voronoi_colorid.geojson
+#         url: https://gist.githubusercontent.com/burritojustice/c1b55060efcba94cd1916d561e7b1c74/raw/cc9ad1eb656c12d54bb7d4f4915e3a4a3ff8944e/SF_TIGER_intersection_voronoi_colorid.geojson
+#         generate_label_centroids: true
+
+styles:
+    _ontop:
+        base: text
+        #texture: pois
+        blend: overlay
+        blend_order: 3
+        
+
+    ants:
+        base: lines
+        blend: overlay
+        texcoords: true
+        animated: true
+        shaders:
+            blocks:
+                color: |
+                    color.a = step(.6,fract(u_time-v_texcoord.y*.5));
+
+    reverse_ants:
+        base: lines
+        blend: overlay
+        texcoords: true
+        animated: true
+        shaders:
+            blocks:
+                color: |
+                    color.a = step(.5,fract(u_time+v_texcoord.y*.5));
+         
+    casing_right_ants:
+        mix: [casing_left,reverse_ants]
+    
+    casing_both_ants:
+        base: lines
+        texcoords: true
+        shaders:
+            defines:
+                OFFSET: 0.7
+            blocks:
+                color: |
+                    vec2 st = v_texcoord.xy;
+                    if (st.x < OFFSET && 1. - st.x < OFFSET) {
+                        discard;
+                    }
+                    float dir = mix(-1.,1.,step(.5,st.x));
+                    color.a = step(.5,fract(u_time*dir-v_texcoord.y*.5));
+            
+    casing_both:
+        base: lines
+        texcoords: true
+        shaders:
+            uniforms:
+                OFFSET: 0.7
+            blocks:
+                color: |
+                    vec2 st = v_texcoord.xy;
+                    if (st.x < OFFSET && 1. - st.x < OFFSET) {
+                        discard;
+                    }
+    casing_left:
+        mix: casing_right
+        shaders:
+            uniforms:
+                FLIP: true
+    casing_right:
+        base: lines
+        texcoords: true
+        shaders:
+            uniforms:
+                FLIP: false
+                OFFSET: 0.7
+            blocks:
+                color: |
+                    vec2 st = v_texcoord.xy;
+                    if (FLIP) {
+                        st.x = 1. - st.x;
+                    }
+
+                    if (st.x < OFFSET) {
+                        discard;
+                    }
+
+#     _polygons:
+#         base: polygons
+#         blend: multiply
+#         blend_order: 0
+#     _pointsontop:
+#         base: points
+#         #texture: pois
+#         blend_order: 3
+    
+layers:
+    _sfmta_bike_routes:
+        data: {source: sfmta_bike_routes}
+        draw:
+            lines:
+                width: 3px
+                order: 500
+                color:  |
+                    function() {                        
+                        var v_color = feature.facility_type;
+                        var color =
+                            v_color == "BIKE ROUTE" ? global.Spectral.d6.d6 :
+                            v_color == "BIKE LANE" ? global.Spectral.d6.d3 :
+                            v_color == "BIKE PATH" ? global.Spectral.d6.d5 :
+                           "black";   
+                        return color;
+                            }
+            _ontop:
+                filter: {  $zoom: {max: 16  }}
+                text_source: |
+                    function(){
+                        var year;
+                        if (feature.install_year == 0){
+                            year = '';
+                            }
+                        else {
+                            year = ' (' + feature.install_year + ')';
+                            }                        
+                        return feature.bike_route_number + year  
+                    }
+                font:
+                    size: 10px
+                    fill: white
+                    stroke:
+                        color: black
+                        width: 2
+        innovative_treatments:
+            filter: { $zoom: {min: 16  }}
+            draw:
+                _ontop:
+                    text_source: |
+                        function(){
+                            return feature.innovative_treatments  
+                        }
+                    font:
+                        size: 10px
+                        fill: white
+                        stroke:
+                            color: black
+                            width: 2
+
+    
+    _green_wave:
+        data: {source: sfmta_bike_routes}
+        filter: 
+            any:
+                - innovative_treatments: "GREEN WAVE"
+                - cnn_id:
+                    min: 5689000
+                    max: 5699000
+        14th:
+            filter: 
+                street_name: "14TH"
+            draw:
+                casing_right_ants:
+                    color: green
+                    width: 10px
+                    order: 2000        
+        not_14th:
+            filter: 
+                not: {street_name: "14TH"}
+            draw:
+                casing_both_ants:
+                    color: green
+                    width: 10px
+                    order: 2000
+                
+    _sfmta_bike_improvements:
+        data: {source: sfmta_bike_routes}
+        draw:
+            lines:
+                width: [[13,4px],[16,8px]]
+                order: 499
+                color:  |
+                    function() {                        
+                        var v_color = feature.innovative_treatments;
+                        var color =
+                            v_color == "WIGGLE IMPROVEMENT" ? 'red' :
+                            v_color == "SEPARATED BIKEWAY" ? global.Spectral.d6.d3 :
+                            v_color == "GREEN WAVE" ? global.Spectral.d6.d5 :
+                           v_color == "BUFFERED BIKE LANE" ? global.Spectral.d6.d2 :
+                           "black";   
+                        return color;
+                            }
+
+
+
+    # _sf_voronoi_colorid:
+#         data: {source: sf_tiger_voronoi_color}
+#         draw:
+#             lines:
+#                 color: grey
+#                 width: [[12,0.5px],[18,2px]]
+#                 order: 1001
+#             _polygons:
+#                 color: |
+#                     function() {                        
+#                         var v_color = feature.COLORID;
+#                         var color =
+#                             v_color = 0 ? global.RdYlGn.d7.d1 :
+#                             v_color < 1 ? global.RdYlBu.d7.d2 :
+#                             v_color < 2 ? global.RdYlBu.d7.d3 :
+#                             v_color < 3 ? global.RdYlBu.d7.d4 :
+#                             v_color < 4 ? global.RdYlBu.d7.d5 :
+#                             v_color < 5 ? global.RdYlBu.d7.d6 :
+#                             global.RdYlBu.d7.d7 ;   
+#                         return color;
+#                             }
+#                 order: 1000
+#         labels:
+#             filter: { label_placement: true, $zoom: {min: 16  }}
+#             draw:
+#                 _ontop:
+#                     text_source: intersect
+#                     font:
+#                         size: 10px
+#                         fill: white
+#                         stroke:
+#                             color: black
+#                             width: 2
+
+#     _sf_intersections:
+#         data: { source: sf_tiger_points}
+#         filter: { $zoom: {min: 15 } }
+#         draw:
+#             points:
+#                 color: blue
+#                 size: 5
+
+#     _manhattan_voronoi_colorid:
+#         data: {source: manhattan_tiger_voronoi}
+#         draw:
+#             lines:
+#                 color: grey
+#                 width: [[12,0.5px],[18,2px]]
+#                 order: 1001
+#             _polygons:
+#                 color: |
+#                     function() {                        
+#                         var v_color = feature.COLORID;
+#                         var color =
+#                             v_color = 0 ? global.YlOrBr.d7.d1 :
+#                             v_color < 1 ? global.YlOrBr.d7.d2 :
+#                             v_color < 2 ? global.YlOrBr.d7.d3 :
+#                             v_color < 3 ? global.YlOrBr.d7.d4 :
+#                             v_color < 4 ? global.YlOrBr.d7.d5 :
+#                             v_color < 5 ? global.YlOrBr.d7.d6 :
+#                             global.YlOrBr.d7.d7 ;   
+#                         return color;
+#                             }
+#                 order: 1000
+#         labels:
+#             filter: { label_placement: true, $zoom: {min: 16  }}
+#             draw:
+#                 _ontop:
+#                     text_source: UID
+#                     font:
+#                         size: 10px
+#                         fill: white
+#                         stroke:
+#                             color: black
+#                             width: 2
+#     _manhattan_intersections:
+#         data: { source: manhattan_tiger_intersections}
+#         filter: { $zoom: {min: 15 } }
+#         draw:
+#             _pointsontop:
+#                 color: blue
+#                 size: 5
+

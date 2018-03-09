@@ -1,0 +1,217 @@
+import:
+    # - https://www.nextzen.org/carto/refill-style-no-labels/refill-style-no-labels.yaml
+    - https://www.nextzen.org/carto/refill-style/8/refill-style.zip
+    # recolor basemap style with a theme color
+    # - https://www.nextzen.org/carto/refill-style/8/themes/color-gray-gold.zip
+    # - https://www.nextzen.org/carto/refill-style-more-labels/refill-style-more-labels.yaml
+    - https://mapzen-assets.s3.amazonaws.com/resources/demo.yaml
+
+global:
+    order: |
+        function(){
+            if ($zoom > 17){return 200}
+            else {return 400}
+            }
+    
+
+#     max: |
+#        function(feature){
+#             var counts = Object.keys(feature).map(key => feature[key])
+#             //var counts = Array.from(feature.cds_COUNT)
+#             max = Math.max(counts)
+#             return max
+#             }
+        
+
+
+styles:
+    _pois:
+        base: points
+        #texture: pois
+        blend: overlay
+        blend_order: 4
+    _points:
+        base: points
+        #texture: pois
+        blend: overlay
+        blend_order: 3
+    _polygons:
+        base: polygons
+        #texture: pois
+        blend: inlay
+        # blend_order: 3
+    _text:
+        base: text
+        blend_order: 3
+        
+sources:
+
+    bernal:
+        type: GeoJSON
+        url: https://gist.githubusercontent.com/burritojustice/27f85db10c6a5f876638ed72512a7643/raw/c8fb007ce7887b72790443cb31877d912296c300/1_wof_bundle_bernal-heights_85865945_microhood.geojson
+        generate_label_centroids: true
+        tile_size: 512
+
+    la_lengua:
+        type: GeoJSON
+        url: https://whosonfirst.mapzen.com/data/102/112/179/102112179.geojson
+        generate_label_centroids: true
+
+    lost_tribe:
+        type: GeoJSON
+        url: https://whosonfirst.mapzen.com/data/420/780/711/420780711.geojson
+        generate_label_centroids: true
+
+
+
+    neighbourhoods:
+        type: GeoJSON
+        url: https://gist.githubusercontent.com/burritojustice/d125dfe0abe8432b3b98d1fbdc83ef3f/raw/664e584ab52d85e4dbd3553513f0d3b27782020e/1_wof_bundle_san-francisco_85922583_neighbourhood_simple.geojson
+        generate_label_centroids: true
+
+    macrohoods:
+        type: GeoJSON
+        url: https://gist.githubusercontent.com/burritojustice/c94a5b9bfa270b715bf770e4c014db95/raw/a4c5f1275a2fd90f54fbce620f7b14945ed50cd3/1_wof_bundle_san-francisco_85922583_macrohood.geojson
+        generate_label_centroids: true
+
+layers:
+    _bernal:
+        # enabled: false
+        data: {source: bernal}
+
+        draw:
+            _polygons: 
+                # color: [1,0,0,0.3]
+                color: |
+                    function(){
+                        var area = feature["geom:area_square_m"]
+                        area = area.toString()
+                        var id = area.slice(0, 5)
+                        color = 'hsla('+ id +', 100%, 50%, .5)'
+                        if (feature["wof:name"] == "NanoTokyo"){color = [1,0,0,0.8]} 
+                        return color
+                        }
+                width: 2px
+                # order: 101
+                order: |
+                    function(){
+                        if ($zoom > 17){return 200}
+                        else {return 400}
+                        if (feature["wof:name"] == "NanoTokyo"){
+                            return 201
+                            }
+                        }
+                    
+            lines:
+                # color: [0,0,0,0]
+                color: grey
+                width: 2px
+                order: 200
+                
+        labels:
+            filter: 
+                all:
+                    - label_placement: true
+                    # - $zoom: { min: 13 }
+
+            draw:
+                _text:
+                    text_source: wof:name
+                    buffer: -20
+                    # text_wrap: 35
+                    # collide: false
+                    font:
+                        transform: uppercase
+                        fill: blue
+                        size: [[9,8px],[18,18px]]
+                        stroke:
+                            color: white
+                            width: 4px
+
+    _la_lengua:
+        # enabled: false
+        data: {source: la_lengua}
+        draw:
+            _polygons: 
+                color: [0,0,1,.5]
+                width: 2px
+                order: global.order
+            lines:
+                # color: [0,0,0,0]
+                color: grey
+
+
+                width: 2px
+                order: 200
+        labels:
+            filter: 
+                all:
+                    - label_placement: true
+                    # - $zoom: { min: 13 }
+            draw:
+                _text:
+                    text_source: wof:name
+                    text_wrap: 35
+                    # collide: false
+                    font:
+                        transform: uppercase
+                        fill: magenta
+                        size: [[9,8px],[18,18px]]
+                        stroke:
+                            color: white
+                            width: 4px
+
+    _lost_tribe:
+        # enabled: false
+        data: {source: lost_tribe}
+        draw:
+            _polygons: 
+                color: [0,1,1,.5]
+                width: 2px
+                order: global.order
+                # order: 101
+                # order: |
+                #     function(){
+                #         if ($zoom > 16){return 200}
+                #         else {return 2000}
+                #         }
+            lines:
+                # color: [0,0,0,0]
+                color: grey
+                width: 2px
+
+                order: 200
+        labels:
+            filter: 
+                all:
+                    - label_placement: true
+                    # - $zoom: { min: 13 }
+            draw:
+                _text:
+                    text_source: wof:name
+                    text_wrap: 35
+                    # collide: false
+                    font:
+                        transform: uppercase
+                        fill: blue
+                        size: [[9,6px],[18,18px]]
+                        stroke:
+                            color: white
+                            width: 4px
+
+
+
+    roads:
+        data: { source: mapzen, layer: roads }
+        filter: 
+            not: 
+                - kind: rail
+                - kind: highway 
+        # visible: false
+        draw:
+            lines:
+                interactive: true
+                #color: black
+                width: 1px
+                order: global.feature_order
+                # but give them all the same outline

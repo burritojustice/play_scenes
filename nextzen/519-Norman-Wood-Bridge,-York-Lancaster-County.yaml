@@ -1,0 +1,182 @@
+  
+import:
+    # - https://tangrams.github.io/blocks/global.yaml
+    # - https://tangrams.github.io/blocks/filter/height.yaml
+    - https://www.nextzen.org/carto/refill-style/refill-style.yaml
+    - https://mapzen-assets.s3.amazonaws.com/resources/demo.yaml
+
+    
+    # - https://www.nextzen.org/carto/walkabout-style/walkabout-style.yaml
+    # - https://www.nextzen.org/carto/zinc-style/zinc-style.yaml
+    
+sources:
+    norman_wood_bridge:
+        type: GeoJSON
+        url: https://s3.amazonaws.com/mapzen-assets/images/post-isochrone/norman_wood_bridge.geojson
+
+    regular:
+        type: GeoJSON
+        url: https://s3.amazonaws.com/mapzen-assets/images/post-isochrone/regular.geojson
+        # url_params:
+        #     api_key:  # (be sure to add your API key to pull in polygons from the server https://mapzen.com/developers)
+
+    avoid:
+        type: GeoJSON
+        url: https://s3.amazonaws.com/mapzen-assets/images/post-isochrone/avoid.geojson
+        # url_params:
+        #     api_key:  # (be sure to add your API key to pull in polygons from the server https://mapzen.com/developers)
+
+styles:
+    _dashed-lines:
+        base: lines
+        dash: [2, 1]
+        dash_background_color: red
+    _closed:
+        base: points
+        blend_order: 10
+        blend: overlay
+        texture: https://s3.amazonaws.com/mapzen-assets/images/post-isochrone/prohibited-sign.png
+    _polygons:
+        base: polygons
+        blend: overlay
+
+
+    sdk-point-overlay:
+        base: points
+        #texture: pois
+        interactive: true
+        blend: overlay
+        blend_order: 3
+    sdk-text-overlay:
+        base: text
+        #texture: pois
+        interactive: true
+        blend: overlay
+        blend_order: 3
+    _text:
+        base: text
+        blend_order: 100
+        blend: overlay
+
+
+layers:
+    _norman_wood_bridge:
+        data: { source: norman_wood_bridge}
+        _bridge:
+            filter: { $zoom: {min: 11}}
+            draw: 
+                _dashed-lines:
+                    color: white
+                    width: 5px
+                    order: 1000
+                    outline:
+                        color: red
+                        width: 2px
+        _point:
+            filter: 
+                all: 
+                    - label: true
+                    - $zoom: { max: 11}
+            draw:
+                _closed:
+                    collide: false
+                    size: 50px
+                
+                # points:
+                #     collide: false
+                #     color: white
+                #     width: 18px
+                #     outline:
+                #         color: blue
+                #         width: 3px
+                    text:
+                        # blend_order: 1
+                        collide: false
+                        text_wrap: 20
+                        font:
+                            fill: blue
+                            size: 14px
+                            stroke:
+                                color: white
+                                width: 3px
+        _labels:
+            filter: { $zoom: { min: 11 } }
+            draw:
+                _text:
+                    collide: false
+                    font:
+                        fill: blue
+                        size: 12px
+                        stroke:
+                            color: white
+                            width: 3px
+                    offset: [0px,-12px]
+                        
+    buildings:
+        visible: false
+        
+    places:
+        populated_places:
+                neighborhood-z14:
+                    draw:
+                        text-blend-order:
+                            font:
+                                fill: black
+                                stroke: { color: [1.0,1.0,1.0], width: 3}
+
+
+
+#     _regular:
+#         data: { source: regular }
+#         draw:
+#             _polygons:
+#                 order: |
+#                     function() {
+#                         return Math.floor(100 - ((feature.contour/120) * 50));
+#                         }
+#                 color: |
+#                     function() {
+#                         return feature.fill;
+#                         }
+                        
+#             lines:
+#                 order: 4000
+#                 color: |
+#                     function() {
+#                         return feature.fill;
+#                         }
+#                 width: [[10,2px],[18,10px]]
+#                 outline:
+#                     color: white
+#                     width: [[10,2px],[18,4px]]
+                
+    _avoid:
+        data: { source: avoid }
+        draw:
+            polygons:
+                order: |
+                    function() {
+                        return Math.floor(100 - ((feature.contour/120) * 50));
+                        }
+                color: |
+                    function() {
+                        return feature.fill;
+                        }
+                        
+
+
+    # roads:
+    #     data: { source: mapzen, layer: roads }
+    #     filter: { not: { kind: rail } }
+    #     draw:
+    #         lines:
+    #             interactive: true
+    #             #color: black
+    #             width: 1px
+    #             order: global.feature_order
+    #             # but give them all the same outline
+    #             outline:
+    #                 style: _outline
+                    # color: white
+                    # width: 2px
+                    # blend: function() { if sdk_data_viz_road_friendly return 'multiply';  else return 'normal'}    

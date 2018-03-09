@@ -1,0 +1,328 @@
+import: 
+    - https://www.nextzen.org/carto/refill-style/8/refill-style.zip
+    - https://mapzen-assets.s3.amazonaws.com/resources/demo.yaml
+    - https://www.nextzen.org/carto/refill-style/8/themes/detail-6.zip
+    # - https://www.nextzen.org/carto/refill-style/8/themes/label-10.zip
+
+global:
+    ordinator: |
+        function(i){
+            var j = i % 10,
+                k = i % 100;
+            if (j == 1 && k != 11) {
+                return i + "st";
+            }
+            if (j == 2 && k != 12) {
+                return i + "nd";
+            }
+            if (j == 3 && k != 13) {
+                return i + "rd";
+            }
+            if (j == -1 && k != -11) {
+                return i + "st";
+            }
+            if (j == -2 && k != -12) {
+                return i + "nd";
+            }
+            return i + "th";
+        }
+    street_color:  |
+        function(feature){
+            var name
+            if (feature.name)
+                {name = feature.name}
+            else {name = ''}
+            var color = 'lightgrey'
+            if (name.match(/Harrison/i)) {
+               color = 'blue'
+                }
+            if (name.match(/Howard/i)) {
+               color = 'lightgreen'
+                }
+            if (name.match(/Folsom/i)) {
+               color = 'orange'
+                }
+            if (name.match(/Mission/i)) {
+               color = 'red'
+                }
+            return color
+        }
+
+    housenumber_color:  |
+        function(feature){
+            var name
+            if (feature.addr_street)
+                {name = feature.addr_street}
+            else {name = ''}
+            var color = 'black'
+            if (name.match(/Harrison/i)) {
+               color = 'lightblue'
+                }
+            if (name.match(/Howard/i)) {
+               color = 'lightgreen'
+                }
+            if (name.match(/Folsom/i)) {
+               color = 'lightorange'
+                } 
+            if (name.match(/Mission/i)) {
+               color = 'pink'
+                }  
+            return color               
+        }
+        
+    address_range_color:  |
+        function(feature){
+            var name
+            if (feature.FULLNAME)
+                {name = feature.FULLNAME}
+            else {name = ''}
+            var color = 'black'
+            if (name.match(/Harrison/i)) {
+               color = 'blue'
+                }
+            if (name.match(/Howard/i)) {
+               color = 'green'
+                }
+            if (name.match(/Folsom/i)) {
+               color = 'brown'
+                }
+            if (name.match(/Mission/i)) {
+               color = 'red'
+                }
+            return color
+        }
+        
+
+
+sources:
+    mapzen:
+        type: TopoJSON
+        url: https://tile.nextzen.org/tilezen/vector/v1/512/all/{z}/{x}/{y}.topojson
+        
+    tiger_address_ranges:
+        type: GeoJSON
+        # url: https://s3.amazonaws.com/mapzen-assets/resources/sf_address_ranges/SF_address_ranges.geojson
+        # url: https://mapzen-assets.s3.amazonaws.com/resources/sf_address_ranges/SF_address_ranges_test.geojson
+        url: https://gist.githubusercontent.com/burritojustice/8db0f81ac6b44983433ea0b0bb3a620b/raw/f41950611af83922fd6bade304240ac2aaa0b978/SF_address_ranges_test.geojson
+
+layers:
+    address_ranges:
+        filter: 
+            FULLNAME: [Mission St, Howard St, Folsom St, Harrison St]
+        data: { source: tiger_address_ranges}
+        block:
+            draw:
+                _text:
+                    # collide: false
+                    # buffer: -1px
+                    # offset: [0px,-20px]
+                    text_source: |
+                        function(){ 
+                            var start
+                            var l_start, r_start
+                            if (feature.LFROMADD) 
+                                {l_start = feature.LFROMADD}
+                            else {l_start = ''}
+                            if (feature.RFROMADD) 
+                                {r_start = feature.RFROMADD}
+                            else {r_start = ''}
+                            if (!r_start && !l_start){return ''}
+                            
+                            start = Math.max(l_start,r_start)
+                            
+                            var block = Math.floor(start/100)
+                            var street = block - 4
+                            if ($zoom < 17){return block * 100 + '\n' + 'block'}
+                            else {
+                            return block * 100 + ' block\n\n' + global.ordinator(street) + 'â' + global.ordinator(street + 1)
+                                }
+                            }
+                    font:
+                        # weight: bold
+                        size: [[12,8px],[18,14px]]
+                        fill: |   
+                            function(){ 
+                                return global.address_range_color(feature)
+                                    }
+                        stroke:
+                            color: white
+                            width: 3
+#         range:
+#             draw:
+#             # lines:
+#             #     color: pink
+#             #     width: 10px
+#             #     order: 10
+#                 _text:
+#                     # text_source: RFROMADD
+#                     text_source: |
+#                         function(){
+#                             var start, end
+#                             var l_start, r_start, l_end, r_end
+#                             if (feature.LFROMADD) 
+#                                 {l_start = feature.LFROMADD}
+#                             else {l_start = ''}
+#                             if (feature.RFROMADD) 
+#                                 {r_start = feature.RFROMADD}
+#                             else {r_start = ''}
+#                             if (feature.RTOADD) 
+#                                 {r_end = feature.RTOADD}
+#                             else {r_end = ''}
+#                             if (feature.LTOADD) 
+#                                 {l_end = feature.LTOADD}
+#                             else {l_end = ''}     
+#                             start = Math.min(l_start,r_start)
+#                             end = Math.min(l_end,r_end)
+#                             if (start == 0) {start = ''}
+#                             if (end == 0) {end = ''}
+
+#                             return start + '-' + end
+#                         }
+#                     offset: [0px,-15px]
+#                     buffer: -2
+#                     # collide: false
+#                     font:
+#                         # weight: bold
+#                         size: 10px
+#                         fill: |   
+#                             function(){ 
+#                                 return global.address_range_color(feature)
+#                                     }
+#                         stroke:
+#                             color: white
+#                             width: 2
+
+    
+    buildings:
+        filter:
+            any:
+                - addr_street: [Mission Street,Howard Street,Folsom Street,Harrison Street]
+                # - addr_street: Mission Street
+                # - addr_street: Howard Street
+                # - addr_street: Folsom Street
+                # - addr_street: Harrison Street
+        draw:
+            text:
+                text_source: addr_housenumber
+                font:
+                    stroke:
+                        color: white
+                        width: 3px
+                    fill: |   
+                        function(){ 
+                            return global.housenumber_color(feature)
+                                }
+    roads:
+        # data: { source: mapzen }
+        filter:
+
+            any:
+                - name: [Mission St.,Howard St.,Folsom St.,Harrison St.]
+                - name: [30th St.,29th St.,28th St.,27th St.,26th St.,25th St.,24th St.,23rd St.,22nd St.,21st St.,20th St.,19th St.,18th St.,17th St.,16th St.,15th St.,14th St.,13th St.,12th St.,11th St.,10th St.,9th St.,8th St.,7th St.,6th St.,5th St.,4th St.,3rd St.,2nd St.,1st St.]
+                - name: [New Montgomery St.,Fremont St.,Spear St.,Main St.,The Embarcadero,Beale St.,Steuart St.]
+                # - name: S Van Ness Ave.
+            not:
+                - bus_shield_text: T-Owl # to not draw Third past the ballpark
+
+        early:
+            draw:
+                lines:
+                    color: |   
+                        function(){ 
+                            return global.street_color(feature)
+                        }
+                    width: 2px
+                    order: 500  
+            
+        minor_road:
+            primary:
+                early:
+                    draw:
+                        lines:
+                            color: |   
+                                function(){ 
+                                    return global.street_color(feature)
+                                }
+                            width: 2px
+                            order: 500        
+        major_road:
+            trunk:
+                draw:
+                    lines:
+                        color: |   
+                            function(){ 
+                                return global.street_color(feature)
+                            }
+                        width: 2px
+                        order: 500
+            primary:
+                early:
+                    draw:
+                        lines:
+                            color: |   
+                                function(){ 
+                                    return global.street_color(feature)
+                                }
+                            width: 2px
+                            order: 500
+        # major_road:
+        #     z:
+        #         # early:
+        #         draw:
+        #             lines:
+        #                 color: |
+        #                     function(){
+        #                         var name = feature.name
+        #                         if (name.match(/Harrison/i)) {
+        #                            return 'blue'
+        #                             }
+        #                         if (name.match(/Howard/i)) {
+        #                            return 'lightgreen'
+        #                             }
+        #                         if (name.match(/Folsom/i)) {
+        #                            return 'orange'
+        #                             } 
+        #                         if (name.match(/Mission/i)) {
+        #                            return 'red'
+        #                             }  
+        #                         else {return 'black'}
+        #                     }
+        #                 # color: lightgreen
+        #                 width: 2px
+        #                 order: 500
+            secondary:
+                early:
+                    draw:
+                        lines:
+                            color: |   
+                                function(){ 
+                                    return global.street_color(feature)
+                                }
+                            width: 2px
+                            order: 500
+                        # text:
+                        #     text_source: | 
+                        #         function(){ 
+                        #             return global.street_color(feature)
+                        #         }    
+                        #     font:
+                        #         # fill: pink
+                        #         size: 12px
+            tertiary:
+                early:
+                    draw:
+                        lines:
+                            color: |
+                                function(){ 
+                                    return global.street_color(feature)
+                                }
+                            width: 2px
+                            # order: 500
+    pois:
+        filter: 
+            not:
+                kind: place_of_worship
+styles:
+    _text:
+        base: text
+        blend_order: 3

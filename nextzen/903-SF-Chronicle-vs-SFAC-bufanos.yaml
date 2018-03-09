@@ -1,0 +1,93 @@
+import: 
+    - https://www.nextzen.org/carto/refill-style/8/refill-style.zip
+    - https://mapzen-assets.s3.amazonaws.com/resources/demo.yaml
+    - https://www.nextzen.org/carto/refill-style/8/themes/detail-6.zip
+    # - https://www.nextzen.org/carto/refill-style/8/themes/label-10.zip
+
+
+
+sources:
+    mapzen:
+        type: TopoJSON
+        url: https://tile.nextzen.org/tilezen/vector/v1/512/all/{z}/{x}/{y}.topojson
+        
+    bufano_chron:
+        type: GeoJSON
+        url: https://gist.githubusercontent.com/burritojustice/032e6ed895b3c15bf816e0b380fa0fb9/raw/0913fd417061f6ed5295285130ba992cdd8b9863/bufano_chronicle_map.geojson
+
+    bufano_sfac:
+        type: GeoJSON
+        url: https://gist.githubusercontent.com/burritojustice/d6f571511b09ae69385152df052d5653/raw/7e1e0087b4e4d73e6d98ced4d9123cbd7ea9624a/bufano.geojson
+layers:
+    # earth:
+    #     draw:
+    #         lines:
+    #             tile_edges: true
+    #             color: pink
+    #             width: 2px
+    #             order: 500
+    # water:
+    #     draw:
+    #         lines:
+    #             tile_edges: true
+    #             color: lightblue
+    #             width: 2px
+    #             order: 500
+                
+    _bufano_chron:
+        data: { source: bufano_chron}
+        draw:
+
+            _points:
+                # collide: false
+                color: [1,0,0,0.5]
+                width: 10px
+                outline:
+                    color: grey
+                    width: 2px
+                text:
+                    collide: true
+                    # text_source: function(){return feature.Name}
+                    text_source: Name
+                    font:
+                        style: bold
+                        size: 12px
+                        fill: black
+                        stroke: 
+                            color: white
+                            width: 3px
+                    optional: true
+
+    _bufano_sfac:
+
+        data: { source: bufano_sfac}
+
+
+        draw:
+            _points:
+                collide: false
+                color: [0,0,1,0.5]
+                width: 10px
+                outline:
+                    color: grey
+                    width: 2px
+                text:
+                    collide: true
+                    # text_source: function(){return feature.Name}
+                    text_source: 'wof:name'
+                    font:
+                        style: bold
+                        size: 12px
+                        fill: black
+                        stroke: 
+                            color: white
+                            width: 3px
+                    optional: true
+
+styles:
+    _text:
+        base: text
+        blend_order: 3
+    _points:
+        base: points
+        blend_order: 3

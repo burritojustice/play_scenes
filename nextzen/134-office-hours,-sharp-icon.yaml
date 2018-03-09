@@ -1,0 +1,91 @@
+import:
+    # https://www.nextzen.org/carto/zinc-style-more-labels/zinc-style-more-labels.yaml
+    https://www.nextzen.org/carto/refill-style-more-labels/refill-style-more-labels.yaml
+    # https://www.nextzen.org/carto/bubble-wrap-style/bubble-wrap.yaml
+    # https://www.nextzen.org/carto/refill-style/refill-style.yaml
+sources:
+    osm:
+        type: TopoJSON
+        url: https://tile.nextzen.org/tilezen/vector/v1/all/{z}/{x}/{y}.topojson
+        max_zoom: 16
+
+cameras:
+    cam:
+        type: perspective
+        # vanishing_point: [0, -500]
+
+lights:
+    dir:
+        type: directional
+        direction: [.1, .5, -1]
+        diffuse: .7
+        ambient: .5
+        
+styles:
+    _mz_icon_style:
+        base: points
+        blend_order: 1
+        texture: https://s3.amazonaws.com/mapzen-assets/images/office-hours/mz_white_sharp_144.png
+    
+layers:
+    roads:
+        major_road:
+            secondary:
+                labels-secondary-z17:
+                    _new_montgomery:
+                        filter: {id: 88572948}
+                        draw:
+                            text-blend-order:
+                                priority: 1
+                            
+#     roads:
+#         major_road:
+#             secondary:
+#                 _new_montgomery:
+#                     filter: {id: 88572948, $zoom: { min: 16 }}
+#                     draw:
+#                         text-blend-order:
+#                             priority: 1
+
+    buildings:
+        _office_hours:
+            filter: { id: 80296713}
+            draw:
+                lines:
+                    color: red
+                    width: 2px
+                    order: global.order
+                polygons:
+                    color: pink
+                    order: global.feature_order
+                points:
+                    color: red
+                    # size: [[16,15px],[17,0]]
+                    size: 30px
+                    placement: centroid
+                    priority: 1
+                    text:
+                        text_source: |
+                            function() {return "SF Office Hours!";}
+                        font:
+                            fill: red
+                            size: 14px    
+                            stroke:
+                                color: white
+                                width: 3
+                            style: bold
+            _mz_icon_sublayer:
+                # filter: { $zoom: { min: 18 } }
+                draw:
+                    _mz_icon_style:
+                        placement: centroid
+                        size: 22px
+                        collide: false
+        extrude:
+            _benders:
+                filter: { id: 80296713}
+                draw:
+                    polygons:
+                        color: pink
+                        order: global.feature_order
+

@@ -1,0 +1,149 @@
+import:
+    - https://www.nextzen.org/carto/refill-style-no-labels/refill-style-no-labels.yaml
+    # - https://www.nextzen.org/carto/refill-style/refill-style.yaml
+    # - https://www.nextzen.org/carto/refill-style-more-labels/refill-style-more-labels.yaml
+    - https://mapzen-assets.s3.amazonaws.com/resources/demo.yaml
+
+
+styles:
+    _pois:
+        base: points
+        #texture: pois
+        blend: overlay
+        blend_order: 4
+    _points:
+        base: points
+        #texture: pois
+        blend: overlay
+        blend_order: 3
+    _polygons:
+        base: polygons
+        #texture: pois
+        blend: inlay
+        # blend_order: 3
+    _text:
+        base: text
+        blend_order: 3
+        
+sources:
+    # mapzen:
+    #     type: TopoJSON
+    #     url: https://tile.nextzen.org/tilezen/vector/v1/all/{z}/{x}/{y}.topojson
+    #     url_params: 
+    #         api_key: global.sdk_mapzen_api_key
+
+
+
+
+
+
+    ava_pois:
+        type: GeoJSON
+        url: https://gist.githubusercontent.com/burritojustice/8d4ff511f7d992177ee9dcf04fcc2bff/raw/map.geojson
+        generate_label_centroids: true
+
+
+layers:
+    _ava_pois:
+        data: { source: ava_pois}
+        _polygons:
+            filter: 
+                ava_area: true
+            draw:
+                polygons:
+                    color: [0,1,0,0.5]
+                    width: 2px
+                    order: 100
+                    outline:
+                        color: blue
+                        width: 1px
+                lines:
+                    color: [0,1,0,0.8]
+                    width: 2px
+                    order: 501
+            labels:
+                filter: { label_placement: true }
+                draw:
+                    _text:
+                        text_wrap: 10
+                        text_source: ava_name
+                        collide: false
+                        # buffer: -1
+                        font:
+                            fill: green
+                            size: 14px
+                            stroke:
+                                color: white
+                                width: 2px
+                        # optional: true
+            
+        _lines:
+            filter: { ava_line: true }
+            draw:
+                lines:
+                    color: lightblue
+                    width: 2px
+                    order: 1000
+                    outline:
+                        color: blue
+                        width: 1px
+                text:
+                    collide: true
+                    font:
+                        fill: blue
+                        size: 10px
+                        stroke:
+                            color: white
+                            width: 2px
+                    # offset: [0px,-12px]
+                        transform: uppercase
+                # polygons:
+                #      draw:
+                #          color: [0,0,1,0.4]
+                #          order: 1000
+
+        _pois:
+            filter: { ava_point: true }
+            draw:
+                _pois:
+                    color: [1,1,0,.5]
+                    size: [[10,15px],[17,10px]]
+                    collide: false
+                    # buffer: -5
+                    outline:
+                        color: red
+                        width: 2px
+                    text:
+                        collide: true
+                        text_source: |
+                            function(){return feature.ava_name || feature.name || feature['wof:name']}
+                        font:
+                            fill: red
+                            size: 14px
+                            stroke:
+                                color: white
+                                width: 4px
+                        # optional: true
+        _ava_pois:
+            filter: { ava_home: true }
+            draw:
+                _pois:
+                    color: [1,1,1,.5]
+                    size: [[10,15px],[17,10px]]
+                    collide: false
+                    # buffer: -3
+                    outline:
+                        color: blue
+                        width: 2px
+                    text:
+                        # collide: false
+                        anchor: right
+                        text_source: |
+                            function(){return feature.ava_name || feature['wof:name']}
+                        font:
+                            fill: blue
+                            size: 14px
+                            stroke:
+                                color: white
+                                width: 4px
+                        # optional: true

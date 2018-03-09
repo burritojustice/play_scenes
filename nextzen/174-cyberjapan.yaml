@@ -1,0 +1,24 @@
+import: https://www.nextzen.org/carto/refill-style/6/refill-style.zip
+# import: https://www.nextzen.org/carto/walkabout-style/3/walkabout-style.zip
+
+global:
+  sdk_transit_overlay: true
+  sdk_mapzen_api_key: mapzen-UJDfMvY
+  
+sources:
+  fgd:
+    type: GeoJSON
+    url: https://cyberjapandata.gsi.go.jp/xyz/experimental_fgd/{z}/{x}/{y}.geojson
+    min_zoom: 18
+    max_zoom: 18
+
+layers:
+    cyberjapan:
+        data: {source: fgd}
+        draw:
+            lines:
+                color: red
+                width: 2px
+                # order: sdk_order_over_everything_but_text_0
+                order: 10000
+        

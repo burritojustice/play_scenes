@@ -1,0 +1,48 @@
+import:
+    - https://www.nextzen.org/carto/refill-style/8/refill-style.zip
+    - https://mapzen-assets.s3.amazonaws.com/resources/demo.yaml
+
+sources:
+
+    turn_restrictions:
+        type: Raster
+        url: https://s3.amazonaws.com/mapzen-assets/resources/market_st_turns/turn_restrictions/{z}/{x}/{y}.png
+        bounds: [-122.42861470, 37.76576885, -122.38695181, 37.79866898]
+        min_display_zoom: 18
+        max_display_zoom: 18
+
+    flow:
+        type: Raster
+        url: https://s3.amazonaws.com/mapzen-assets/resources/market_st_turns/flow/{z}/{x}/{y}.png
+        bounds: [-122.42830624, 37.76561603, -122.38690152, 37.79850830]
+        min_display_zoom: 16
+        max_display_zoom: 17
+
+scene:
+    background:
+        color: [1,1,1]
+styles:
+    _raster:
+        base: raster
+        #texture: pois
+        blend: overlay
+        blend_order: 1
+    _lines:
+        base: lines
+        blend: overlay
+        blend_order: 5
+        
+layers:
+
+    _turn_restrictions:
+        # enabled: false
+        data: { source: turn_restrictions}
+        draw:
+            raster:
+                order: 1002
+    _flow:
+        # enabled: false
+        data: { source: flow}
+        draw:
+            raster:
+                order: 1001

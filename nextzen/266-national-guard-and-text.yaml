@@ -1,0 +1,71 @@
+import:
+    - https://www.nextzen.org/carto/refill-style-more-labels/refill-style-more-labels.yaml
+    - https://s3.amazonaws.com/mapzen-assets/images/blocks/colorbrewer.yaml
+
+
+global:
+    sdk_mapzen_api_key: mapzen-arpssXJ
+
+sources:
+
+    states:
+        type: GeoJSON
+        url: https://gist.githubusercontent.com/burritojustice/1588fcec71c978c83fc04ebebc6ff764/raw/f5ae9938e6ca4e575d48efa790c6e1b4f2fba4aa/state_national_guard.geojson
+        generate_label_centroids: true
+        
+layers:
+    _counties:
+        data: {source: states}
+        draw:
+            lines:
+                color: white
+                width: 2px
+                order: 900
+            polygons:
+                color: |
+                    function() {                        
+                        var reserve = feature.Guard_percent_of_pop;
+                        var color =
+                            reserve = 0 ? global.Reds.d7.d1 :
+                            reserve < 0.10 ? global.Reds.d7.d2 :
+                            reserve < 0.20 ? global.Reds.d7.d3 :
+                            reserve < 0.30 ? global.Reds.d7.d4 :
+                            reserve < 0.40 ? global.Reds.d7.d5 :
+                            reserve < 0.50 ? global.Reds.d7.d6 :
+                            global.Reds.d7.d7 ;   
+                        return color;
+                            }
+                order: 100
+    _guard_labels:
+        data: { source: states}
+        filter: 
+            label_placement: true 
+            # $zoom: { min: 3 }
+        draw:
+            _text:
+                text_source: |
+                    function() {
+                        var guard = Number(feature.Guard_totals);
+                        var icons =
+                            guard = 0 ? "" :
+                            guard < 1000 ? "X" :
+                            guard < 5000 ? "XX" :
+                            guard < 10000 ? "XXX" :
+                            guard < 15000 ? "XX\nXX" :
+                            guard < 20000 ? "XXX\nXX" :
+                            "XXX\nXXX" ;   
+                        return icons;
+                        }
+                font:
+                    family: Helvetica
+                    fill: black
+                    size: [[13,10px],[17,14px]]
+                    weight: bold
+                    stroke:
+                        color: white
+                        width: 2
+styles:
+    _text:
+        base: text
+        blend: overlay
+        blend_order: 5

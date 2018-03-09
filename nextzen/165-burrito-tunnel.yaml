@@ -1,0 +1,19 @@
+import: https://www.nextzen.org/carto/walkabout-style-more-labels/3/walkabout-style-more-labels.zip
+
+global:
+  sdk_mapzen_api_key: mapzen-xxxxxx
+
+sources:
+    burrito_tunnel:
+        type: GeoJSON
+        url: https://gist.githubusercontent.com/burritojustice/a597abd5d590dc236fbd9ba4d8d8c742/raw/409c7d4c7702d6aacaa10a31a61321ee4d0f1528/burrito_tunnel.geojson
+
+layers:
+    burrito:
+        data: { source: burrito_tunnel }
+        draw:
+            lines:
+                order: 10
+                color: red
+                width: 4px
+

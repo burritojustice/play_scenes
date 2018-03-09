@@ -1,0 +1,63 @@
+# Author @burritojustice, @rhonda_friberg - 2016
+
+import:
+    - https://tangrams.github.io/blocks/global.yaml
+    - https://www.nextzen.org/carto/refill-style/refill-style.yaml
+    
+sources:
+    isochrone_polygons:
+        type: GeoJSON
+        url: https://s3.amazonaws.com/mapzen-assets/images/isochrone/isochrone_polygons.geojson
+        
+    isochrone_live:
+        type: GeoJSON
+        url: 'https://matrix.mapzen.com/isochrone?json={"locations":[{"lat":53.5421,"lon":-113.4860}],"costing":"pedestrian","contours":[{"time":15},{"time":30},{"time":60},{"time":120}],"polygons":true,"denoise":0.2,"generalize":150}'
+
+    emoji_marker:
+        type: GeoJSON
+        url: https://gist.githubusercontent.com/burritojustice/0c792c37e97a64e95f5c2c835fb9aeb3/raw/078c06a09f89b4d4634c41a37525b3ff04325c1e/map.geojson
+
+layers:
+
+    roads:
+        data: { source: mapzen, layer: roads }
+        filter: { not: { kind: rail } }
+        draw:
+            lines:
+                interactive: false
+                #color: black
+                width: 1px
+                order: global.feature_order
+                # but give them all the same outline
+                outline:
+                    style: _outline
+                    # color: white
+                    # width: 2px
+                    # blend: function() { if sdk_data_viz_road_friendly return 'multiply';  else return 'normal'}    
+
+    isochrone_polygons:
+        data: { source: isochrone_live }
+        draw:
+            polygons:
+                interactive: true
+                order: |
+                    function() {
+                        return 100 - ((feature.contour/120) * 10) ;
+                        }
+                color: |
+                    function() {
+                        return feature.fill;
+                        }
+
+    emoji_label:
+        data: { source: emoji_marker }
+        draw:
+            text:
+                font:
+                    size:  44px
+                    stroke:
+                        color: red
+                        width: 12px
+                            
+                        
+

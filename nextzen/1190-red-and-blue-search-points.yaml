@@ -1,0 +1,181 @@
+# import: https://s3.amazonaws.com/carto.www.nextzen.org/carto/zinc-style-no-labels/zinc-style-no-labels.yaml
+import: 
+    - https://s3.amazonaws.com/carto.www.nextzen.org/carto/refill-style/refill-style.yaml
+    # - https://www.nextzen.org/carto/refill-style/8/themes/color-purple-green.zip
+    - https://www.nextzen.org/carto/refill-style/8/themes/color-inverted.zip
+    - https://mapzen-assets.s3.amazonaws.com/resources/demo.yaml
+
+
+styles:
+    _points:
+        base: points
+        #texture: pois
+        blend: overlay
+        blend_order: 3
+    _points2:
+        base: points
+        #texture: pois
+        blend: overlay
+        blend_order: 2
+    _points4:
+        base: points
+        #texture: pois
+        blend: overlay
+        blend_order: 24
+sources:
+
+    _mapzen_search:
+        type: GeoJSON
+        url: https://search.mapzen.com/v1/search?
+        url_params:
+            text: 1007 N. Orange St., Wilmington, DE
+            api_key: global.sdk_mapzen_api_key
+            
+    _mapzen_categories:
+        type: GeoJSON
+        url: https://search.mapzen.com/v1/nearby?
+        url_params:
+            api_key: global.sdk_mapzen_api_key
+            size: 40
+            point.lat: 39.75
+            point.lon: -75.55
+            categories: nightlife
+            # layers: venue
+            categories: accommodation
+            # text: bar
+            
+    _geojson_gist:
+        type: GeoJSON
+        url: # PASTE THE URL OF THE RAW GIST HERE THAT YOU MADE IN GEOJSON.IO TO GET BLUE DOTS
+
+    _delaware_traffic_circles:
+        type: GeoJSON
+        url: https://opendata.arcgis.com/datasets/d05efa2f95f84b26b915773372ec2b4b_0.geojson
+        # traffic circles locations from http://opendata.firstmap.delaware.gov/
+        
+    _delaware_light_poles:
+        type: GeoJSON
+        url: https://opendata.arcgis.com/datasets/e7f83b8e17784d4d92ab6f84ed8b756a_2.geojson
+        # light poles from http://opendata.firstmap.delaware.gov/
+        # http://opendata.firstmap.delaware.gov/datasets/e7f83b8e17784d4d92ab6f84ed8b756a_2
+
+layers:
+    _mapzen_search:
+        data: {source: _mapzen_search}
+        draw:
+            _points4:
+                outline:
+                    color: black
+                    width: 2px
+                collide: false
+                color: [1,0,0]
+                size: [[10,11px],[17,20px]]
+                # collide: true
+                text:
+                    optional: true
+                    font:
+                        # family: Helvetica
+                        fill: red
+                        size: [[13,15px],[17,25px]]
+                        stroke:
+                            color: white
+                            width: 5
+    _geojson_gist:
+        data: {source: _geojson_gist}
+        draw:
+            _points:
+                # outline:
+                #     color: [0,0,1,.2]
+                #     width: 2px
+                collide: false
+                color: [0,0,1,.2]
+                size: [[10,11px],[17,20px]]
+                # collide: true
+                text:
+                    optional: true
+                    font:
+                        # family: Helvetica
+                        fill: black
+                        size: [[13,10px],[17,16px]]
+                        stroke:
+                            color: white
+                            width: 3                   
+                            
+    _delaware_traffic_circles:
+        data: {source: _delaware_traffic_circles}
+        draw:
+            _points:
+                outline:
+                    color: green
+                    width: 2px
+                collide: false
+                color: lightgreen
+                size: [[10,11px],[17,20px]]
+                # collide: true
+                text:
+                    text_source: LOCATION
+                    optional: true
+                    font:
+                        # family: Helvetica
+                        fill: green
+                        size: [[13,10px],[17,16px]]
+                        stroke:
+                            color: white
+                            width: 3                   
+                            
+    _delaware_light_poles:
+        enabled: false
+        data: {source: _delaware_light_poles}
+        draw:
+            _points2:
+                outline:
+                    color: [1,.5,0,.2]
+                    width: 2px
+                collide: false
+                color: [1,1,0,.2]
+                size: [[10,11px],[17,20px]]
+                # collide: true
+                text:
+                    optional: true
+                    font:
+                        # family: Helvetica
+                        fill: black
+                        size: [[13,10px],[17,16px]]
+                        stroke:
+                            color: white
+                            width: 3                   
+
+    _mapzen_categories:
+        filter: {$zoom:{min: 15}}
+        # enabled: false
+        data: {source: _mapzen_categories}
+        draw:
+            _points2:
+                outline:
+                    color: purple
+                    width: 2px
+                collide: false
+                color: [1,0,1,.4]
+                size: [[10,11px],[17,20px]]
+                # collide: true
+                text:
+                    optional: true
+                    font:
+                        # family: Helvetica
+                        fill: black
+                        size: [[13,10px],[17,16px]]
+                        stroke:
+                            color: white
+                            width: 3
+       # _labels:
+       #      draw:
+       #          text:
+       #             collide: false
+       #             text_source: 'work_bgrp'
+       #             font:
+       #                 # family: Helvetica
+       #                 fill: black
+       #                 size: [[13,10px],[17,24px]]
+       #                 stroke:
+       #                     color: white
+       #                     width: 2

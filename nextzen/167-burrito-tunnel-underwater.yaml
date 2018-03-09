@@ -1,0 +1,110 @@
+import: 
+# - https://www.nextzen.org/carto/refill-style/6/refill-style.zip
+# - https://www.nextzen.org/carto/refill-style/6/refill-style.yaml
+# - https://www.nextzen.org/carto/walkabout-style/3/walkabout-style.zip
+- https://www.nextzen.org/carto/walkabout-style/3/walkabout-style.yaml
+
+
+
+global:
+  # sdk_mapzen_api_key: mapzen-xxxxxx
+  sdk_transit_overlay: true
+
+sources:
+    burrito_tunnel:
+        type: GeoJSON
+        url: https://gist.githubusercontent.com/burritojustice/a597abd5d590dc236fbd9ba4d8d8c742/raw/burrito_tunnel.geojson
+
+layers:
+    burrito:
+        data: { source: burrito_tunnel }
+        subway-sizing:
+            draw:
+                lines:
+                    order: 10
+                    color: red
+                    width: 4px
+                    
+        labels-transit-lines:
+            filter:
+                all:
+                    - function() { return global.sdk_transit_overlay; }
+                    - all:
+                        # - $zoom: { min: 15 }
+                        - ref: true
+            draw:
+                icons:
+                    priority: 20
+                    # you need to match any custom shield to the vector tile `network` values
+                    sprite: function() { return ('sdk_shield-' + feature.ref.length + 'char'); }
+                    sprite_default: sdk_shield_5char
+                    color: function() { if ( feature.kind === 'train') { return 'purple' } else { return feature.colour || 'red'; } }
+                    # Size is specified below, and limited to 5 char in another filter
+                    repeat_group: shields
+                    repeat_distance: [[8,90px],[10,40px],[13,30px]]
+                    placement: midpoint
+                    placement_min_length_ratio:
+                        - [8, 0.1]
+                        - [9, 0.25]
+                        - [10, 0.25]
+                        - [11, 0.15]
+                        - [12, 1]
+                        - [13, 1.50]
+                        - [14, 2.0]
+                    cull_from_tile: true
+#                    visible: false
+                    text:
+                        offset: [0px, -0.5px]
+                        repeat_distance: 200px
+                        anchor: center
+                        text_source: function() { if( feature.ref.length < 6 ) { return feature.ref; } else { return ''; } }
+                        font:
+                            family: Montserrat
+                            fill: function() { if(feature.colour == 'yellow') { return '#555'; } else { return 'white'; } }
+                            style: bold
+                            size: [[7,7px],[12,8px],[16,11px]]
+
+            width_1char:
+                filter: function() { return (feature.ref.length === 1); }
+                draw:
+                    icons:
+                        size: [[6,[16px,16px]],[13,[18px,18px]],[16,[21px,21px]]]
+            width_2char:
+                filter: function() { return (feature.ref.length === 2); }
+                draw:
+                    icons:
+                        size: [[6,[21px,16px]],[13,[24px,18px]],[16,[28px,21px]]]
+            width_3char:
+                filter: function() { return (feature.ref.length === 3); }
+                draw:
+                    icons:
+                        size: [[6,[27px,16px]],[13,[31px,18px]],[16,[36px,21px]]]
+            width_4char:
+                filter: function() { return (feature.ref.length === 4); }
+                draw:
+                    icons:
+                        size: [[6,[32px,16px]],[13,[36px,18px]],[16,[41px,21px]]]
+                # London sucks
+                early:
+                    filter: { $zoom: { max: 14 } }
+                    draw:
+                        icons:
+                            visible: false
+            width_5char:
+                filter: function() { return (feature.ref.length === 5); }
+                draw:
+                    icons:
+                        size: [[6,[37px,16px]],[13,[41px,18px]],[16,[48px,21px]]]
+                # London sucks
+                early:
+                    filter: { $zoom: { max: 14 } }
+                    draw:
+                        icons:
+                            visible: false
+            # this is kinda a hack
+            width_longggggg:
+                filter: function() { return (feature.ref.length > 5); }
+                draw:
+                    icons:
+                        visible: false
+

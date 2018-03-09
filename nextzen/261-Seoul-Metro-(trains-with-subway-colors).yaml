@@ -1,0 +1,48 @@
+import: 
+# - https://www.nextzen.org/carto/refill-style/6/refill-style.zip
+- https://www.nextzen.org/carto/refill-style/6/refill-style.yaml
+# - https://www.nextzen.org/carto/walkabout-style/3/walkabout-style.zip
+# - https://www.nextzen.org/carto/walkabout-style/3/walkabout-style.yaml
+
+    
+
+global:
+  sdk_mapzen_api_key: mapzen-UJDfMvY
+  sdk_transit_overlay: true
+  sdk_road_shields: false
+
+layers:
+    
+    transit:
+        transit-overlay-rail-lines:
+            has-data-color:
+                train-with-color:
+                    filter: { kind: train }
+                    draw:
+                        lines:
+                            color: |
+                                function(){
+                                if ((colour.charAt(0) != '#') && (colour != 'purple')){
+                                    colour = '#' + colour;
+                                    }
+                            order: 514  
+
+
+            labels-transit-lines:
+                filter:
+                    all:
+                        - function() { return global.sdk_transit_overlay; }
+                        - all:
+                            - $zoom: { min: 10 }
+                            - ref: true
+                draw:
+                    icons:
+                        color: |
+                            function(){
+                                var colour = feature.colour || 'purple';
+                                if ((colour.charAt(0) != '#') && (colour != 'purple')){
+                                    colour = '#' + colour;
+                                    }
+                                return colour;
+                                }
+                            

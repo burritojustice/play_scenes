@@ -1,0 +1,13 @@
+sources:
+    squares:
+        type: GeoJSON
+        url: https://gist.githubusercontent.com/burritojustice/4ba605728b1fe01ca3de0dcb83baa9db/raw/map.geojson
+
+layers:
+    wall_street:
+        data: { source: squares }
+        draw:
+            lines:
+                color: magenta
+                width: 2px
+                order: 1

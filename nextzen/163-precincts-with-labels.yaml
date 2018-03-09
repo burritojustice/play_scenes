@@ -1,0 +1,251 @@
+import:
+    - https://www.nextzen.org/carto/walkabout-style/walkabout-style.yaml
+
+global:
+    sdk_mapzen_api_key: mapzen-arpssXJ
+    margin_minus_20: [0.082,0.494,0.721,0.7]
+    margin_minus_10: [0.25,0.64,0.84,0.7]
+    margin_0: [0.81,0.9,0.96,0.7]
+    margin_plus_10: [0.96,0.8,0.74,0.7]
+    margin_plus_20: [0.88,0.41,0.3,0.7]
+    margin_more: [0.88,0.41,0.3,0.7]
+    
+# cameras:
+#     camera1:
+#         type: perspective
+
+sources:
+    border_wall:
+        type: GeoJSON
+        url: https://gist.githubusercontent.com/burritojustice/5825df761bf60d51e7ec8846c6e2ce46/raw/wall.geojson
+    counties:
+        type: GeoJSON
+        url: https://gist.githubusercontent.com/pbump/632dfc932af92d1d463a561846c2b213/raw/e8d677f9275ab42a285eb4213cf958649a32597a/counties.geojson
+        generate_label_centroids: true
+    districts:
+        type: GeoJSON
+        url: https://gist.githubusercontent.com/pbump/f69f94a4b3b18ff5f64b5fa701babcd2/raw/624be5a2318406e53622bc9da20577e630468277/districts.geojson
+        generate_label_centroids: true
+    precincts:
+        type: GeoJSON
+        url: https://gist.githubusercontent.com/burritojustice/4f30d69f9f93453bcedcf784cb1aff2f/raw/fc76f43c2906264c2630975d9e3617d24d018f01/2016-election-CA-border-results.geojson
+        generate_label_centroids: true
+        
+layers:
+    _precincts:
+        filter:
+            $zoom: {min: 11} 
+        data: {source: precincts}
+        draw:
+            _lines:
+                color: grey
+                width: 1px
+                #order: 900
+            _polygons:
+                color: |
+                    function() {
+                        var margin = feature.Margin;
+                        var color =
+                        margin < -20 ? global.margin_minus_20 :
+                        margin < -10 ? global.margin_minus_10 :
+                        margin < 0 ? global.margin_0 :
+                        margin < 10 ? global.margin_plus_10 :
+                        margin < 20 ? global.margin_plus_20 :
+                        global.margin_more ;                        // margin < -20 ? "#157eb8" :
+                        // margin < -10 ? "#40a3d7" :
+                        // margin < 0 ? "#cfe5f5" :
+                        // margin < 10 ? "#f6cdbc" :
+                        // margin < 20 ? "#e1694d" :
+                        // "#d0452e" ;
+                        return color;
+                        }
+                order: 200
+    _counties:
+        filter:
+            $zoom: {min: 7, max: 11} 
+        data: {source: counties}
+        draw:
+            _lines:
+                color: grey
+                width: 1px
+                #order: 900
+            _polygons:
+                color: |
+                    function() {
+                        var margin = feature.Margin;
+                        var color =
+                        margin < -20 ? global.margin_minus_20 :
+                        margin < -10 ? global.margin_minus_10 :
+                        margin < 0 ? global.margin_0 :
+                        margin < 10 ? global.margin_plus_10 :
+                        margin < 20 ? global.margin_plus_20 :
+                        global.margin_more ;                        // margin < -20 ? "#157eb8" :
+                        // margin < -10 ? "#40a3d7" :
+                        // margin < 0 ? "#cfe5f5" :
+                        // margin < 10 ? "#f6cdbc" :
+                        // margin < 20 ? "#e1694d" :
+                        // "#d0452e" ;
+                        return color;
+                        }
+                order: 200
+    
+
+    _districts:
+        filter:
+            $zoom: { max: 7 }
+        data: {source: districts}
+        draw:
+            _lines:
+                color: grey
+                width: 1px
+                #order: 900
+            _polygons:
+                color: |
+                    function() {
+                        var margin = feature.Margin;
+                        var color =
+                        margin < -20 ? global.margin_minus_20 :
+                        margin < -10 ? global.margin_minus_10 :
+                        margin < 0 ? global.margin_0 :
+                        margin < 10 ? global.margin_plus_10 :
+                        margin < 20 ? global.margin_plus_20 :
+                        global.margin_more ;
+                        // margin < -20 ? "#157eb8" :
+                        // margin < -10 ? "#40a3d7" :
+                        // margin < 0 ? "#cfe5f5" :
+                        // margin < 10 ? "#f6cdbc" :
+                        // margin < 20 ? "#e1694d" :
+                        // "#d0452e" ;
+                        return color;
+                        }
+                order: 200
+
+    precinct_labels:
+        data: { source: precincts}
+        filter: 
+            label_placement: true 
+            $zoom: { min: 7 }
+        draw:
+            _text:
+                text_source: |
+                     function() {
+                         var margindescription;
+                         (feature.Margin > 0) ? margindescription = "Trump +" + feature.Margin : margindescription = "Clinton +" + Math.abs(feature.Margin)
+                         return feature.pct16 + '\n' + margindescription + '\ntotal votes: ' + feature.total;
+                         }
+                font:
+                    family: Helvetica
+                    fill: black
+                    size: [[13,10px],[17,14px]]
+                    weight: bold
+                    stroke:
+                        color: white
+                        width: 2
+
+    county_labels:
+        data: { source: counties}
+        filter: 
+            label_placement: true 
+            $zoom: { min: 7 }
+        draw:
+            _text:
+                text_source: |
+                     function() {
+                         var margindescription;
+                         (feature.Margin > 0) ? margindescription = "Trump +" + feature.Margin : margindescription = "Clinton +" + Math.abs(feature.Margin)
+                         return feature.Name + '\n' + margindescription;
+                         }
+                font:
+                    family: Helvetica
+                    fill: black
+                    size: [[13,10px],[17,14px]]
+                    weight: bold
+                    stroke:
+                        color: white
+                        width: 2
+                    
+    cong_dist_labels:
+        data: {source: districts}
+        filter: 
+            label_placement: true 
+            $zoom: { max: 7 }
+        draw:
+            _text:
+                text_source: |
+                     function() {
+                         var margindescription;
+                         (feature.Margin > 0) ? margindescription = "Trump +" + feature.Margin : margindescription = "Clinton +" + Math.abs(feature.Margin)
+                         return feature.Name + '-' + feature.District + '\n' + margindescription;
+                         }
+                font:
+                    family: Helvetica
+                    fill: black
+                    size: [[13,10px],[17,14px]]
+                    weight: bold
+                    stroke:
+                        color: white
+                        width: 2
+    
+    _border_wall:
+        data: {source: border_wall }
+        draw:
+            _wall1:
+                color: '#603913'
+                width: [[5,10px],[10,4px],[14,7px],[18,20px],[20,30px]]
+                order: 1000 #sdk_order_over_everything_but_text_0
+                extrude: 250
+            _wall2:
+                color: '#754C29'
+                width: [[10,1px],[14,7px],[18,20px],[20,30px]]
+                order: 1000 #sdk_order_over_everything_but_text_0
+                extrude: 200
+            _wall3:
+                color: '#8B5E3C'
+                width: [[10,1px],[14,7px],[18,20px],[20,30px]]
+                order: 1000 #sdk_order_over_everything_but_text_0
+                extrude: 150                
+            _wall4:
+                color: '#A97C50'
+                width: [[10,1px],[14,7px],[18,20px],[20,30px]]
+                order: 1000 #sdk_order_over_everything_but_text_0
+                extrude: 100
+            _wall5:
+                color: '#C49A6C'
+                width: [[10,1px],[14,7px],[18,20px],[20,30px]]
+                order: 1000 #sdk_order_over_everything_but_text_0
+                extrude: 50                                
+
+styles:
+
+    _text:
+        base: text
+        blend: overlay
+        blend_order: 5
+    _lines:
+        base: lines
+        blend: overlay
+        blend_order: 1
+    _polygons:
+        base: polygons
+        blend: inlay
+        blend_order: 0
+    _wall1:
+        base: lines
+        blend: overlay
+        blend_order: 2
+    _wall2:
+        base: lines
+        blend: overlay
+        blend_order: 2
+    _wall3:
+        base: lines
+        blend: overlay
+        blend_order: 2
+    _wall4:
+        base: lines
+        blend: overlay
+        blend_order: 2
+    _wall5:
+        base: lines
+        blend: overlay
+        blend_order: 2

@@ -1,0 +1,66 @@
+import: 
+    - https://www.nextzen.org/carto/refill-style/8/refill-style.zip
+    - https://mapzen-assets.s3.amazonaws.com/resources/demo.yaml
+    - https://www.nextzen.org/carto/refill-style/8/themes/detail-6.zip
+    # - https://www.nextzen.org/carto/refill-style/8/themes/label-10.zip
+
+
+
+sources:
+    mapzen:
+        type: TopoJSON
+        url: https://tile.nextzen.org/tilezen/vector/v1/512/all/{z}/{x}/{y}.topojson
+        
+    ferries:
+        type: GeoJSON
+        # url: https://s3.amazonaws.com/mapzen-assets/resources/sf_address_ranges/SF_address_ranges.geojson
+        # url: https://mapzen-assets.s3.amazonaws.com/resources/sf_address_ranges/SF_address_ranges_test.geojson
+        url: https://gist.githubusercontent.com/burritojustice/71c710a8ad0efa2186a9ef46ac0100b6/raw/map.geojson
+
+layers:
+    _ferries:
+
+        data: { source: ferries}
+        routes:
+            filter: {kind: route}
+            draw:
+                dashed-lines:
+                    color: function(){return feature.color}
+                    # color: color
+                    width: 5px
+                    order: 500
+                    cap: round
+                    # outline:
+                    #     color: white
+                    #     width: 5px
+                    
+                text:
+                    collide: false
+                    font:
+                        size: 12px
+                        fill: function(){return feature.color}
+                    text_source: function(){return feature.name}
+                    text_wrap: 30
+                    offset: [0,10px]
+
+        docks:
+            filter: {kind: dock}
+            draw:
+                points:
+                    collide: false
+                    color: function(){return feature.color}
+                    width: 10px
+                    text:
+                        anchor: bottom
+                        collide: false
+                        font:
+                            size: 12px
+                            fill: function(){return feature.color}
+
+styles:
+    _text:
+        base: text
+        blend_order: 3
+    dashed-lines:
+        base: lines
+        dash: [1, 1]

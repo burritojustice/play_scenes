@@ -1,0 +1,35 @@
+# Author @patriciogv - 2015
+global:
+    url: 
+    api_key: 
+
+import:
+    - https://tangrams.github.io/blocks/global.yaml
+    - https://tangrams.github.io/blocks/filter/height.yaml
+    - https://www.nextzen.org/carto/refill-style/refill-style.yaml
+    # - https://www.nextzen.org/carto/bubble-wrap-style/bubble-wrap.yaml
+    # - https://www.nextzen.org/carto/zinc-style/zinc-style.yaml
+
+
+sources:
+    osm:
+        type: TopoJSON
+        url: https://tile.nextzen.org/tilezen/vector/v1/all/{z}/{x}/{y}.topojson?api_key=mapzen-D8mmijp
+        max_zoom: 16
+    isochrone:
+        type: GeoJSON
+        url: 'https://matrix.mapzen.com/isochrone?json=%7B%22locations%22%3A%5B%7B%22lat%22%3A19.432600481483334%2C%22lon%22%3A-99.13324356079102%7D%5D%2C%22costing%22%3A%22auto%22%2C%22contours%22%3A%5B%7B%22time%22%3A5%7D%2C%7B%22time%22%3A10%7D%2C%7B%22time%22%3A15%7D%2C%7B%22time%22%3A20%7D%5D%2C%22polygons%22%3Afalse%2C%22denoise%22%3A0.2%2C%22generalize%22%3A150%7D&api_key=mapzen-c4C1Lbb'
+
+layers:
+    isochrone:
+        data: { source: isochrone}
+        draw:
+            lines:
+                width: 5px
+                # order: sdk_order_over_everything_but_text_0
+                order: 1000
+                color: |
+                    function() {
+                        return feature.color;
+                        }
+ 

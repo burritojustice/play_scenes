@@ -1,0 +1,68 @@
+sources:
+    mapzen:
+        type: TopoJSON
+        url: https://tile.nextzen.org/tilezen/vector/v1/all/{z}/{x}/{y}.topojson
+        url_params:
+            api_key: vector-tiles-AGr6avQ
+    test:
+        type: GeoJSON
+        # url: https://rawgit.com/meetar/choropleth-demos/master/gz_2010_us_040_00_20m.json # states
+        url: https://rawgit.com/meetar/choropleth-demos/master/us-states.json # counties
+
+    test2:
+        type: TopoJSON
+        url: https://gist.githubusercontent.com/burritojustice/2061c02cb3c747daf6ea7c406a5151f4/raw/f26364cadd898c6afb177d68615707289a80657a/us-states.topojson
+        
+
+styles:
+    dash:
+        base: lines
+        dash: [2,1.5]
+
+layers:
+    earth:
+        data: { source: mapzen }
+        draw:
+            polygons:
+                order: 0
+                color: grey
+    water:
+        data: { source: mapzen }
+        draw:
+            polygons:
+                order: 1
+                color: lightblue
+    test:
+        data: { source: test2 }
+        draw:
+            text:
+                visible: false
+                # collide: false
+                text_source: |
+                    function() {
+                        var f = feature.density;
+                        return Math.floor(f);
+                    }
+                font:
+                    fill: black
+                    size: 10px
+            polygons:
+                order: 3
+                color: |
+                    function() {
+                        function getColor(d) {
+                            return d > 1000 ? '#800026' :
+                                   d > 500  ? '#BD0026' :
+                                   d > 200  ? '#E31A1C' :
+                                   d > 100  ? '#FC4E2A' :
+                                   d > 50   ? '#FD8D3C' :
+                                   d > 20   ? '#FEB24C' :
+                                   d > 10   ? '#FED976' :
+                                              '#FFEDA0';
+                        }
+                    return getColor(feature.density);
+                    }
+            dash:
+                order: 4
+                width: 2px
+                color: white

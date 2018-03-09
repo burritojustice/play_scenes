@@ -1,0 +1,170 @@
+import:
+    - https://mapzen-assets.s3.amazonaws.com/resources/demo.yaml
+    
+sources:
+    mapzen:
+        type: TopoJSON
+        url: https://tile.nextzen.org/tilezen/vector/v1/all/{z}/{x}/{y}.topojson
+        url_params: 
+            api_key: global.sdk_mapzen_api_key
+        max_display_zoom: 19
+    sanborn:
+        type: Raster
+        url: http://mapwarper.net/maps/tile/19917/{z}/{x}/{y}.png
+    office_sanborn_1951_v1_91:
+        type: Raster
+        url: https://s3.amazonaws.com/mapzen-assets/resources/test/oakland_post_office_sanborn_1951_v1_91/{z}/{x}/{y}.png
+        bounds: [-122.30561641, 37.80316415, -122.30011546, 37.80802938]
+        min_display_zoom: 15
+        max_display_zoom: 20
+
+    office_sanborn_1951_v1_92:
+        type: Raster
+        url: https://s3.amazonaws.com/mapzen-assets/resources/test/oakland_post_office_sanborn_1951_v1_92/{z}/{x}/{y}.png
+        bounds: [-122.30259974, 37.80248493, -122.29730080, 37.80732425]
+        min_display_zoom: 15
+        max_display_zoom: 20
+
+    sanborn_murray:
+        type: Raster
+        # url: https://s3.amazonaws.com/mapzen-assets/resources/test/murray_berkeley_2x/{z}/{x}/{y}.png
+        url: https://s3.amazonaws.com/mapzen-assets/resources/test/sanborn_berkeley_1950_185/{z}/{x}/{y}.png
+        bounds: [-122.2910768184705432,37.8499180570619060,-122.2858131417002312,37.8548034070643453]
+        min_display_zoom: 18
+        max_display_zoom: 21
+    zip_94710:
+        type: GeoJSON
+        url: https://mapzen-assets.s3.amazonaws.com/resources/test/94710.geojson
+        max_display_zoom: 18
+scene:
+    background:
+        color: [1,1,1]
+styles:
+    _raster:
+        base: raster
+        #texture: pois
+        blend: overlay
+        blend_order: 1
+    _lines:
+        base: lines
+        blend: overlay
+        blend_order: 5
+        
+layers:
+    sanborn:
+        data: { source: sanborn_murray }
+        draw:
+            raster:
+                order: 2
+                
+    office_sanborn_1951_v1_91:
+        data: { source: office_sanborn_1951_v1_91}
+        draw:
+            _raster:
+                order: 2
+    office_sanborn_1951_v1_92:
+        data: { source: office_sanborn_1951_v1_92}
+        draw:
+            _raster:
+                order: 1
+    zip_94710:
+        data: { source: zip_94710}
+        draw: 
+            # points:
+            #     color: [1,0,0,0]
+            #     size: 10px
+            #     outline:
+            #         color: green
+            #         width: 2px
+
+            text:
+                optional: true
+                text_source: function(){ return feature.NUMBER + ' ' + feature.STREET }
+                font:
+                    fill: blue
+                    size: 12px
+                    stroke:
+                        width: 1px
+                        color: white
+    earth:
+        data: { source: mapzen }
+        draw:
+            polygons:
+                order: 1
+                color: white
+
+  
+    water:
+        data: { source: mapzen }
+        draw:
+            polygons:
+                order: 2
+                color: '#353535'
+
+    roads:
+        data: { source: mapzen}
+        filter: { not: { kind: [ferry] } }
+        draw:
+            _lines:
+                order: 6
+                color: [0,0,0,.2]
+                width: [[7,0.0px], [10, .5px], [15, .75px], [17, 5m]]
+        _rail:
+            filter: { kind: rail }
+            draw:
+                lines:
+                    order: 5
+                    color: grey
+                    width: [[8,0px], [8,.1px], [11,.5px], [14,1px]]
+        _highway:
+            filter: { kind: highway }
+            draw:
+                lines:
+                    order: 5
+                    color: black
+                    width: [[8,0px], [8,.25px], [11, 1.5px], [14, 2px], [16, 4px], [17, 10m]]
+            link:
+                filter: { is_link: true } # on- and off-ramps, etc
+                draw:
+                    lines:
+                        width: [[8,0px], [14, 3px], [16, 5px], [18, 10m]]
+                tunnel-link:
+                    filter: {is_tunnel: true, $zoom: {min: 13} }
+        tunnel:
+            filter: {is_tunnel: true }
+            draw:
+                roads:
+                    order: 6
+
+    buildings:
+        data: { source: mapzen }
+        draw:
+            _lines:
+                order: 7
+                color: [1,0,0]
+                width: [[16,1px],[21,2px]]
+                # extrude: true
+                # outline:
+                #     color: white
+                #     width: 1px
+
+        post_office:
+            filter: {id: [52538639,121551547,121551545,473063656,52538635]}
+            draw:
+                _lines:
+                    color: blue
+                    width: 3px
+                    order: 10
+
+
+        wrench:
+            filter: {id: 139741507}
+            draw:
+                lines:
+                    color: violet
+                    width: 3px
+                    order: 10
+                # text:
+                #     text_source: "Wrench"
+                #     font:
+                #         fill: blue

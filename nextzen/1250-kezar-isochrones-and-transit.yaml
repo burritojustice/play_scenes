@@ -1,0 +1,187 @@
+import:
+    # basemap style
+    - https://www.nextzen.org/carto/refill-style/7/refill-style.zip
+    # recolor basemap style with a theme color
+    # - https://www.nextzen.org/carto/refill-style/7/themes/gray-gold.zip
+    - https://www.nextzen.org/carto/refill-style/7/themes/gray-gold.yaml
+
+    # - https://www.nextzen.org/carto/bubble-wrap-style/6/bubble-wrap-style.zip
+    # - https://www.nextzen.org/carto/refill-style-more-labels/6/refill-style-more-labels.zip
+    - https://mapzen-assets.s3.amazonaws.com/resources/demo.yaml
+
+global:
+    # search_query: YMCA
+    # lat: '38.0293'
+    # lon: '-78.4767'
+    lat: 30.45064
+    lon: -91.1266
+    radius: '1000'
+
+# cameras:
+#     perspective:
+#         type: isometric
+#         vanishing_point: [1000, -500]
+# lights:
+    directional1:
+        type: directional
+        direction: [.1, .5, -1]
+        diffuse: .7
+        ambient: .5
+
+# scene:
+#     background:
+#         color: [0.,0.5,0.8]
+styles:
+    _text:
+        base: text
+        blend_order: 3
+    _points:
+        base: points
+        blend_order: 3
+    _osm_points:
+        base: points
+        blend_order: 4
+    _lines:
+        base: lines
+        blend_order: 1
+        blend: inlay
+    _dashed:
+        base: lines
+        dash: [2,1]
+sources:
+
+    _isochrones:
+        type: GeoJSON
+        url: https://matrix.mapzen.com/isochrone?json={"locations":[{"lat":"37.766891","lon":"-122.456054"}],"costing":"multimodal","denoise":0,"polygons":false,"costing_options":{"pedestrian":{"use_ferry":0,"transit_start_end_max_distance":100000,"transit_transfer_max_distance":100000},"bicycle":{"use_ferry":0},"transit":{"filters":{}}},"contours":[{"time":10},{"time":20},{"time":30},{"time":45}]}
+        url_params:
+            api_key: global.sdk_mapzen_api_key
+            # generate_label_centroids: true
+
+    _kezar_transit:
+        type: GeoJSON
+        url: https://transit.land/api/v1/routes.geojson?&bbox=-122.46110200881958,37.76306465803528,-122.4511134624481,37.7711133351873&pin=undefined
+    _kezar_stops:
+        type: GeoJSON
+        url: https://transit.land/api/v1/stops.geojson?bbox=-122.46,37.76306465803528,-122.4511134624481,37.769&pin=undefined&departure_time=undefined
+    _kezar:
+        type: GeoJSON
+        url: https://whosonfirst.mapzen.com/data/588/407/089/588407089.geojson
+        
+layers:
+    landuse:
+        kezar:
+            filter: {id: 30675203}
+            # filter: {kind: stadium}
+            draw:
+                lines:
+                    color: white
+                    width: 10px
+                    order: 100
+                polygons:
+                    color: white
+                    # width: 30px
+                    order: 1000
+    roads:
+        kezar:
+            filter: {id: 476260387,475841280}
+            draw:
+                lines:
+                    color: white
+                    width: 15px
+                    order: 500
+    _kezar: 
+        data: {source: _kezar }
+        draw:
+            _points:
+                color: blue
+                outline:
+                    color: white
+                    width: 2px
+                text:
+                    text_source: sg:address
+                    collide: false
+                    optional: false
+                    font:
+                        fill: blue
+                        size: 12px
+                        stroke:
+                            color: white
+                            width: 5px                
+    _kezar_transit:
+        # enabled: false
+        data: { source: _kezar_transit}
+        filter: {$zoom: {min: 13}}
+        _bus:
+            filter: 
+                all:
+                    vehicle_type: bus
+                not: {name: N-OWL}
+            draw:
+                lines:
+                    color: orange
+                    width: [[10,4px],[14,2px],[18,4px]]
+                    order: 999
+                _text:
+                    font:
+                        color: white
+                        size: 12px
+                        stroke:
+                            color: black
+                            width: 5px
+        _muni:
+            filter: {vehicle_type: tram}
+            draw:
+                lines:
+                    offset: 3px
+                    color: yellow
+                    width: [[10,1px],[14,3px],[18,4px]]
+                    order: 999
+
+    _kezar_stops:
+        # enabled: false
+        data: { source: _kezar_stops}
+        filter: {$zoom: {min: 16}}
+        _stops:
+            draw:
+                _points:
+                    collide: false
+                    color: red
+                    size: 16px
+                    outline: 
+                        width: 2px
+                        color: white
+                    text:
+                        # optional: true
+                        font:
+                            fill: white
+                            size: 12px
+
+    _isochrones:
+        data: {source: _isochrones}
+        draw:
+#             label:
+#                 filter: {label_placement: true}
+#                 draw:
+#                     points:
+#                         color: blue
+                    
+            _lines:
+                # color:  [1,0,1,0.5] 
+                color: |
+                     function(){ return [1,0,1,(90 - feature.contour)/100] }
+                width: [[10,3px],[18,5px]]
+                order: 1000
+                outline:
+                    color: blue
+                    width: .5px
+            _text:
+                # placement: spaced
+                # placement_spacing: 20px
+                # collide: false
+                text_source: function(){ return feature.contour + " mins"}
+                font:
+                    fill: blue
+                    size: 12px
+                    stroke:
+                        color: lighblue
+                        width: 3px

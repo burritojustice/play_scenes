@@ -1,0 +1,113 @@
+# import: https://www.nextzen.org/carto/refill-style/6/refill-style.zip
+import: https://www.nextzen.org/carto/walkabout-style/3/walkabout-style.zip
+
+global:
+  sdk_transit_overlay: true
+  sdk_mapzen_api_key: mapzen-UJDfMvY
+  ux_language: en  
+sources:
+  fgd:
+    type: GeoJSON
+    url: https://cyberjapandata.gsi.go.jp/xyz/experimental_fgd/{z}/{x}/{y}.geojson
+    min_zoom: 18
+    max_zoom: 18
+
+layers:
+    cyberjapan:
+        data: {source: fgd}
+        draw:
+            lines:
+                color: red
+                width: 1.5px
+                # order: sdk_order_over_everything_but_text_0
+                order: 10000
+
+#   fgd:
+#     data: {source: fgd}
+#     draw:
+#       lines:
+#         order: 5
+#         color: orange # default color
+#         width: 2px
+#     railcl:
+#       filter:
+#         class: RailCL
+#       draw:
+#         lines:
+#           order: 7
+#           color: '#7f7'
+#     bldl:
+#       filter:
+#         class: BldL
+#       draw:
+#         lines:
+#           order: 7
+#           color: '#f72'
+#           cap: 'butt'
+#           width: "function() {return feature.type == 'å ããå»ºç©'? 1 : 0.2;}"
+#           #extrude: 50
+#         text:
+#           interactive: true
+#           text_source: "function() {var s = {'50373-13494-s-816': 'éºé£', '50373-13494-s-1332': 'å¤©å®é£'}[feature.fid]; return ($zoom < 20) ? '' : ((s ? s : '')  + ' ' + feature.fid);}"
+#           order: 100
+#           offset: [0, 16]
+#           font:
+#             family: monospace
+#             size: 10pt
+#             fill: '#f72'
+#     rdedg:
+#       filter:
+#         class: RdEdg
+#       draw:
+#         lines:
+#           order: 6
+#           color: white
+#           width: 1px
+#     rdcompt:
+#       filter:
+#         class: RdCompt
+#       draw:
+#         lines:
+#           order: 7
+#           width: 1px
+#           color: '#aaa'
+#     wl:
+#       filter:
+#         class: WL
+#       draw:
+#         lines:
+#           order: 6
+#           width: 1px
+#           color: '#00f'
+#     cstline:
+#       filter:
+#         class: Cstline
+#       draw:
+#         lines:
+#           order: 6
+#           width: 2px
+#           color: '#00f'
+#     bdry:
+#       filter:
+#         class: [AdmBdry, CommBdry]
+#       draw:
+#         lines:
+#           order: 6
+#           width: 1px
+#           color: '#f77'
+#     cntr:
+#       filter:
+#         class: Cntr
+#       draw:
+#         lines:
+#           order: 4
+#           color: '#c8a03c'
+#         text:
+#           text_source: alti
+#           order: 10
+#           offset: [0, 5]
+#           font:
+#             family: monospace
+#             size: 12pt
+#             fill: '#c8a03c'
+        

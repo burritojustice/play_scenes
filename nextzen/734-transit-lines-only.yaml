@@ -1,0 +1,33 @@
+import: 
+    # - https://www.nextzen.org/carto/walkabout-style-no-labels/5/walkabout-style-no-labels.zip
+    # - https://www.nextzen.org/carto/walkabout-style-no-labels/5/walkabout-style-no-labels.yaml
+    - https://www.nextzen.org/carto/refill-style/8/refill-style.zip 
+    - https://mapzen-assets.s3.amazonaws.com/resources/demo.yaml
+    # - https://www.nextzen.org/carto/refill-style/8/themes/detail-0.zip
+    # - https://www.nextzen.org/carto/refill-style/8/themes/label-0.zip
+
+
+global:
+    ux_language: en
+    sdk_path_overlay: false
+    sdk_transit_overlay: true
+
+layers:
+    places:
+        filter: { $zoom: { min: 12 } }
+    earth:
+        enabled: false
+    water:
+        filter: { $zoom: { min: 13 } }
+    roads:
+        filter: { $zoom: { min: 13 } }
+    landuse:
+        enabled: false
+    buildings:
+        enabled: false
+    pois:
+        enabled: false
+    earth-labels:
+        enabled: false
+    boundaries:
+        enabled: false

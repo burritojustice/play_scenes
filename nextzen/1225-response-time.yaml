@@ -1,0 +1,122 @@
+import: 
+    # - https://www.nextzen.org/carto/walkabout-style/5/walkabout-style.zip
+    - https://www.nextzen.org/carto/refill-style/8/refill-style.zip
+    - https://mapzen-assets.s3.amazonaws.com/resources/demo.yaml
+    #- https://raw.githubusercontent.com/tangrams/walkabout-style/gh-pages/layers/bike-interlay.yaml
+    - https://www.nextzen.org/carto/walkabout-style/5/layers/bike-interlay.yaml
+    # - https://www.nextzen.org/carto/refill-style/8/themes/detail-8.zip
+    # - https://www.nextzen.org/carto/refill-style/8/themes/label-5.zip
+    # - https://www.nextzen.org/carto/refill-style/8/themes/color-gray-gold.zip
+
+styles:
+    _text:
+        base: text
+        blend_order: 2
+    _points:
+        base: points
+        blend_order: 3
+    _lines:
+        base: lines
+        blend_order: 4
+
+global:
+    fade: 0.7
+    # sdk_mapzen_api_key: YOUR-API-KEY
+    iso_line_color: |
+        function(feature) {
+            switch(feature.contour) {
+                case 4:
+                    return [0,0,1]
+                    break
+                case 7:
+                    return [0,0,1,0.5]
+                    break;
+                case 10:
+                    return [0,0,1,0.3]
+                    break;                   
+                case 20:
+                    return [0,0,1,0.3]
+                    break; 
+                default:
+                    return [1,0,0]
+                }
+
+
+sources:
+    # sf_stations:
+    #     type: GeoJSON
+    #     url: https://gist.githubusercontent.com/burritojustice/db69dae24a12f8e4db0d4b59d28a1853/raw/5653063a5cc8f8c4bd9cb6a4e4d149e832ebfec1/sf_stations.geojson
+
+
+    # isochrone:
+    #     type: GeoJSON
+    #     url: 'https://matrix.mapzen.com/isochrone?json={"locations":[{"lat":37.7440667,"lon":-122.4214722}],"costing":"bicycle","contours":[{"time":5},{"time":10},{"time":15},{"time":20}]}'
+    #     url_params:
+    #         api_key: global.sdk_mapzen_api_key  # (be sure to add your API key to pull in polygons from the server https://mapzen.com/developers)
+
+    isochrone_polygons:
+        type: GeoJSON
+        url: 'https://matrix.mapzen.com/isochrone?json={"locations":[{"lat":37.7440667,"lon":-122.4214722}],"costing":"auto","polygons":"true","contours":[{"time":4},{"time":7},{"time":10},{"time":20}]}'
+        url_params:
+            api_key: global.sdk_mapzen_api_key  # (be sure to add your API key to pull in polygons from the server https://mapzen.com/developers)
+
+
+layers:
+    buildings:
+         enabled: false
+        
+    _isochrones:
+        data: { source: isochrone_polygons }
+        _isochrone_lines:
+            draw:
+                _lines:
+                    width: 4px
+                    order: 500
+                    # color: global.iso_line_color(feature)
+                    # order: |
+                    #     function() {
+                    #         return Math.floor(100 - ((feature.contour/120) * 50));
+                    #         }
+                    # color: red
+                    color: |
+                        function() {
+                            switch(feature.contour) {
+                                case 4:
+                                    return [0,0,1]
+                                    break
+                                case 7:
+                                    return [0,0,1,0.5]
+                                    break;
+                                case 10:
+                                    return [0,0,1,0.3]
+                                    break;                   
+                                case 20:
+                                    return [0,0,1,0.3]
+                                    break; 
+                                default:
+                                    return [1,0,0]
+                                }
+                        }
+
+                    # color: |
+                    #     function() {
+                    #         return feature.fill;
+                    #         }
+
+                    outline:
+                        color: white
+                        width: 2px
+        _isochrone_polygons:
+            # enabled: false
+            draw:
+                polygons:
+                    order: |
+                        function() {
+                            return Math.floor(100 - ((feature.contour/120) * 50));
+                            }
+                    color: |
+                        function() {
+                            return feature.fill;
+                            }
+                        
+

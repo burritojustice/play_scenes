@@ -1,0 +1,46 @@
+import: 
+    # - https://www.nextzen.org/carto/walkabout-style/5/walkabout-style.zip
+    - https://www.nextzen.org/carto/refill-style/8/refill-style.yaml
+    - https://mapzen-assets.s3.amazonaws.com/resources/demo.yaml
+    #- https://raw.githubusercontent.com/tangrams/walkabout-style/gh-pages/layers/bike-interlay.yaml
+    # - https://www.nextzen.org/carto/walkabout-style/5/layers/bike-interlay.yaml
+    # - https://www.nextzen.org/carto/refill-style/8/themes/detail-8.zip
+    # - https://www.nextzen.org/carto/refill-style/8/themes/label-5.zip
+    # - https://www.nextzen.org/carto/refill-style/8/themes/color-gray-gold.zip
+
+styles:
+    _text:
+        base: text
+        blend_order: 2
+    _points:
+        base: points
+        blend_order: 3
+    _lines:
+        base: lines
+        blend_order: 4
+    _polygons:
+        base: polygons
+        blend_order: 4
+
+sources:
+    pr:
+        type: GeoJSON
+        url: https://gist.githubusercontent.com/burritojustice/8d28821b5e65a5e56d6431c22743a0bd/raw/cee114202a05a03bc0ff1df3cd5fab4faa5b8d15/puerto_rico_distante.geojson
+        generate_label_centroids: true
+    pr_mask:
+        type: GeoJSON
+        url: https://gist.githubusercontent.com/burritojustice/4bb77cfccab8f8e95bf1e19d54e100bc/raw/6cfb81b0864c99419377bbca9eb00f79976f7fb1/1_wof_bundle_puerto-rico_85687331_region.geojson
+ 
+            
+layers:
+    _pr:
+        data: { source: pr}
+        filter: {wof:placetype: region}
+        draw:
+            polygons:
+                color: blue
+                width: 2px
+                order: 1000
+    waves:
+        data: { source: pr_mask}
+        draw:

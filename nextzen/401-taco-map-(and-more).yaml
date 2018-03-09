@@ -1,0 +1,110 @@
+global:
+  sdk_mapzen_api_key: mapzen-UJDfMvY
+
+import:
+    - https://www.nextzen.org/carto/refill-style/6/refill-style.yaml
+
+# sources:
+#     mapzen:
+#         type: TopoJSON
+#         url: https://vector.mapzen.com/osm/all/{z}/{x}/{y}.topojson
+
+styles:
+    emojis:
+        base: text
+        #texture: pois
+        blend: overlay
+        blend_order: 3
+
+layers:
+    places:
+        # data: { source: mapzen}
+        # filter: {kind: locality }
+        # draw:
+        #     text:
+        #         collide: true
+        #         text_source: |
+        #             function() {
+        #                 return "ð¦ð¦";
+        #                 }
+        _localities:
+            filter: { kind: locality}
+            draw:
+                text:
+                    collide: true
+                    text_source: |
+                     function() {
+                         return "ð";  
+                         }
+
+    cities:
+         data: {source: mapzen, layer: places}
+         filter: { kind_detail: city}
+         draw:
+             points:
+                 # collide: false
+                 font:
+                     size: 20px
+                 text_source: |
+                     function() {
+                         return "ð";  
+                         }
+
+
+    roads:
+            # data: { source: mapzen}
+        _residential:
+            # filter: {kind_detail: residential }
+            draw:
+                emojis:
+                    collide: true
+                    font:
+                        size: 40px
+                    text_source: |
+                        function() {
+                            return "ð®";
+                        }
+
+        _primary:
+            filter: {kind_detail: primary }
+            draw:
+                emojis:
+                    # collide: false
+                    font:
+                        size: 40px
+                    text_source: |
+                        function() {
+                         return "ð";  
+                            }
+
+        major_road:
+            trunk_primary:
+                draw:
+                     text:
+                         collide: true
+                         font:
+                             family: Helvetica
+                             size: 40px
+                         text_source: |
+                            function() {
+                             return "ð";  
+                                }
+
+        minor_road:
+            early:
+                 draw:
+                     text:
+                         collide: true
+                         font:
+                             family: Helvetica
+                             size: 40px
+                         text_source: function() {return "ð¥";}
+
+#             labels-minor_road-z15:
+#                  draw:
+#                      text:
+#                          collide: true
+#                          font:
+#                              family: Helvetica
+#                              size: 20px
+#                          text_source: function() {return "ð£";}                

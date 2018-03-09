@@ -1,0 +1,134 @@
+import:
+    - https://www.nextzen.org/carto/walkabout-style-more-labels/walkabout-style-more-labels.yaml
+    - https://mapzen-assets.s3.amazonaws.com/resources/demo.yaml
+
+sources:
+    sf_anchorage_areas:
+        type: GeoJSON
+        url: https://gist.githubusercontent.com/burritojustice/0f8385c47e483177bfe720963a77b891/raw/map.geojson
+        generate_label_centroids: true
+        
+    sf_a9:
+        type: GeoJSON
+        # url: https://whosonfirst.mapzen.com/api/rest/?method=whosonfirst.places.search&access_token=8947fab37f59b47c5ee6dcb21e55ecbf&q=anchorage%20berth&extras=geometry&page=1&per_page=100&format=geojson
+        url: https://gist.githubusercontent.com/burritojustice/5b6df5efb1926d6c213e810728f90c49/raw/1031806eff205a2f8cd9229657402edd8b7f23dc/sf_anchorage_9.geojson
+
+styles:
+    _pois:
+        base: points
+        #texture: pois
+        blend: overlay
+        blend_order: 4
+    _points:
+        base: points
+        #texture: pois
+        blend: overlay
+        blend_order: 3
+    _polygons:
+        base: polygons
+        #texture: pois
+        blend: inlay
+        # blend_order: 3
+    _text:
+        base: text
+        blend_order: 3
+
+layers:
+    water:
+        data: { source: mapzen, layer: water }
+        draw:
+            terrain:
+                order: function() { return feature.sort_rank + 1;}
+                color: [0.608,0.925,0.965]
+        later:
+            filter: { $zoom: { min: 12 } }
+            draw:
+                terrain:
+                    order: function() { return feature.sort_rank + 2; }
+                    color:  [0.608,0.925,0.965]
+        # lakes:
+        #     draw:
+        #         terrain:
+        #             order: function() { return feature.sort_rank; }
+        #             color: [0.608,0.925,0.965]
+    roads:        
+        ferry:
+            filter: { kind: ferry }
+            draw:
+                lines:
+                    color: white
+    _anchorage_areas:
+        data: {source: sf_anchorage_areas}
+        # filter: {kind: marine_area}
+        _areas:
+            draw:
+                lines:
+                    color: blue
+                    width: 2px
+                    order: 300
+            _labels:
+                filter: { label_placement: true }
+                draw:
+                    text:
+                        font:
+                            width: 10px
+                            fill: blue
+                            stroke:
+                                color: white
+                                width: 2px
+        _anchorages:
+            filter:
+                all:
+                    - kind: marine_point
+                    - $zoom: { min: 12 }
+
+            draw:
+                _pois:
+                    color: [1,1,0,.5]
+                    size: [[10,7px],[17,20px]]
+                    collide: false
+                    # buffer: -5
+                    outline:
+                        color: red
+                        width: 2px
+                    text:
+                        collide: false
+                        anchor: bottom
+                        text_source: short_name
+                        font:
+                            fill: red
+                            size: 14px
+                            stroke:
+                                color: white
+                                width: 4p
+                        optional: true
+    _a9:
+        data: {source: sf_a9}
+        filter: { $zoom: { min: 12 } }
+
+        _anchorages:
+            draw:
+                _pois:
+                    color: [1,1,0,.5]
+                    size: [[10,7px],[17,20px]]
+                    collide: false
+                    # buffer: -5
+                    outline:
+                        color: red
+                        width: 2px
+                    text:
+                        collide: false
+                        anchor: bottom
+                        text_source: |
+                            function(){
+                                var name = feature['wof:name']
+                                name = name.slice(-2)
+                                return name}
+                        font:
+                            fill: red
+                            size: 14px
+                            stroke:
+                                color: white
+                                width: 4p
+                        optional: true
+

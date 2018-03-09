@@ -1,0 +1,248 @@
+import: 
+    - https://www.nextzen.org/carto/refill-style/refill-style.zip
+    - https://mapzen-assets.s3.amazonaws.com/resources/demo.yaml
+    - https://www.nextzen.org/carto/refill-style/8/themes/detail-10.zip
+    - https://www.nextzen.org/carto/refill-style/8/themes/label-10.zip
+
+global:
+    street_color:  |
+        function(feature){
+            var name
+            if (feature.name)
+                {name = feature.name}
+            else {name = ''}
+            var color = 'black'
+            if (name.match(/Harrison/i)) {
+               color = 'blue'
+                }
+            if (name.match(/Howard/i)) {
+               color = 'lightgreen'
+                }
+            if (name.match(/Folsom/i)) {
+               color = 'orange'
+                } 
+            if (name.match(/Mission/i)) {
+               color = 'red'
+                }  
+            return color
+        }
+
+    housenumber_color:  |
+        function(feature){
+            var name
+            if (feature.addr_street)
+                {name = feature.addr_street}
+            else {name = ''}
+            var color = 'black'
+            if (name.match(/Harrison/i)) {
+               color = 'blue'
+                }
+            if (name.match(/Howard/i)) {
+               color = 'green'
+                }
+            if (name.match(/Folsom/i)) {
+               color = 'darkorange'
+                } 
+            if (name.match(/Mission/i)) {
+               color = 'red'
+                }  
+            return color               
+        }
+        
+    address_ranges_color:  |
+        function(feature){
+            var name
+            if (feature.RFROMADD)
+                {name = feature.RFROMADD}
+            else {name = ''}
+            var color = 'black'
+            if (name.match(/Harrison/i)) {
+               color = 'blue'
+                }
+            if (name.match(/Howard/i)) {
+               color = 'green'
+                }
+            if (name.match(/Folsom/i)) {
+               color = 'darkorange'
+                } 
+            if (name.match(/Mission/i)) {
+               color = 'red'
+                }  
+            return color               
+        }
+        
+
+
+sources:
+    mapzen:
+        type: TopoJSON
+        url: https://tile.nextzen.org/tilezen/vector/v1/512/all/{z}/{x}/{y}.topojson
+        
+    tiger_address_ranges:
+        type: GeoJSON
+        url: https://s3.amazonaws.com/mapzen-assets/resources/sf_address_ranges/SF_address_ranges.geojson
+
+layers:
+    address_ranges:
+        filter: 
+            FULLNAME: [Mission St, Howard St, Folsom St, Harrison St]
+        data: { source: tiger_address_ranges}
+        draw:
+            # lines:
+            #     color: pink
+            #     width: 10px
+            #     order: 10
+            text:
+                collide: true
+                text_source: RFROMADD
+                offset: [0px,-15px]
+                font:
+                    weight: bold
+                    size: 12px
+                    # fill: blue
+                    fill: |   
+                        function(){ 
+                            return global.address_ranges_color(feature)
+                                }
+                    # stroke:
+                    #     color: white
+                    #     width: 2
+
+    
+    buildings:
+        filter:
+            any:
+                - addr_street: [Mission Street,Howard Street,Folsom Street,Harrison Street]
+                # - addr_street: Mission Street
+                # - addr_street: Howard Street
+                # - addr_street: Folsom Street
+                # - addr_street: Harrison Street
+        draw:
+            text:
+                text_source: addr_housenumber
+                font:
+                    stroke:
+                        color: white
+                        width: 3px
+                    fill: |   
+                        function(){ 
+                            return global.housenumber_color(feature)
+                                }
+    roads:
+        # data: { source: mapzen }
+        filter:
+            not:
+                - bus_shield_text: T-Owl
+            any:
+                - name: Mission St.
+                - name: Howard St.
+                - name: Folsom St.
+                - name: Harrison St.
+                # - name: S Van Ness Ave.
+                - name: 30th St.
+                - name: 29th St.
+                - name: 28th St.
+                - name: 27th St.
+                - name: 26th St.
+                - name: 25th St.
+                - name: 24th St.
+                - name: 23rd St.
+                - name: 22nd St.
+                - name: 21st St.
+                - name: 20th St.
+                - name: 19th St.
+                - name: 18th St.
+                - name: 17th St.
+                - name: 16th St.
+                - name: 15th St.
+                - name: 14th St.
+                - name: 13th St.
+                - name: 12th St.
+                - name: 11th St.
+                - name: 10th St.
+                - name: 9th St.
+                - name: 8th St.
+                - name: 7th St.
+                - name: 6th St.
+                - name: 5th St.
+                - name: 4th St.
+                - name: 3rd St.
+                - name: 2nd St.
+                - name: 1st St.
+        early:
+            draw:
+                lines:
+                    color: |   
+                        function(){ 
+                            return global.street_color(feature)
+                        }
+                    width: 2px
+                    order: 500  
+            
+        minor_road:
+            primary:
+                early:
+                    draw:
+                        lines:
+                            color: |   
+                                function(){ 
+                                    return global.street_color(feature)
+                                }
+                            width: 2px
+                            order: 500        
+        major_road:
+            primary:
+                early:
+                    draw:
+                        lines:
+                            color: |
+                                function(){
+                                    var name = feature.name
+                                    if (name.match(/Harrison/i)) {
+                                       return 'blue'
+                                        }
+                                    if (name.match(/Howard/i)) {
+                                       return 'lightgreen'
+                                        }
+                                    if (name.match(/Folsom/i)) {
+                                       return 'orange'
+                                        } 
+                                    if (name.match(/Mission/i)) {
+                                       return 'red'
+                                        }  
+                                    else {return 'black'}               
+                                }
+                                
+                            # color: lightgreen
+                            width: 2px
+                            order: 500                
+            secondary:
+                early:
+                    draw:
+                        lines:
+                            color: |   
+                                function(){ 
+                                    return global.street_color(feature)
+                                }
+                            width: 2px
+                            order: 500
+                        # text:
+                        #     text_source: | 
+                        #         function(){ 
+                        #             return global.street_color(feature)
+                        #         }    
+                        #     font:
+                        #         # fill: pink
+                        #         size: 12px
+            tertiary:
+                # early:
+                draw:
+                    lines:
+                        color: |
+                            function(){ 
+                                return global.street_color(feature)
+                            }
+                        width: 2px
+                            # order: 500
+                    
+                    

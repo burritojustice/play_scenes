@@ -1,0 +1,72 @@
+sources:
+    mapzen:
+        type: GeoJSON
+        # url: https://tapalcatl-rawr-prod-us-east-1386172954.us-east-1.elb.amazonaws.com/mapzen/vector/v1/512/all/{z}/{x}/{y}.json
+
+        url: https://tapalcatl-rawr-prod-us-east-1386172954.us-east-1.elb.amazonaws.com/mapzen/vector/v1/1024/all/{z}/{x}/{y}.json
+        tile_size: 256
+        max_zoom: 16
+        # min_display_zoom: 12
+layers:
+    places:
+        data: { source: mapzen }
+        draw:
+            text:
+                font:
+                    size: 10px
+                    fill: grey
+                    # stroke:
+                    #     color: black
+                    #     width: 2.5px
+    water:
+        data: { source: mapzen }
+        draw:
+            polygons:
+                order: 2
+                color: aqua
+    earth:
+        data: { source: mapzen }
+        draw:
+            polygons:
+                order: 1
+                # color: '#555555'
+                color: beige
+    landuse:
+        data: { source: mapzen }
+        draw:
+            polygons:
+                order: 3
+                color: lightgreen
+    roads:
+        data: { source: mapzen}
+        filter: { not: { kind: [rail, ferry] } }
+        draw:
+            lines:
+                order: 4
+                color: '#ffffff'
+                width: [[7,0.0px], [10, .5px], [15, .75px], [17, 5m]]
+        highway:
+            filter: { kind: highway }
+            draw:
+                lines:
+                    order: 5
+                    width: [[8,0px], [8,.25px], [11, 1.5px], [14, 2px], [16, 4px], [17, 10m]]
+            link:
+                filter: { is_link: true } # on- and off-ramps, etc
+                draw:
+                    lines:
+                        width: [[8,0px], [14, 3px], [16, 5px], [18, 10m]]
+                tunnel-link:
+                    filter: {is_tunnel: true, $zoom: {min: 13} }
+        tunnel:
+            filter: {is_tunnel: true }
+            draw:
+                lines:
+                    order: 6
+    buildings:
+        data: { source: mapzen }
+        draw:
+            polygons:
+                order: 7
+                color: '#999999'
+                extrude: true

@@ -1,0 +1,128 @@
+import:
+    # https://www.nextzen.org/carto/zinc-style-more-labels/zinc-style-more-labels.yaml
+    https://www.nextzen.org/carto/refill-style-more-labels/refill-style-more-labels.yaml
+    # https://www.nextzen.org/carto/bubble-wrap-style/bubble-wrap.yaml
+sources:
+    osm:
+        type: TopoJSON
+        url: https://tile.nextzen.org/tilezen/vector/v1/all/{z}/{x}/{y}.topojson
+        max_zoom: 16
+
+cameras:
+    cam:
+        type: perspective
+        # vanishing_point: [0, -500]
+
+lights:
+    dir:
+        type: directional
+        direction: [.1, .5, -1]
+        diffuse: .7
+        ambient: .5
+
+layers:
+    buildings:
+        _office_hours:
+            filter: { id: 80296713}
+            draw:
+                lines:
+                    color: red
+                    width: 2px
+                    order: global.order
+                polygons:
+                    color: pink
+                    order: global.feature_order
+                points:
+                    color: red
+                    # size: [[16,15px],[17,0]]
+                    size: 8px
+                    placement: centroid
+                    priority: 1
+                    text:
+                        text_source: |
+                            function() {return "SF Office Hours!";}
+                        font:
+                            fill: red
+                            size: 14px    
+                            stroke:
+                                color: white
+                                width: 3
+                            style: bold
+        _benders:
+            filter: { id: 261109926}
+            draw:
+                lines:
+                    color: red
+                    width: 2px
+                    order: global.order
+                polygons:
+                    color: pink
+                    order: global.feature_order
+                points:
+                    color: red
+                    # size: [[16,15px],[17,0]]
+                    size: 8px
+                    placement: centroid
+                    priority: 1
+                    text:
+                        text_source: |
+                            function() {return "Bikes to Books!";}
+                        font:
+                            fill: red
+                            size: 14px    
+                            stroke:
+                                color: white
+                                width: 3
+                            style: bold
+                # text: 
+                #     text_source: |
+                #         function() {return "Bikes to Books!";}
+                #     font:
+                #         fill: red
+                #         size: 14px    
+                #         stroke:
+                #             color: white
+                #             width: 2
+                #         style: bold
+                # text:
+                #     # filter: {$geometry: point}
+                #     text_source: |
+                #         function() {return "Bikes to Books";}
+                #     font:
+                #         fill: red
+                #         size: 12px
+                        
+                        
+
+                
+ 
+                
+    # _benders:
+    #     data: 
+    #         source: osm 
+    #         layer: buildings
+    #     filter: { id: 261109926}
+        # draw:
+            # lines:
+            #     color: red
+            #     width: 2px
+            #     extrude: true
+            #     # order: global.feature_order
+            #     # order: global.sdk_order_over_everything_but_text_0
+            #     # order: global.sdk_order_under_everything_0
+            #     order: global.sdk_order_under_roads_0
+        # draw:
+        #     polygons:
+        #         visible: true
+        #         order: 4380
+        #         style: building-grid
+        #         extrude: function() { return feature.height || 20; }
+        #         color: red
+        #     lines:
+        #         visible: true
+        #         order: 4390
+        #         style: building-lines
+        #         extrude: function() { return feature.height || 20; }   
+        #         color: black
+
+

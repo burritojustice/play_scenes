@@ -1,0 +1,33 @@
+sources:
+    finland:
+        type: GeoJSON
+        url: https://gist.githubusercontent.com/burritojustice/65c3e5679e03c28e9893ccb65eff4a16/raw/a8bf5ff24e408a90a5e4c4efbd9fa799f2c2fa25/wof_bundle_85633143_region.geojson
+        generate_label_centroids: true
+
+layers:
+    finland:
+        data: { source: finland}
+        aland:
+            filter: {'wof:country':'AX'}
+            draw:
+                lines:
+                    order: 2
+                    color: red
+                    width: 2px
+                text:
+                    text_source: 'wof:name'
+                    font:
+                        size: 
+                        
+        finland:
+            filter: { label_placement: true, 'wof:country':FI}
+            draw:
+                lines:
+                    order: 2
+                    color: blue
+                    width: 2px
+                text:
+                    # filter: {  }
+                    text_source: 'wof:name'
+                    font:
+                        size: 12 px

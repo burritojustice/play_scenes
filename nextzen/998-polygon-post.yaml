@@ -1,0 +1,88 @@
+import:
+
+    # - https://www.nextzen.org/carto/bubble-wrap-style/6/bubble-wrap-style.zip
+    - https://www.nextzen.org/carto/refill-style/8/refill-style.zip
+    # - https://www.nextzen.org/carto/refill-style/8/refill-style.yaml
+    # - https://www.nextzen.org/carto/refill-style/8/themes/detail-11.zip
+    # - https://www.nextzen.org/carto/refill-style/8/themes/label-11.zip
+
+    - https://mapzen-assets.s3.amazonaws.com/resources/demo.yaml
+    
+
+
+styles:
+    _text:
+        base: text
+        blend_order: 3
+    _points:
+        base: points
+        blend_order: 3
+    __points:
+        base: points
+        blend_order: 2
+    _points4:
+        base: points
+        blend_order: 4       
+sources:
+    # osm:
+    #     type: TopoJSON
+    #     url: https://vector.mapzen.com/osm/all/{z}/{x}/{y}.topojson
+    #     url_params:
+    #         api_key: global.sdk_mapzen_api_key
+    
+
+    marseille_korean:
+        type: GeoJSON
+        url_params:
+            id: street
+            text: ë§ë¥´ì¸ì , íëì¤
+            api_key: global.sdk_mapzen_api_key
+            lang: ko
+        url: https://search.mapzen.com/v1/search?  
+
+    marseille_arabic:
+        type: GeoJSON
+        url_params:
+            id: street
+            text: 200 Boulevard Baille, ÙØ§Ø±Ø³ÙÙÙØ§, ÙØ±ÙØ³Ø§ 
+            api_key: global.sdk_mapzen_api_key
+            # lang: ko
+        url: https://search.mapzen.com/v1/search?  
+
+layers:
+
+
+    _marseille_ko:
+        data: { source: marseille_korean }
+        draw:
+            __points:
+                color: red
+                size: 15px
+                outline:
+                    color: black
+                    width: 1px
+                text: 
+                    font:
+                        size: 12px
+                        fill: red
+                        stroke:
+                            color: white
+                            width: 3px
+    _marseille_ar:
+        data: { source: marseille_arabic }
+        draw:
+            __points:
+                color: red
+                size: 15px
+                outline:
+                    color: black
+                    width: 1px
+                text: 
+                    text_source: label
+                    font:
+                        size: 12px
+                        fill: red
+                        stroke:
+                            color: white
+                            width: 3px
+                        

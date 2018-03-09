@@ -1,0 +1,23 @@
+import:
+    - https://www.nextzen.org/carto/bubble-wrap-style/bubble-wrap-style.zip
+    - https://www.nextzen.org/carto/bubble-wrap-style/themes/label-10.zip
+
+sources:
+    things:
+        type: GeoJSON
+        url: 'data:application/json, {"type":"FeatureCollection", "features": [{"type":"Feature","geometry":{"type":"Point","coordinates":[-73.9904, 40.74465]},"properties":{"label":"Hello"}}]}'
+
+layers:
+    things:
+        data: { source: things }
+        draw:
+            points:
+                color: red
+                size: 10px
+                text:
+                    text_source: label
+                    font:
+                        family: Helvetica
+                        fill: black
+                        size: 16px
+                        stroke: { color: white, width: 4px}

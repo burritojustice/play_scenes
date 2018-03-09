@@ -1,0 +1,199 @@
+import:
+    - https://www.nextzen.org/carto/refill-style-no-labels/refill-style-no-labels.zip
+    # - https://www.nextzen.org/carto/refill-style/8/themes/color-gray-gold.zip
+    # - https://www.nextzen.org/carto/refill-style-more-labels/refill-style-more-labels.yaml
+    - https://mapzen-assets.s3.amazonaws.com/resources/demo.yaml
+
+
+
+
+styles:
+    _pois:
+        base: points
+        #texture: pois
+        blend: overlay
+        blend_order: 4
+    _points:
+        base: points
+        #texture: pois
+        blend: overlay
+        blend_order: 3
+    _polygons:
+        base: polygons
+        #texture: pois
+        blend: inlay
+        # blend_order: 3
+    _text:
+        base: text
+        blend_order: 3
+        
+sources:
+    # mapzen:
+    #     type: TopoJSON
+    #     url: https://tile.nextzen.org/tilezen/vector/v1/all/{z}/{x}/{y}.topojson
+    #     url_params: 
+    #         api_key: global.sdk_mapzen_api_key
+
+ 
+    neighbourhoods:
+        type: TopoJSON
+        # url: https://gist.githubusercontent.com/burritojustice/11fcd129005f19e315b0c45020da30b5/raw/7742883e25b69aaa2d137489d3904c87e72e9ee4/bc_leg.topojson
+        # url: https://gist.githubusercontent.com/burritojustice/75d5a33f0b5882cef00214dbe6f689e7/raw/8089d787577f5ae20ead6c173fa3a4f5dbac2004/cds_by_zip.topojson
+        url: https://gist.githubusercontent.com/burritojustice/984350abe20982b316ee13b585ae950a/raw/32a877c0ff21aa069a8de3de3acc7cb656a9f688/toronto_neighbourhoods.topojson
+        generate_label_centroids: true
+
+    macrohoods:
+        type: TopoJSON
+        url: https://gist.githubusercontent.com/burritojustice/984350abe20982b316ee13b585ae950a/raw/e517259859042706a8574817a29585436eb10670/toronto_macrohood.topojson
+        generate_label_centroids: true
+        
+    hoods_macro_micro:
+        type: TopoJSON
+        url: https://gist.githubusercontent.com/burritojustice/f5df37c682bd3cffb69bf551b6a60cd5/raw/129627f7dd53e3755030cd29fdfca15c3d2b3c79/toronto_hood_micro_macro.topojson
+        generate_label_centroids: true
+
+
+layers:
+    _macrohoods:
+        # data: {source: macrohoods}
+        data: {source: hoods_macro_micro}
+
+        filter:
+            all:
+                - wof:placetype: macrohood 
+                - $zoom: { max: 13 }
+        draw:
+            lines:
+                color: red
+                width: 5px
+                order: 102
+            _polygons: 
+                color: [1,0,0,0.3]
+                # color: |
+                #     function(){
+                #         var wof_id = feature['wof:id']
+                #         return "hsl(" + (wof_id/2) + ",100%,55%)";
+                #         }
+                width: 2px
+                order: 101
+        labels:
+            filter: 
+                all:
+                    - label_placement: true
+                    # - $zoom: { max: 14 }
+
+            draw:
+                _text:
+                    text_source: wof:name
+#                     text_source: |
+#                         function(){
+#                         var wof_id = feature['wof:id']
+
+#                         return "hsl(" + (wof_id) + ",100%,55%)";
+#                         }
+                    text_wrap: 35
+
+                    font:
+                        transform: uppercase
+                        fill: red
+                        size: [[9,12px],[18,16px]]
+                        stroke:
+                            color: white
+                            width: 2px
+    _neighbourhoods:
+        # data: {source: neighbourhoods}
+        data: {source: hoods_macro_micro}
+
+        filter: 
+            all:
+                # - $zoom: { min: 12 }
+                - wof:placetype: neighbourhood
+        draw:
+            # _polygons: 
+            #     # color: [1,0,0,0.3]
+            #     color: |
+            #         function(){
+            #             var wof_id = feature['wof:id']
+            #             return "hsl(" + (wof_id/2) + ",100%,55%)";
+            #             }
+            #     width: 2px
+            #     order: 101
+            lines: 
+                color: [1,0,0,0.7]
+                width: 2px
+                order: 300
+        labels:
+            filter: 
+                all:
+                    - label_placement: true
+                    - $zoom: { min: 12 }
+
+            draw:
+                _text:
+                    text_source: wof:name
+                    text_wrap: 35
+
+                    font:
+                        # transform: uppercase
+                        fill: black
+                        size: [[9,8px],[18,16px]]
+                        stroke:
+                            color: white
+                            width: 2px
+
+    _microhoods:
+        data: {source: hoods_macro_micro}
+        filter: 
+            all:
+                - $zoom: { min: 14 }
+                - wof:placetype: microhood
+
+        draw:
+            _polygons: 
+                color: [0,0,1,0.3]
+            #     color: |
+            #         function(){
+            #             var wof_id = feature['wof:id']
+            #             return "hsl(" + (wof_id/2) + ",100%,55%)";
+            #             }
+            #     width: 2px
+                order: 101
+            lines: 
+                color: [0,0,1,0.7]
+                width: 2px
+                order: 300
+        labels:
+            filter: 
+                all:
+                    - label_placement: true
+                    # - $zoom: { min: 13 }
+
+            draw:
+                _text:
+                    text_source: wof:name
+                    text_wrap: 35
+
+                    font:
+                        transform: uppercase
+                        fill: blue
+                        size: [[9,8px],[18,16px]]
+                        stroke:
+                            color: white
+                            width: 2px
+
+    roads:
+        data: { source: mapzen, layer: roads }
+        filter: 
+            not: 
+                - kind: rail
+                - kind: highway 
+        # visible: false
+        draw:
+            lines:
+                interactive: true
+                #color: black
+                width: 1px
+                order: global.feature_order
+                # but give them all the same outline
+                outline:
+                    style: _outline # kills the white road outline

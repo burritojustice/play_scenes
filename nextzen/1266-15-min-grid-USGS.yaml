@@ -1,0 +1,105 @@
+import:
+    - https://www.nextzen.org/carto/refill-style/9/refill-style.zip
+    # - https://www.nextzen.org/carto/refill-style/8/themes/color-gray-gold.zip
+    # - https://www.nextzen.org/carto/refill-style-more-labels/refill-style-more-labels.yaml
+    - https://mapzen-assets.s3.amazonaws.com/resources/demo.yaml
+
+
+
+
+styles:
+    _pois:
+        base: points
+        #texture: pois
+        blend: overlay
+        blend_order: 4
+    _points:
+        base: points
+        #texture: pois
+        blend: overlay
+        blend_order: 3
+    _lines:
+        base: lines
+        #texture: pois
+        blend: inlay
+        blend_order: 3
+    _polygons:
+        base: polygons
+        #texture: pois
+        blend: inlay
+        # blend_order: 3
+    _text:
+        base: text
+        blend_order: 3
+        
+sources:
+
+    15_min_grid:
+        type: GeoJSON
+
+        url: https://gist.githubusercontent.com/burritojustice/9eeca34463467e5064ff5c8a9b698020/raw/356b7bfa36242f2068d6f292fe3592667d4bea4a/15_min_grid.geojson
+        generate_label_centroids: true
+    15_min_lines:
+        type: GeoJSON
+        url: https://gist.githubusercontent.com/burritojustice/9eeca34463467e5064ff5c8a9b698020/raw/fc24c0e119c75b5416afee34a1ac756a64b39919/usgs-15-min-lines.geojson
+
+
+layers:
+    _15_min_lines:
+        data: {source: 15_min_lines}
+        named:
+            draw:
+                lines: 
+                    # tile_edges: true
+                    color: [1, 0.0, 1, 0.30]
+                    width: [[5,.2px],[18,6px]]
+                    order: 1501
+                    # outline:
+                    #     tile_edges: true
+                    #     color: aqua
+                    #     width: 0.5px
+    _15_min_grid:
+        data: {source: 15_min_grid}
+        no_name:
+            filter: 
+                CELL_NAME: No Name
+            draw:
+                _polygons: 
+                    color: [1,0,1,0.2]
+                    order: 501
+                # lines: 
+                #     color: [1,0,0,0.7]
+                #     width: [[5,.2px],[18,12px]]
+                #     order: 1500
+        named:
+            draw:
+                lines: 
+                    # tile_edges: true
+                    color: [0,0,1,0.0]
+                    width: [[5,.2px],[18,6px]]
+                    order: 1500
+                    outline:
+                        tile_edges: true
+                        color: aqua
+                        width: 0.5px
+        labels:
+            filter: 
+                all:
+                    - label_placement: true
+                    - $zoom: { min: 8 }
+
+            draw:
+
+
+                _text:
+                    collide: false
+                    text_source: function(){return feature.CELL_NAME + '\n' + feature.CELL_ID}
+                    # text_wrap: 35
+
+                    font:
+                        # transform: uppercase
+                        fill: darkblue
+                        size: [[7,6px],[18,30px]]
+                        stroke:
+                            color: white
+                            width: 4px

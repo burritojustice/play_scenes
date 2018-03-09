@@ -1,0 +1,23 @@
+import: 
+# - https://www.nextzen.org/carto/refill-style/6/refill-style.zip
+- https://www.nextzen.org/carto/refill-style/6/refill-style.yaml
+# - https://www.nextzen.org/carto/walkabout-style/3/walkabout-style.zip
+# - https://www.nextzen.org/carto/walkabout-style/3/walkabout-style.yaml
+
+
+
+global:
+  # sdk_mapzen_api_key: mapzen-xxxxxx
+  sdk_transit_overlay: true
+
+
+layers:
+    transit:
+        transit-overlay-rail-lines:
+            labels-transit-lines:
+                filter:
+                    all:
+                        - function() { return global.sdk_transit_overlay; }
+                        - all:
+                            - $zoom: { min: 12 }
+                            - ref: true

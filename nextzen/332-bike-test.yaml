@@ -1,0 +1,41 @@
+import: https://www.nextzen.org/carto/walkabout-style/4/walkabout-style.zip
+
+global:
+    sdk_mapzen_api_key: mapzen-UJDfMvY          # your API key here
+    sdk_path_overlay: false
+    sdk_bike_overlay: true
+    # bike_tier1_off_road_path_color: [0.085,0.650,0.405] # green casing / outline
+    # bike_tier1_off_road_path_color_casing: [0.000,0.810,0.392] # green left-right lanes at z18
+    # bike_tier1_off_road_path_color_lite: # [0.554,0.865,0.554] # green fill
+    # bike_tier1_off_road_footway_color: [0.690,0.547,0.504]  # light brown tracks (unpaved)
+    # bike_tier1_off_road_footway_color_lite: [1.000,0.881,0.770] # lighter brown tracks (unpaved)
+    # bike_tier1_off_road_track_color: [0.500,0.343,0.290]  # brown casing / outline
+    # bike_tier1_off_road_track_color_lite: [0.917,0.759,0.610] # brown fill
+    # bike_tier1a_label: [0.063,0.474,0.294] #green label
+    # bike_tier1b_label: [0.559,0.338,0.269] #brown label
+    # bike_tier2_on_road_protected_color: [0.930,0.460,0.167] # orange casing
+    # bike_tier2_on_road_protected_color_casing: [0.980,0.635,0.545] # orange left-right lanes
+    # bike_tier2_on_road_protected_color_lite: [0.980,0.792,0.706] # orange fill
+    # bike_tier2_label: [0.743,0.367,0.135] # orange label
+    # bike_tier3_on_road_not_protected_color: [0.273,0.332,0.780] #[0.361,0.416,0.800] # blue casing
+    # bike_tier3_on_road_not_protected_color_casing: [0.357,0.750,0.870] # blue left-right lanes
+    # bike_tier3_on_road_not_protected_color_lite: [0.502,0.792,0.880] #[0.660,0.829,0.880] # blue fill
+    # bike_tier3_label: [0.253,0.307,0.719] # blue label
+    # bike_prohibited_color: [0.930,0.679,0.721] # pink dashed line (no bikes/walk your bike)
+    # bike_prohibited_color_lite: [1.000,1.000,1.000] # pink fill
+    # # regional_network_highlight: [0.973,1.000,0.318] # yellow highlight
+    # regional_network_highlight: [1.000,1.000,0.549] # yellow hightlight
+    # no_bike_label: [0.740,0.540,0.572] # pink casing
+    # no_bike_color_lite: [1.000,0.898,0.918] # pink fill
+    
+    
+    
+    bike_tier3_on_road_not_protected_color: [0.930,0.460,0.167] # orange casing
+    bike_tier3_on_road_not_protected_color_casing: [0.980,0.635,0.545] # orange left-right lanes
+    bike_tier3_on_road_not_protected_color_lite: [0.980,0.792,0.706] # orange fill
+    bike_tier3_label: [0.743,0.367,0.135] # orange label
+    bike_tier2_on_road_protected_color: [0.273,0.332,0.780] #[0.361,0.416,0.800] # blue casing
+    bike_tier2_on_road_protected_color_casing: [0.357,0.750,0.870] # blue left-right lanes
+    bike_tier2_on_road_protected_color_lite: [0.502,0.792,0.880] #[0.660,0.829,0.880] # blue fill
+    bike_tier2_label: [0.253,0.307,0.719] # blue label
+    

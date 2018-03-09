@@ -1,0 +1,349 @@
+import:
+    - https://www.nextzen.org/carto/refill-style-no-labels/refill-style-no-labels.yaml
+    # - https://www.nextzen.org/carto/refill-style-more-labels/refill-style-more-labels.yaml
+    - https://mapzen-assets.s3.amazonaws.com/resources/demo.yaml
+    - https://www.nextzen.org/carto/refill-style/8/themes/color-gray-gold.zip
+    # - https://www.nextzen.org/carto/refill-style/8/themes/color-inverted.zip
+global:
+    population: |
+        function(){
+            var pop = feature['statoids:population']
+            var ratio
+            if (pop < 10000){ratio = 0.1} else
+            if (pop < 20000){ratio = 0.2} else
+            if (pop < 40000){ratio = 0.3} else
+            if (pop < 80000){ratio = 0.4} else
+            if (pop < 160000){ratio = 0.5} else
+            if (pop < 320000){ratio = 0.6} else
+            if (pop < 640000){ratio = 0.7} else
+            if (pop < 1280000){ratio = 0.8} else
+            if (pop < 2560000){ratio = 0.9} else
+            if (pop < 5120000) {ratio = 1}
+            if (pop == null){ratio = 0}
+            // var area = feature['statoids:area_km']
+            // area = area.replace(/,/g, '')
+            // var density = 100 * (pop/area)
+            return [0,0,1,ratio]
+        }
+    population_density: |
+        function(){
+            var pop = feature['statoids:population']
+            var ratio
+            // var area = feature['geom:area_square_m'] // this includes water!
+            var area = feature['statoids:areakm']
+            var sq_mile = area * 0.386
+            // var sq_mile = area / 2589988 // sqm to sqmi
+            // area = area.replace(/,/g, '')
+            // var density_m = pop/area
+            var density_mi = Math.round(pop/sq_mile)
+            if (density_mi < 10){ratio = 0.1} else
+            if (density_mi < 100){ratio = 0.2} else
+            if (density_mi < 250){ratio = 0.3} else
+            if (density_mi < 500){ratio = 0.4} else
+            if (density_mi < 1000){ratio = 0.5} else
+            if (density_mi < 2000){ratio = 0.6} else
+            if (density_mi < 4000){ratio = 0.7} else
+            if (density_mi < 8000){ratio = 0.8} else
+            if (density_mi < 12000){ratio = 0.9} else
+            if (density_mi < 16000){ratio = 1.0} 
+            // return density_mi.toLocaleString()
+            return [1,0,0,ratio]
+        }
+        
+    density: |
+        function(feature){
+            var pop = feature['statoids:population']
+            var ratio
+            var area = feature['statoids:areakm']
+            var sq_mile = area * 0.386
+            var density_mi = Math.round(pop/sq_mile)
+            return density_mi.toLocaleString()
+        }
+    low_density: |
+        function(feature){
+            var pop = feature['statoids:population']
+            var ratio
+            var area = feature['statoids:areakm']
+            var sq_mile = area * 0.386
+            var density_mi = pop/sq_mile
+            return density_mi.toFixed(2).toLocaleString()
+        }
+    label: |
+        function(feature){ 
+            var pop = Number(feature['statoids:population'] ).toLocaleString()
+            if (!pop || pop == 0 || pop == 'NaN'){pop ='n/a'}
+                return feature['statoids:name'] + '\n' + pop + '\n' + global.density(feature) + '/sq.mi'  
+        }
+        
+    label_density: |
+        function(feature){ 
+            return feature['statoids:name'] + '\n' + global.density(feature) + '/sq.mi'  }
+    label_low_density: |
+        function(feature){ 
+            return feature['statoids:name'] + '\n' + global.low_density(feature) + '/sq.mi'  }
+    bay_area: ['US.CA.SF','US.CA.SM','US.CA.SL','US.CA.AA','US.CA.CN','US.CA.SN','US.CA.NA','US.CA.SL','US.CA.SO','US.CA.MN']
+
+    bordering_bay_area: ['US.CA.SZ','US.CA.YO','US.CA.SC','US.CA.SJ','US.CA.ST','US.CA.MD','US.CA.SI','US.CA.MT','US.CA.MI','US.CA.LK']
+styles:
+    _pois:
+        base: points
+        #texture: pois
+        blend: overlay
+        blend_order: 4
+    _points:
+        base: points
+        blend: overlay
+        blend_order: 3
+    _lines:
+        base: lines
+        blend: overlay
+        blend_order: 3
+    _polygons:
+        base: polygons
+        blend: inlay
+        # blend_order: 3
+    _text:
+        base: text
+        blend_order: 3
+        
+sources:
+    # mapzen:
+    #     type: TopoJSON
+    #     url: https://tile.nextzen.org/tilezen/vector/v1/512/all/{z}/{x}/{y}.topojson
+    #     url_params: 
+    #         api_key: global.sdk_mapzen_api_key
+
+    california:
+        type: TopoJSON
+        url: https://gist.githubusercontent.com/burritojustice/d7ad134f18e9c0d18056306279b40273/raw/ef0f168569eedcb632b0daccf55a1baf0786d84b/california_counties.topojson
+        generate_label_centroids: true
+    nm:
+        type: TopoJSON
+        url: https://gist.githubusercontent.com/burritojustice/3e2b2e0586467071870cb26af8b3b77f/raw/fd70a3eb8fc0fa20dd4df95c11debbdd0f5e44a5/1_wof_bundle_new-mexico_85688493_county.topojson
+        generate_label_centroids: true
+
+    mng:
+        type: GeoJSON
+        url: https://gist.githubusercontent.com/burritojustice/d382797922925dce66e4d6d7b71af704/raw/3fb88fdc334fd3be818eb77f1838893a23abcfee/1_wof_bundle_mongolia_85632439_region-county.geojson
+        generate_label_centroids: true
+
+    caf:
+        type: GeoJSON
+        url: https://gist.githubusercontent.com/burritojustice/884e2b04d9a52bcd3392dc4698c3f650/raw/cc339e7236d21f0f8b82f92e9cb369ea76189dd3/1_wof_bundle_central-african%20republic_85632391_region-county.geojson
+        generate_label_centroids: true
+    mex:
+        type: TopoJSON
+        # url: https://gist.githubusercontent.com/burritojustice/8af181daf832bceaa8cbe013b58e12f3/raw/2f6795d54db30209ced9b4459595a3ffe9611cc9/1_wof_bundle_mexico_85633293_region.geojson
+        url: https://gist.githubusercontent.com/burritojustice/96e47723cd1ced8ae11c7ea42f6433b9/raw/fd01a503f0097c9668bde9ea5d07e9734cef58a1/mexico_region_county.topojson
+        generate_label_centroids: true
+        
+    pan: 
+        type: GeoJSON
+        url: https://gist.githubusercontent.com/stepps00/0b02b3e61ef521e0b373ffddf72dc0b7/raw/3b6712b956f57c9d17943f47ca487b84f554e130/1_wof_bundle_panama_85632179_region-county.geojson
+        generate_label_centroids: true
+    car2: 
+        type: GeoJSON
+        url: https://gist.githubusercontent.com/stepps00/7cc79510ae52b3860fe69f72996e0d2d/raw/1e69de4c4241ff70be20a2d5c7034a58d70487c3/1_wof_bundle_central-african%2520republic_85632391_region-county.geojson
+        generate_label_centroids: true
+    yem: 
+        type: GeoJSON
+        url: https://gist.githubusercontent.com/stepps00/24feb46c0cdd72ae84084ca44e976f54/raw/2d9decaf3897917916828d846c21a0e3ec5ddc19/1_wof_bundle_yemen_85632499_region-county.geojson
+        generate_label_centroids: true
+
+layers:
+    boundaries:
+        filter: {not: {kind: region}}
+    roads:
+        enabled: false
+    california:
+        data: {source: california}
+        bay_area:
+            filter: 
+                all:
+                    - 'wof:placetype': county
+                    - 'statoids:statoid': global.bay_area
+                    # - 'statoids:statoid': ['US.CA.SF','US.CA.SM','US.CA.SL','US.CA.AA','US.CA.CN','US.CA.SN','US.CA.NA','US.CA.SL','US.CA.SO','US.CA.MN']
+                    # - $zoom: { min: 8 } 
+            borders:
+                filter: {$zoom: {min: 7}}
+                draw:
+                    lines:
+                        # color: [0.447, 0.447, 0.890, 1.00]
+                        # color: [0,.7,1,0.5]
+                        color:  [.5,.5,0]
+                        # color: gold
+                        width: 2px
+                        order: 1000
+            draw:
+                _polygons:
+                    color: global.population_density
+                    order: 200
+            labels:
+                filter: 
+                    all:
+                        - label_placement: true
+                        - $zoom: {min: 7}
+                draw:
+                    _text:
+                        collide: false
+                        text_source: |
+                            function() {
+                                if ($zoom > 7){
+                                return global.label(feature)
+                                } else {
+                                return global.label_density(feature)
+                                }
+                            }
+                        font:
+                            fill: gold
+                            size: 10px
+                            stroke:
+                                color: black
+                                width: 2px
+        bordering_bay_area:
+            filter: 
+                all:
+                    - 'wof:placetype': county
+                    - 'statoids:statoid': global.bordering_bay_area
+                    # - $zoom: { min: 8 } 
+            borders:
+                filter: {$zoom: {min: 7}}
+                draw:
+                    lines:
+                        color: brown
+                        # color: [0.176, 0.169, 0.278, 1.00]
+                        # color: [1,0,1,0.5]
+                        width: 1.5px
+                        order: 400
+            draw:
+                _polygons:
+                    color: global.population_density
+                    order: 100
+            labels:
+                filter: 
+                    all:
+                        - label_placement: true
+                        - $zoom: {min: 7}
+                draw:
+                    _text:
+                        collide: false
+                        text_source: |
+                            function() {
+                                if ($zoom > 7){
+                                return global.label(feature)
+                                } else {
+                                return global.label_density(feature)
+                                }
+                            }
+                        font:
+                            fill: grey
+                            size: 10px
+                            stroke:
+                                color: black
+                                width: 2px
+
+        rest_of_ca:
+            filter: 
+                not: 
+                    - 'statoids:statoid': global.bordering_bay_area
+                    - 'statoids:statoid': global.bay_area
+            borders:
+                filter: {$zoom: {min: 7}}
+                draw:
+                    lines:
+                        color: [0.235, 0.224, 0.224, 1.00]
+                        # color: [1,0,1,0.5]
+                        width: 1px
+                        order: 300
+            draw:
+                _polygons:
+                    color: global.population_density
+                    order: 100
+            labels:
+                filter: 
+                    all:
+                        - label_placement: true
+                        - $zoom: {min: 7}
+                draw:
+                    _text:
+                        collide: false
+                        # buffer: -5
+                        text_source: |
+                            function() {
+                                if ($zoom > 7){
+                                return global.label(feature)
+                                } else {
+                                return global.label_density(feature)
+                                }
+                            }
+                        font:
+                            fill: slategrey
+                            size: 10px
+                            stroke:
+                                color: black
+                                width: 1px
+    nm:
+        data: {source: nm}
+
+        filter: 
+            # not: 
+            #     - 'statoids:statoid': global.bordering_bay_area
+            #     - 'statoids:statoid': global.bay_area
+        borders:
+            filter: {$zoom: {min: 7}}
+            draw:
+                lines:
+                    color: [0.235, 0.224, 0.224, 1.00]
+                    # color: [1,0,1,0.5]
+                    width: 1px
+                    order: 300
+        draw:
+            _polygons:
+                color: |
+                    function(){
+                        var pop = feature['statoids:population']
+                        var ratio
+                        // var area = feature['geom:area_square_m'] // this includes water!
+                        var area = feature['statoids:areakm']
+                        var sq_mile = area * 0.386
+                        // var sq_mile = area / 2589988 // sqm to sqmi
+                        // area = area.replace(/,/g, '')
+                        // var density_m = pop/area
+                        var density_mi = Math.round(pop/sq_mile)
+                        if (density_mi < 0.8){ratio = 0.1} else
+                        if (density_mi < 1.6){ratio = 0.2} else
+                        if (density_mi < 3.2){ratio = 0.3} else
+                        if (density_mi < 6.4){ratio = 0.4} else
+                        if (density_mi < 12.8){ratio = 0.5} else
+                        if (density_mi < 25.6){ratio = 0.6} else
+                        if (density_mi < 25.6){ratio = 0.7} else
+                        if (density_mi < 102.4){ratio = 0.8} else
+                        if (density_mi < 204.8){ratio = 0.9} else
+                        if (density_mi < 409.6){ratio = 1.0} 
+                        // return density_mi.toLocaleString()
+                        return [0,1,0,ratio]
+                        }
+                order: 100
+        labels:
+            filter: 
+                all:
+                    - label_placement: true
+                    - $zoom: {min: 7}
+            draw:
+                _text:
+                    collide: false
+                    # buffer: -5
+                    text_source: |
+                        function() {
+                            if ($zoom > 7){
+                            return global.label(feature)
+                            } else {
+                            return global.label_low_density(feature)
+                            }
+                        }
+                    font:
+                        fill: gold
+                        size: 10px
+                        stroke:
+                            color: black
+                            width: 1px

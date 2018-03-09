@@ -1,0 +1,95 @@
+# import: https://s3.amazonaws.com/carto.www.nextzen.org/carto/zinc-style-no-labels/zinc-style-no-labels.yaml
+import: 
+    - https://s3.amazonaws.com/carto.www.nextzen.org/carto/refill-style/9/refill-style.zip
+    - https://www.nextzen.org/carto/refill-style/9/themes/label-4.zip
+    - https://www.nextzen.org/carto/refill-style/9/themes/detail-6.zip
+    - https://www.nextzen.org/carto/refill-style/8/themes/color-high-contrast.zip
+    - https://mapzen-assets.s3.amazonaws.com/resources/demo.yaml
+
+
+styles:
+    _text:
+        base: text
+        blend_order: 20
+    _points:
+        base: points
+        #texture: pois
+        blend: overlay
+        blend_order: 3
+    _points2:
+        base: points
+        #texture: pois
+        blend: overlay
+        blend_order: 2
+    _points4:
+        base: points
+        #texture: pois
+        blend: overlay
+        blend_order: 24
+sources:
+
+
+            
+    _geojson_gist:
+        type: GeoJSON
+        url: https://gist.githubusercontent.com/burritojustice/a70d65972c4257db9c78abc70589fd7b/raw/map.geojson
+
+layers:
+    
+    _geojson_gist:
+        data: {source: _geojson_gist}
+        stops:
+            filter: {Site: true}
+            draw:
+                _points:
+                    # outline:
+                    #     color: [0,0,1,.2]
+                    #     width: 2px
+                    collide: false
+                    color: [0,0,1,.5]
+                    size: [[10,12px],[17,24px]]
+                    # collide: true
+                    text:
+                        text_source: Site
+                        optional: true
+                        font:
+                            # family: Helvetica
+                            fill: blue
+                            size: [[13,10px],[17,16px]]
+                            stroke:
+                                color: white
+                                width: 3
+
+        _labels:
+            draw:
+                _text:
+                   collide: false
+                   text_source: marker-symbol
+                   font:
+                       # family: Helvetica
+                       fill: white
+                       size: [[13,10px],[17,14px]]
+                       stroke:
+                           color: black
+                           width: 2
+        route:
+            draw:
+                lines:
+                    width: 4px
+                    color: red
+                    order: 1000
+                    # dash: [2,1]
+    buildings:
+        tour:
+            filter: 
+                id: [-6130108, 273575846, 273580664, 275999213,  271114475, 273580659, 407087109, 539370945, 148555101, 159126638]
+            draw:
+                polygons:
+                    color: grey
+        guerrero_pushback:
+            filter:
+                id: [271457380, 271108023, 271108016, 271108027, 271108030, 271108014, 271108024, 271108015, 271104566, 271104576, 271104567, 271104563, 271104570]
+            draw:
+                polygons:
+                    color: green
+

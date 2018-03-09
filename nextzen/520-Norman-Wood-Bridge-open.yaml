@@ -1,0 +1,97 @@
+# global:
+#     closed_stations: 
+        
+import:
+    - https://tangrams.github.io/blocks/global.yaml
+    - https://tangrams.github.io/blocks/filter/height.yaml
+    - https://www.nextzen.org/carto/refill-style/refill-style.yaml
+    - https://mapzen-assets.s3.amazonaws.com/resources/demo.yaml
+
+    
+    # - https://www.nextzen.org/carto/walkabout-style/walkabout-style.yaml
+    # - https://www.nextzen.org/carto/zinc-style/zinc-style.yaml
+    
+sources:
+
+    regular:
+        type: GeoJSON
+        url: https://s3.amazonaws.com/mapzen-assets/images/post-isochrone/regular.geojson
+        # url_params:
+        #     api_key:  # (be sure to add your API key to pull in polygons from the server https://mapzen.com/developers)
+
+    avoid:
+        type: GeoJSON
+        url: https://s3.amazonaws.com/mapzen-assets/images/post-isochrone/avoid.geojson
+        # url_params:
+        #     api_key:  # (be sure to add your API key to pull in polygons from the server https://mapzen.com/developers)
+
+
+
+layers:
+    buildings:
+        visible: false
+        
+    places:
+        populated_places:
+                neighborhood-z14:
+                    draw:
+                        text-blend-order:
+                            font:
+                                fill: black
+                                stroke: { color: [1.0,1.0,1.0], width: 3}
+
+    water:
+        filter:
+            not:
+                kind: stream
+
+    _regular:
+        data: { source: regular }
+        draw:
+            polygons:
+                order: |
+                    function() {
+                        return Math.floor(100 - ((feature.contour/120) * 50));
+                        }
+                color: |
+                    function() {
+                        return feature.fill;
+                        }
+                        
+
+                
+#     _avoid:
+#         data: { source: avoid }
+#         draw:
+#             polygons:
+#                 order: |
+#                     function() {
+#                         return Math.floor(100 - ((feature.contour/120) * 50));
+#                         }
+#                 color: |
+#                     function() {
+#                         return feature.fill;
+#                         }
+                        
+
+
+styles:
+    _polygons:
+        base: polygons
+        blend: overlay
+
+    dashed-lines:
+        base: lines
+        dash: [1, 1]
+    sdk-point-overlay:
+        base: points
+        #texture: pois
+        interactive: true
+        blend: overlay
+        blend_order: 3
+    sdk-text-overlay:
+        base: text
+        #texture: pois
+        interactive: true
+        blend: overlay
+        blend_order: 3

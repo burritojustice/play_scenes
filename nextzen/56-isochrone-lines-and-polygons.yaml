@@ -1,0 +1,55 @@
+# Author @patriciogv - 2015
+
+import:
+    - https://tangrams.github.io/blocks/global.yaml
+    - https://tangrams.github.io/blocks/filter/height.yaml
+    - https://www.nextzen.org/carto/refill-style/refill-style.yaml
+    # - https://www.nextzen.org/carto/bubble-wrap-style/bubble-wrap.yaml
+    # - https://www.nextzen.org/carto/zinc-style/zinc-style.yaml
+    
+
+
+sources:
+
+    isochrone_lines:
+        type: GeoJSON
+        url: https://gist.githubusercontent.com/burritojustice/928315fbb9a318c36cb8f5351cee10ff/raw/8fe29cf90d778c1ae7844442c18b0cfa3cf515d7/mexico_city.geojson
+        # isochrone API response saved as geojson for demo purposes
+        
+    isochrone_polygons:
+        type: GeoJSON
+        url: https://s3.amazonaws.com/mapzen-assets/images/isochrone/isochrone_polygons.geojson
+            
+    # isochrone_live:
+    #     type: GeoJSON
+    #     url: https://matrix.mapzen.com/isochrone?json=%7B%22locations%22%3A%5B%7B%22lat%22%3A19.432600481483334%2C%22lon%22%3A-99.13324356079102%7D%5D%2C%22costing%22%3A%22auto%22%2C%22contours%22%3A%5B%7B%22time%22%3A5%7D%2C%7B%22time%22%3A10%7D%2C%7B%22time%22%3A15%7D%2C%7B%22time%22%3A20%7D%5D%2C%22polygons%22%3Atrue%2C%22denoise%22%3A0.2%2C%22generalize%22%3A150%7D
+        # url_params:
+        #     api_key: mapzen-xxxxxx
+# be sure to add your API key to pull in polygons from the server https://mapzen.com/developers
+
+layers:
+    isochrone_lines:
+        data: { source: isochrone_lines}
+        draw:
+            lines:
+                width: 5px
+                order: 3500
+                color: |
+                    function() {
+                        return feature.color; // 
+                        }
+
+    isochrone_polygons:
+        data: { source: isochrone_polygons }
+        draw:
+            polygons:
+                order: |
+                    function() {
+                        return 100 - feature.contour ;
+                        }
+                    
+                # color: red
+                color: |
+                    function() {
+                        return feature.fill;
+                        }

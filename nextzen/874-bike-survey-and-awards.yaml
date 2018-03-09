@@ -1,0 +1,69 @@
+import: 
+    - https://s3.amazonaws.com/carto.www.nextzen.org/carto/walkabout-style-no-labels/walkabout-style-no-labels.yaml
+    - https://mapzen-assets.s3.amazonaws.com/resources/demo.yaml
+
+global:
+    sdk_bike_overlay: true
+    sdk_path_overlay: false
+
+styles:
+    _points:
+        base: points
+        #texture: pois
+        blend: overlay
+        blend_order: 3
+        
+sources:
+    # mapzen:
+    #     type: TopoJSON
+    #     url: https://tile.nextzen.org/tilezen/vector/v1/all/{z}/{x}/{y}.topojson
+    #     url_params: 
+    #         api_key: global.sdk_mapzen_api_key
+
+    bike_survey:
+        type: GeoJSON
+        url: https://raw.githubusercontent.com/burritojustice/osm-bike-map/master/bike_survey.geojson
+
+
+
+layers:
+    _bike_survey:
+        data: {source: bike_survey}
+        draw:
+            points:
+                color: |
+                    function(){
+                        var color = "blue"
+                        var award
+                        if (feature.award){
+                            color = feature.award
+                        }
+                        if (color == "Bronze"){
+                               color = "orange"
+                        }
+                        return color
+                    }
+                outline:
+                    color: |
+                        function(){
+                            if (feature.is_mapzen_support == 1){
+                                return 'white'
+                            }
+                            if (feature.is_mapzen_support == null) {
+                                return 'black'
+                            }
+                            }
+                    width: 1px
+                width: 2px
+                order: 1001
+                collide: false
+                text:
+                    optional: true
+                    font:
+                        fill: white
+                        size: 12px
+                        stroke:
+                            color: black
+                            width: 3
+                        
+          

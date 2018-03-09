@@ -1,0 +1,53 @@
+import:
+    - https://mapzen-assets.s3.amazonaws.com/resources/demo.yaml
+
+
+sources:
+    mapzen:
+        type: TopoJSON
+        url: https://tile.nextzen.org/tilezen/vector/v1/all/{z}/{x}/{y}.topojson
+        url_params: 
+            api_key: global.sdk_mapzen_api_key
+
+    1860:
+        type: GeoJSON
+        url: https://gist.githubusercontent.com/burritojustice/e06b95761d20129473177b913a6af907/raw/9ba340736cd35da66920d2fe6f4a7177702bb40e/serpentine-plank_road_2.geojson
+        
+    # serpentine:
+    #     type: GeoJSON
+    #     url: https://gist.githubusercontent.com/burritojustice/52af6ae720d7c5c25a4d549dcc4bdb15/raw/343c71d84c40a9cfd53c1812a0beb51f1676f0bc/serpentine.geojson
+layers:
+    _1860:
+        data: {source: 1860}
+        draw:
+            lines:
+                order: 10
+                color: red
+                width: 2px
+
+#     water:
+#         data: { source: mapzen }
+#         draw:
+#             polygons:
+#                 order: 2
+#                 color: '#353535'
+#     earth:
+#         data: { source: mapzen }
+#         draw:
+#             polygons:
+#                 order: 1
+#                 color: '#555555'
+#     landuse:
+#         data: { source: mapzen }
+#         draw:
+#             polygons:
+#                 order: 3
+#                 color: '#666666'
+
+    buildings:
+        data: { source: mapzen }
+        draw:
+            polygons:
+                order: 7
+                color: '#999999'
+                extrude: true

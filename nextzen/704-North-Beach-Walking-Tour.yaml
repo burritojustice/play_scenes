@@ -1,0 +1,110 @@
+import:
+    - https://tangrams.github.io/blocks/global.yaml
+    - https://tangrams.github.io/blocks/filter/height.yaml
+    # - https://www.nextzen.org/carto/refill-style/7/refill-style.yaml
+    - https://www.nextzen.org/carto/bubble-wrap-style/bubble-wrap.yaml
+    # - https://www.nextzen.org/carto/zinc-style/zinc-style.yaml
+    - https://mapzen-assets.s3.amazonaws.com/resources/demo.yaml
+
+
+sources:
+
+    tour:
+        type: GeoJSON
+        url: https://gist.githubusercontent.com/burritojustice/c9cc10c588a96b50938d85ace6bc891d/raw/map.geojson
+layers:
+    stops:
+        data: { source: tour}
+        filter: {route: false}
+        draw: 
+            _points:
+                collide: false
+                color: red
+                width: 2px
+                outline:
+                    color: black
+                    width: 2px
+                text:
+                    text_source: |
+                        function(){
+                             if ($zoom > 11) {
+                             return feature.name + "\n" + feature.start_year + "-" + feature.end_year 
+                             }
+                        }
+                    text_wrap: 20
+                    font:
+                        size: 10px
+                        fill: white
+                        stroke:
+                            color: black
+                            width: 2
+    route:
+        data: { source: tour}
+        filter: {route: true}
+        draw:
+            lines:
+                color: red
+                width: 2px
+                order: 1000
+    # roads:
+    #     data: { source: mapzen, layer: roads }
+    #     filter: { not: { kind: rail } }
+    #     draw:
+    #         lines:
+    #             interactive: true
+    #             #color: black
+    #             width: 1px
+    #             order: global.feature_order
+    #             # but give them all the same outline
+    #             outline:
+    #                 style: _outline
+    #                 # color: white
+    #                 # width: 2px
+    #                 # blend: function() { if sdk_data_viz_road_friendly return 'multiply';  else return 'normal'}    
+
+    # isochrone_polygons:
+    #     data: { source: isochrone_live }
+    #     draw:
+    #         polygons:
+    #             order: |
+    #                 function() {
+    #                     return 100 - ((feature.contour/120) * 10) ;
+    #                     }
+    #             color: |
+    #                 function() {
+    #                     return feature.fill;
+    #                     }
+            #lines:
+                #order: 4000
+                #color: white
+                #width: [[10,.3px],[18,2px]]
+
+   #                 function() {
+   #                     return feature.fill;
+   #                     }
+   #             width: [[10,2px],[18,10px]]
+   #             outline:
+   #                 color: white
+   #                 width: [[10,2px],[18,4px]]
+                
+
+
+    # isochrone_lines:
+    #     data: { source: isochrone_lines}
+    #     draw:
+    #         lines:
+    #             width: 5px
+    #             order: 3500
+    #             color: |
+    #                 function() {
+    #                     return feature.color; // 
+    #                     }
+
+
+styles:
+    _text:
+        base: text
+        blend_order: 3
+    _points:
+        base: points
+        blend_order: 3

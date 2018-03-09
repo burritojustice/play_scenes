@@ -1,0 +1,86 @@
+global:
+  sdk_mapzen_api_key: mapzen-UJDfMvY
+
+import:
+    - https://www.nextzen.org/carto/refill-style/6/refill-style.yaml
+
+sources:
+    # streets_api:
+    #     type: GeoJSON
+    #     url: http://interpolation.wiz.co.nz/street/near/geojson?lat=37.745828&lon=-122.42113
+
+    streets:
+        type: GeoJSON
+        url: https://gist.githubusercontent.com/burritojustice/8574c17f58314c3a019567b761a994a2/raw/f673c0fea2250428a20919dfc15fbe8d89093354/la_lengua_streets.geojson
+        generate_label_centroids: true
+        
+    intersections:
+        type: GeoJSON
+        url: https://gist.githubusercontent.com/burritojustice/8574c17f58314c3a019567b761a994a2/raw/de35ccc3bce144788453ad48c80ea0ad129b63b8/la_lengua_intersections.geojson
+    voronoi:        
+        type: GeoJSON
+        url: https://gist.githubusercontent.com/burritojustice/150264a2c674bc266b60bc14d6dfe1bd/raw/09fccf16c3d3cd2cf07d6c6778bddad29bb7a709/sf_voronoi_intersections.geojson
+        generate_label_centroids: true
+    voronoi_bundle:
+        type: GeoJSON
+        url: https://gist.githubusercontent.com/burritojustice/f81feb16904f379dee6f7f864b9c129b/raw/09e8652a2d03694e5120caae098c29197519ae11/map.geojson
+        # generate_label_centroids: true
+    sf_intersections_mean:
+        type: GeoJSON
+        url: https://gist.githubusercontent.com/burritojustice/150264a2c674bc266b60bc14d6dfe1bd/raw/c174601163c06cdeec6ead9591eda92a35816f9f/sf_intersections_mean.geojson
+            
+    sf_intersections:
+        type: GeoJSON
+        url: https://gist.githubusercontent.com/burritojustice/150264a2c674bc266b60bc14d6dfe1bd/raw/c174601163c06cdeec6ead9591eda92a35816f9f/sf_voronoi_intersections.geojson
+
+layers:
+    _voronoi:
+        data: { source: voronoi}
+        # filter: { label_placement: true}
+        draw:
+            lines:
+                order: 1000
+                color: blue
+                width: 2px
+            text:
+                # filter: { label_placement: true}
+                text_source: UID
+                font:
+                    size: 10px
+                    fill: purple
+    _intersections:
+        data: { source: sf_intersections}
+        draw:
+            points:
+                color: red
+                size: 10
+    
+    # _voronoi:
+    #     data: { source: voronoi}
+    #     # filter: { label_placement: true}
+    #     draw:
+    #         lines:
+    #             order: 1000
+    #             color: blue
+    #             width: 2px
+    #         text:
+    #             text_source: intersect
+    #             font:
+    #                 size: 10px
+    #                 fill: red
+
+            # text:
+            #     text_source: intersect 
+            #     font:
+            #         size: 10
+            #         fill: blue
+    # _streets:
+    #     data: { source: streets}
+    #     draw:
+    #         lines:
+    #             order: 500
+    #             color: yellow
+    #             width: 2px
+
+
+

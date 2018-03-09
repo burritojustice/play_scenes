@@ -1,0 +1,123 @@
+import:
+    - https://tangrams.github.io/blocks/generative/random.yaml
+    - https://tangrams.github.io/blocks/space/tile.yaml
+    - https://www.nextzen.org/carto/tron-style-more-labels/tron-style-more-labels.zip
+
+global:
+    speed_slow: 10.
+    speed_medium: 20.
+
+
+sources:
+    squares:
+        type: GeoJSON
+        url: https://gist.githubusercontent.com/burritojustice/4ba605728b1fe01ca3de0dcb83baa9db/raw/map.geojson
+
+layers:
+    wall_street:
+        data: { source: squares }
+        draw:
+            lines:
+                color: aqua
+                width: 2px
+                order: 10000
+                style: pulse
+                tile_edges: true
+
+styles:
+    pulse:
+        base: lines
+        mix: [generative-random, space-tile]
+        animated: true
+        blend: inlay
+        shaders:
+            blocks:
+                color: |
+                    vec2 st = u_tile_origin.xy+floor(getTileCoords());
+                    float t = u_time*.8+random(st);
+                    float time_i = floor(t);
+                    float time_f = fract(t);
+                    
+                    color *= step(0.9,random(st+time_i))*(1.0-time_f);
+    water-later:
+        base: polygons
+        mix: [functions-zoom, polygons-shimmering]
+        shaders:
+            defines:
+                ZOOM_START: 11.
+                ZOOM_END: 20.
+
+                SHIMMERING_COLOR: color.rgb
+                SHIMMERING_BACKGROUND_COLOR: vec3(0.03,0.05,0.07)
+                SHIMMERING_SPEED: .05
+                SHIMMERING_AMOUNT: .1+zoom()*.9
+                SHIMMERING_ANIMATED: global.animated
+    fast-traffic-animation:
+        mix: [lines-traffic-animation]
+        shaders:
+            defines:
+                ZOOM_START: 13.
+                DATASTREAM_SPEED: global.speed_medium
+    fast-traffic-animation-twoways:
+        mix: [lines-traffic-animation]
+        shaders:
+            defines:
+                ZOOM_START: 13.
+                DATASTREAM_SPEED: global.speed_medium
+                DATASTREAM_TWOWAYS: true
+    slow-traffic-animation:
+        mix: [lines-traffic-animation]
+        shaders:
+            defines:
+                ZOOM_START: 18.
+                ZOOM_END: 20.
+                DATASTREAM_SPEED: global.speed_slow
+    slow-traffic-animation-twoways:
+        mix: [lines-traffic-animation]
+        shaders:
+            defines:
+                ZOOM_START: 17.
+                ZOOM_END: 20.
+                DATASTREAM_SPEED: global.speed_slow
+                DATASTREAM_TWOWAYS: true
+    
+    lines-traffic-animation:
+        base: lines
+        mix: [generative-random, tron-palette, functions-zoom]
+        texcoords: true
+        shaders:
+            defines:
+
+                DATASTREAM_SPEED: 1.
+                DATASTREAM_ROADS: 5.0 
+                DATASTREAM_MARGIN: z*.3
+                DATASTREAM_COLOR: palette( fract(floor(v_texcoord.x*DATASTREAM_ROADS)/DATASTREAM_ROADS+u_time*.03)*z )
+                DATASTREAM_AMOUNT: .8
+                DATASTREAM_ANIMATED: global.animated
+            blocks:
+                global: |
+                    float datastream_pattern(vec2 st, float v, float t) {
+                        float p = floor(st.y+v);
+                        return step(t, (random(p*.000001)+random(p))*.5 );
+                    }
+                color: |
+                    #ifdef DATASTREAM_ANIMATED
+                    vec2 st = v_texcoord.xy;
+                    float z = zoom();
+                    float datastream_speed = (-.5 * random(floor(v_texcoord.x*DATASTREAM_ROADS)) - .5);
+                    #ifdef DATASTREAM_TWOWAYS
+                    if (st.x < 0.5) {
+                      datastream_speed *= -1.;
+                    }
+                    #endif
+                    
+                    color.rgb = mix(color.rgb,
+                                    DATASTREAM_COLOR,
+                                    z*
+                                    datastream_pattern( st, 
+                                                        (u_time*DATASTREAM_SPEED)*datastream_speed,
+                                                        DATASTREAM_AMOUNT)*
+                                                    smoothstep(DATASTREAM_MARGIN,1.,sin(fract(v_texcoord.x*DATASTREAM_ROADS)*3.1415))
+                                    );
+                    #endif
+                    

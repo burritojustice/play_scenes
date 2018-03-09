@@ -1,0 +1,87 @@
+# Author @patriciogv - 2015
+
+import:
+    - https://tangrams.github.io/blocks/global.yaml
+    - https://tangrams.github.io/blocks/filter/height.yaml
+
+sources:
+
+        
+    linework_moriarty_hand_admin_0_lines_small:
+        type: TopoJSON
+        url: https://raw.githubusercontent.com/mapsam/project-linework/master/linework-sets/moriarty-hand/Small%20Scale/topojson/Admin_0_lines.json
+        
+    linework_moriarty_hand_admin_0_lines_large:
+        type: TopoJSON
+        url: https://raw.githubusercontent.com/mapsam/project-linework/master/linework-sets/moriarty-hand/Large%20Scale/topojson/Admin_0_Lines.json
+
+    linework_moriarty_hand_admin_1_lines_large:
+        type: TopoJSON
+        url: https://raw.githubusercontent.com/mapsam/project-linework/master/linework-sets/moriarty-hand/Large%20Scale/topojson/Admin_1_Lines.json
+        
+    linework_moriarty_hand_rivers:
+        type: TopoJSON
+        url: https://raw.githubusercontent.com/mapsam/project-linework/master/linework-sets/moriarty-hand/Large%20Scale/topojson/Rivers.json
+        
+    linework_moriarty_hand_land:
+        type: TopoJSON
+        url: https://raw.githubusercontent.com/mapsam/project-linework/master/linework-sets/moriarty-hand/Large%20Scale/topojson/Land.json
+        
+    linework_moriarty_hand_water:
+        type: TopoJSON
+        url: https://raw.githubusercontent.com/mapsam/project-linework/master/linework-sets/moriarty-hand/Large%20Scale/topojson/Waterbodies.json
+        
+
+cameras:
+    cam:
+        type: perspective
+        # vanishing_point: [0, -500]
+
+lights:
+    dir:
+        type: directional
+        direction: [.1, .5, -1]
+        diffuse: .7
+        ambient: .5
+
+layers:
+    
+    linework_admin_0_lines_large:
+        data: {source: linework_moriarty_hand_admin_0_lines_large}
+        draw:
+            lines:
+                width: 2px
+                color: white
+                order: 400
+
+    linework_admin_1_lines_large:
+        data: {source: linework_moriarty_hand_admin_1_lines_large}
+        draw:
+            lines:
+                width: 2px
+                color: white
+                order: 400
+    
+    linework_rivers:
+        data: {source: linework_moriarty_hand_rivers}
+        draw:
+            lines:
+                width: 2px
+                color: blue
+                order: 300    
+    
+    
+    water:
+        data: { source: linework_moriarty_hand_water }
+        draw:
+            polygons:
+                order: 301
+                color: darkblue
+    earth:
+        data: { source: linework_moriarty_hand_land }
+        draw:
+            polygons:
+                order: 300
+                color: '#555'
+
+

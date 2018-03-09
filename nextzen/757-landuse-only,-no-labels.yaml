@@ -1,0 +1,87 @@
+import: 
+    # - https://www.nextzen.org/carto/walkabout-style/5/walkabout-style.zip
+    # - https://www.nextzen.org/carto/walkabout-style-no-labels/5/walkabout-style-no-labels.yaml
+    - https://www.nextzen.org/carto/walkabout-style/5/walkabout-style.yaml
+    - https://mapzen-assets.s3.amazonaws.com/resources/demo.yaml
+
+global:     
+    sdk_path_overlay: false
+    sea_name: |
+        function(feature){
+            var sea_name = feature.name
+            if (sea_name.match(/hill/i)) {
+                sea_name = sea_name.replace(/ hill.*/i, " Beach")
+                }
+            if (sea_name.match(/district/i)) {
+                if (sea_name.length > 15)
+                    {sea_name = sea_name.replace(/district/i, "Shallows")}
+                else {sea_name = sea_name.replace(/district/i, "Reef")}
+                }
+            if (sea_name.match(/valley/i)) {
+                sea_name = sea_name.replace(/valley/i, "Harbor")
+                }
+            if (sea_name.match(/park/i)) {
+                sea_name = sea_name.replace(/park/i, "Anchorage")
+                }
+            if (sea_name.match(/slope/i)) {
+                sea_name = sea_name.replace(/slope/i, "Sloop")
+                }
+            if (sea_name.match(/addition/i)) {
+                sea_name = sea_name.replace(/addition/i, "Subduction")
+                }
+            if (sea_name.match(/heights/i)) {
+                sea_name = sea_name.replace(/heights/i, "Shoals")
+                }
+            if (sea_name.match(/lake/i)) {
+                sea_name = sea_name.replace(/lake/i, " Coast")
+                }
+            if (sea_name.match(/downtown|uptown|midtown/i)) {
+                sea_name = sea_name.replace(/town/i, "Stream")
+                }
+            if (sea_name.search(/side/i)) {
+                sea_name = sea_name.replace(/side/i, " Bay")
+                }
+
+            return sea_name
+            }
+        
+# scene:
+#     background: 
+#         color: [0.608,0.925,0.965]
+
+  
+layers:
+    boundaries:
+        enabled: false
+    earth:
+        enabled: false
+    water:
+        enabled: false
+    roads:
+        enabled: false
+#         filter:
+#             any:
+#                 # - bicycle_network: true
+#                 - is_bicycle_related: true
+#             not: 
+#                 - kind: ferry
+    
+    landuse:
+    #     visible: false
+        filter: 
+            not: 
+                - kind: parking
+                - kind: industrial
+                - kind: retail
+                - kind: residential
+                - kind: commercial
+                # - kind: hospital
+                # - kind: college
+    buildings:
+        enabled: false
+    places:
+        enabled: false
+    pois:
+        enabled: false                
+    transit:
+        enabled: false

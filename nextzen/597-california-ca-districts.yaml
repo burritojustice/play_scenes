@@ -1,0 +1,255 @@
+import:
+    # - https://www.nextzen.org/carto/refill-style-no-labels/refill-style-no-labels.yaml
+    - https://www.nextzen.org/carto/refill-style/refill-style.yaml
+    # - https://www.nextzen.org/carto/refill-style-more-labels/refill-style-more-labels.yaml
+    - https://mapzen-assets.s3.amazonaws.com/resources/demo.yaml
+
+global:
+    text_fill: [0,0,0,0.6]
+    text_stroke: [1,1,1,0.6]
+styles:
+    _stripes:
+        base: polygons
+        mix: [patterns-stripes, space-constant]
+        blend: inlay
+        shaders:
+            blocks:
+                color: |
+                    color = mix(color,vec4(0.),diagonalStripes( getConstantCoords()*73.))*.39;
+
+    _pois:
+        base: points
+        #texture: pois
+        blend: overlay
+        blend_order: 4
+    _points:
+        base: points
+        #texture: pois
+        blend: overlay
+        blend_order: 3
+    _polygons:
+        base: polygons
+        #texture: pois
+        blend: inlay
+        # blend_order: 3
+    _text:
+        base: text
+        blend_order: 3
+    _dashed:
+        base: lines
+        dash: [1,2]
+
+        
+sources:
+    # mapzen:
+    #     type: TopoJSON
+    #     url: https://tile.nextzen.org/tilezen/vector/v1/all/{z}/{x}/{y}.topojson
+    #     url_params: 
+    #         api_key: global.sdk_mapzen_api_key
+    santa_clara_county_localities:
+        type: GeoJSON
+        url: https://gist.githubusercontent.com/burritojustice/40efb77478118d09875b227cb802256e/raw/33964381fd955ab36438b6da04eb8dc84a13cc35/wof_bundle_102081673_Santa_Clara_county_locality.geojson
+        
+    districts:
+        type: GeoJSON
+        # url: https://gist.githubusercontent.com/burritojustice/163daacafc9ea7306c353001413c123b/raw/86a263cb2768d3ea6e9468b6be3db71568c45cf5/wof_bundle_85688637_california_constituency.geojson
+        url: https://gist.githubusercontent.com/burritojustice/05ac05c1b6f1b58b552f6e4df52e6dfd/raw/us_house_districts_ca.geojson
+        generate_label_centroids: true
+
+
+layers:
+    _sc_localities:
+        data: {source: santa_clara_county_localities}
+        draw:
+            _dashed:
+                color: [0,0,0]
+                width: [[6,.5px],[18,3px]]
+                order: 2000
+            lines:
+                color: white
+                width: 2px
+                order: 1999
+            # polygons:
+            #     color: white
+            #     order: 199
+            #     text:
+            #         text_source: wof:name
+            #         font:
+            #             fill: red
+            #             size: 12px
+            #             stroke:
+            #                 color: black
+            #                 width: 1
+            #         priority: 1
+                        
+
+                    
+    places:
+        neighbourhoods:
+            neighborhood-z16:
+                draw:
+                    text-blend-order:
+                        font:
+                            stroke: { color: [1.0,1.0,1.0,0.7], width: 2 }
+            neighborhood-z15:
+                draw:
+                    text-blend-order:
+                        font:
+                            stroke: { color: [1.0,1.0,1.0,0.7], width: 2 }
+            neighborhood-z14:
+                draw:
+                    text-blend-order:
+                        font:
+                            stroke: { color: [1.0,1.0,1.0,0.7], width: 2 }
+            neighborhood-z13:
+                draw:
+                    text-blend-order:
+                        font:
+                            stroke: { color: [1.0,1.0,1.0,0.7], width: 2 }
+        
+    roads:
+        data: { source: mapzen, layer: roads }
+        filter: { not: { kind: rail } }
+        draw:
+            lines:
+                interactive: true
+                #color: black
+                width: 1px
+                order: global.feature_order
+                # but give them all the same outline
+                outline:
+                    style: _outline # kills the white road outline
+
+    _districts:
+        # filter: { $zoom: {min: 12}}
+        data: {source: districts}
+        _democrats:
+            draw:
+                polygons: 
+                    color: |
+                        function(){
+                            var colorid = parseInt(feature['uscensus:geoid']) - 600;
+                            return "hsl(" + (35*colorid) + ",100%,55%)";
+                            }
+                    order: 100
+        _republicans:
+            filter: 
+                all:
+                    - party: R
+                    - $zoom: {min: 7}
+            draw:
+                _stripes:
+                    color: red
+                    order: 101
+        draw:
+            lines: 
+                color: [1,1,1,0.3]
+                width: [[6,1px],[18,5px]]
+                order: 500
+                outline:
+                    color: grey
+                    width: 1px
+        labels:
+            filter: 
+                all: 
+                    - label_placement: true
+                    - $zoom: {max: 8}
+            draw:
+                _text:
+                    text_source: house_district
+                
+                    
+                    font:
+                        # transform: uppercase
+                        fill: white
+                        size: [[13,10px],[18,20px]]
+                        stroke:
+                            color: black
+                            width: 3px
+        _z8:
+            filter: 
+                all:
+                    - label_placement: true
+                    - $zoom: {min: 8}
+            draw:
+                _text:
+                    text_source: |
+                        function(){
+                            return feature.house_district + "\n" + feature.house_member + " (" + feature.party + ")"
+                            }
+                    font:
+                        # transform: uppercase
+                        fill: |
+                            function(){
+                                if (feature.party == "D")
+                                {return "blue"}
+                                else {return "red"}
+                                }
+                        size: [[11,10px],[18,22px]]
+                        stroke:
+                            color: white
+                            width: 3px
+
+        _z9:
+            filter: 
+                all:
+                    - label_placement: true
+                    - $zoom: {min: 9}
+            draw:
+                _text:
+                    text_source: |
+                        function(){
+                            return feature.house_district + "\n" + feature.house_member + " (" + feature.party + ") " + feature.year_elected
+                            }
+                    font:
+                        # transform: uppercase
+                        fill: |
+                            function(){
+                                if (feature.party == "D")
+                                {return "blue"}
+                                else {return "darkred"}
+                                }
+                        size: [[11,10px],[18,22px]]
+                        stroke:
+                            color: white
+                            width: 3px
+
+#     _44_oshaughnessy:
+#         data: {source: 44_oshaughnassey}
+#         draw:
+#             lines:
+#                color: [1,1,0]
+#                width: 4px
+#                order: 1001
+#                outline:
+#                    color: black
+#                    width: 1px
+#         labels:
+#             draw:
+#                 text:
+#                     text_source: |
+#                         function(){
+#                             return feature.name + '-' + feature.tags.route_long_name;
+#                             }
+#                     font:
+#                         fill: yellow
+#                         size: 12px
+#                         stroke:
+#                             color: black
+#                             width: 3
+#                     offset: [0px,12px]
+
+#     _stops:
+#        data: {source: 44_stops}
+#        filter: { $zoom: {min: 14}}
+#        _dots:
+#             draw:
+#                 _points:
+#                     collide: false
+#                     color: yellow
+#                     size: [[10,2px],[17,15px]]
+#                     outline:
+#                         color: orange
+#                         width: 1px
+
+ 

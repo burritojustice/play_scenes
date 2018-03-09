@@ -1,0 +1,642 @@
+# Author @patriciogv - 2015
+# modified by John Oram, 2016
+
+import:
+    - https://tangrams.github.io/blocks/space/constant.yaml
+    - https://tangrams.github.io/blocks/space/tile.yaml
+    - https://tangrams.github.io/blocks/functions/pulse.yaml
+    - https://tangrams.github.io/blocks/patterns/stripes.yaml
+    - https://tangrams.github.io/blocks/patterns/waves.yaml
+    - https://tangrams.github.io/blocks/patterns/dots.yaml  
+    - https://tangrams.github.io/blocks/filter/grain.yaml
+    - https://tangrams.github.io/blocks/shapes/circle.yaml
+    - https://tangrams.github.io/blocks/patterns/zigzag.yaml
+    - https://tangrams.github.io/blocks/lines/dash.yaml
+    - https://mapzen-assets.s3.amazonaws.com/resources/demo.yaml
+
+# global:
+#   sdk_mapzen_api_key: mapzen-xxxxxx
+
+
+sources:
+    mapzen:
+        type: TopoJSON
+        url: https://tile.nextzen.org/tilezen/vector/v1/all/{z}/{x}/{y}.topojson
+        url_params: 
+            api_key: global.sdk_mapzen_api_key
+
+    scania:
+        type: GeoJSON
+        url: https://whosonfirst.mapzen.com/data/856/883/77/85688377.geojson
+    halland:
+        type: GeoJSON
+        url: https://whosonfirst.mapzen.com/data/856/883/91/85688391.geojson
+    blekinge:
+        type: GeoJSON
+        url: https://whosonfirst.mapzen.com/data/856/883/83/85688383.geojson
+ 
+    bohulsan:
+        type: GeoJSON
+        url: https://gist.githubusercontent.com/burritojustice/9f2128acb3ced5545deea739298f386a/raw/623c04e11dec7026cf6293defc68e1c776530238/bohulsan.geojson
+        
+    nord_trÃ¸ndelag: 
+        type: GeoJSON
+        url: https://whosonfirst.mapzen.com/data/856/871/33/85687133.geojson
+    
+    sÃ¸r_trÃ¸ndelag:
+        type: GeoJSON
+        url: https://whosonfirst.mapzen.com/data/856/871/27/85687127.geojson
+ 
+ #geojson for path and dates   
+       
+    roskilde:
+        type: GeoJSON
+        url: https://gist.githubusercontent.com/burritojustice/6295c331c06eb0a5cd6bbf5f42ec8e61/raw/roskilde.geojson   
+        
+    schleswig_holtein:
+        type: GeoJSON
+        url: https://whosonfirst.mapzen.com/data/856/825/17/85682517.geojson
+    
+    denmark:
+        type: GeoJSON
+        url: https://whosonfirst.mapzen.com/data/856/331/21/85633121.geojson
+        
+    sweden:
+        type: GeoJSON
+        url: https://whosonfirst.mapzen.com/data/856/337/89/85633789.geojson
+    norway:
+        type: GeoJSON
+        url: https://whosonfirst.mapzen.com/data/856/333/41/85633341.geojson
+        
+    finland:
+        type: GeoJSON
+        url: https://whosonfirst.mapzen.com/data/856/331/43/85633143.geojson
+    estonia:
+        type: GeoJSON
+        url: https://whosonfirst.mapzen.com/data/856/331/35/85633135.geojson
+        
+    ostvorpommern:
+        type: GeoJSON
+        url: https://whosonfirst.mapzen.com/data/102/064/111/102064111.geojson
+        
+    greifswald:
+        type: GeoJSON
+        url: https://whosonfirst.mapzen.com/data/102/064/107/102064107.geojson
+        
+    rÃ¼gen:
+        type: GeoJSON
+        url: https://whosonfirst.mapzen.com/data/102/064/153/102064153.geojson
+        
+    nordvorpommern:
+        type: GeoJSON
+        url: https://whosonfirst.mapzen.com/data/102/064/133/102064133.geojson
+        
+    straisund:
+        type: GeoJSON
+        url: https://whosonfirst.mapzen.com/data/102/064/121/102064121.geojson
+    greifswald:
+        type: GeoJSON
+        url: https://whosonfirst.mapzen.com/data/102/064/107/102064107.geojson
+        
+    ucker_randow:
+        type: GeoJSON
+        url: https://whosonfirst.mapzen.com/data/102/064/075/102064075.geojson
+    
+    kammin:
+        type: GeoJSON
+        url: https://whosonfirst.mapzen.com/data/102/080/153/102080153.geojson
+    policki:
+        type: GeoJSON
+        url: https://whosonfirst.mapzen.com/data/102/080/119/102080119.geojson
+    mawinouj:
+        type: GeoJSON
+        url: https://whosonfirst.mapzen.com/data/102/080/135/102080135.geojson
+    goweniowski:
+        type: GeoJSON
+        url: https://whosonfirst.mapzen.com/data/102/080/123/102080123.geojson
+    szczecin:
+        type: GeoJSON
+        url: https://whosonfirst.mapzen.com/data/102/080/073/102080073.geojson
+    demmin:
+        type: GeoJSON
+        url: https://whosonfirst.mapzen.com/data/102/064/099/102064099.geojson
+    bremen: 
+        type: GeoJSON
+        url: https://whosonfirst.mapzen.com/data/856/825/61/85682561.geojson
+    st_peterburg:
+        type: GeoJSON
+        url: https://whosonfirst.mapzen.com/data/856/880/69/85688069.geojson
+    leningradskaja:
+        type: GeoJSON
+        url: https://whosonfirst.mapzen.com/data/856/878/61/85687861.geojson
+        
+scene:
+    background:
+        color: white
+cameras:
+    perspective:
+        type: perspective
+lights:
+    directional1:
+        type: directional
+        direction: [.1, .5, -1]
+        diffuse: .7
+        ambient: .5
+
+styles:
+    functions-aastep:
+        shaders:
+            extensions: OES_standard_derivatives
+            blocks:
+                global: |
+                    // AntiAliased Step function
+                    //=============================
+                    float aastep(float threshold, float value) {
+                        #ifdef TANGRAM_FRAGMENT_SHADER
+                            #ifdef TANGRAM_EXTENSION_OES_standard_derivatives
+                                float afwidth = length(vec2(dFdx(value), dFdy(value))) * 0.70710678118654757;
+                                return smoothstep(threshold-afwidth, threshold+afwidth, value);
+                            #else
+                                return step(threshold, value);
+                            #endif  
+                        #else
+                            return step(threshold, value);
+                        #endif
+                    }
+    functions-pulse:
+        shaders:
+            blocks:
+                global: |
+                    float pulse (float x, float p, float w) {
+                        x = abs(x - p);
+                        if (x>w) return 0.0;
+                        x /= w;
+                        return 1.0 - x*x*(3.0-2.0*x);
+                    }
+    patterns-stripes:
+        mix: functions-aastep
+        shaders:
+            defines:
+                PI: 3.14159265358979323846
+            blocks:
+                global: |
+                    // Return a distance function of stripes
+                    float stripesDF (vec2 st) {
+                        return abs(sin(st.y*PI));
+                    }
+                    
+                    // Adjustable width stripes
+                    float stripes (vec2 st, float width) {
+                        return aastep(width,stripesDF(st));
+                    }
+                    
+                    // Faster optimisation of diagonal stripes
+                    float diagonalStripes (vec2 st) {
+                        vec2 i_st = floor(st);
+                        vec2 f_st = fract(st);
+                        if (mod(i_st.y,2.) - mod(i_st.x,2.) == 0.) {
+                            return 1.0 - aastep(f_st.x,f_st.y);
+                        } else {
+                            return aastep(f_st.x,f_st.y);
+                        }
+                    }
+    pallete:
+        shaders:
+            blocks: 
+                global: |
+                    // Common Values 
+                    //================================
+                    float radio = 0.05;
+                    vec2 size = vec2(1.,.6);
+                    vec3 background = vec3(0.996,0.996,0.918);
+                    vec3 midle = vec3(0.824, 0.812, 0.804);
+                    vec3 foreground = vec3(0.275,0.298,0.251);
+    border:
+        base: lines
+        mix: [functions-pulse, functions-aastep, pallete]
+        texcoords: true
+        shaders:
+            blocks: 
+                color: |
+                    vec2 st = v_texcoord.xy;
+                    float pattern = aastep(.5,pulse(st.x,.7,.1)+pulse(st.x,.35,.25));
+                    color.rgb = mix(background,color.rgb,pattern);
+    b_border:
+        base: lines
+        mix: [functions-pulse, functions-aastep, pallete]
+        texcoords: true
+        shaders:
+            blocks: 
+                color: |
+                    vec2 st = v_texcoord.xy;
+                    float pattern = aastep(.5,pulse(st.x,.5,.2));
+                    color.rgb = mix(background,color.rgb,pattern);
+                    
+    waves:
+        base: polygons
+        mix: [pallete, patterns-stripes]
+        shaders: 
+            blocks: 
+                color: |
+                    vec2 st = (gl_FragCoord.xy / u_resolution.xy);
+                    float aspect = u_resolution.x/u_resolution.y;
+                    // size.x *= aspect;
+
+                    vec2 pos = st;
+                    pos.x = pos.x*aspect;
+                    pos.y += sin(pos.x*30.)*.01;
+                    color.rgb = mix(color.rgb,background,stripes(pos*200.,.4));
+    hatch:
+        base: polygons
+        mix: [functions-aastep, pallete]
+        shaders: 
+            blocks: 
+                global: |
+                    mat2 rotate2d(float angle){
+                        return mat2(cos(angle),-sin(angle),
+                                    sin(angle),cos(angle));
+                    }
+                    float stripes(vec2 st){
+                        st = rotate2d(.72)*st;
+                        st *= 92.;
+                        return aastep(.3,abs(sin(st.y*3.14159265358)));
+                    }
+                color: |
+                    vec2 st = (gl_FragCoord.xy / u_resolution.xy);
+                    float aspect = u_resolution.x/u_resolution.y;
+                    // size.x *= aspect;
+                    color.rgb = mix(color.rgb,background,stripes(st*3.));
+    ants:
+        base: lines
+        blend: overlay
+        texcoords: true
+        animated: true
+        shaders:
+            blocks:
+                color: |
+                    color.a = step(.5,fract(u_time-v_texcoord.y*.5));
+
+    area:
+        base: polygons
+        mix: [patterns-stripes, space-constant]
+        blend: inlay
+        shaders:
+            blocks:
+                color: |
+                    color = mix(color,vec4(0.),diagonalStripes( getConstantCoords()*33.))*.99;
+
+                  
+layers:
+    water:
+        data: { source: mapzen }
+        draw:
+            waves:
+                order: 10
+                cap: round
+                width: 8px
+                color: [0.824, 0.812, 0.804]
+                width: 5px
+                    
+        lakes:
+            filter: { kind: [lake, riverbank, dock, water, basin, reservoir, playa, canal, dam, ditch, drain, river, stream]}
+            draw: 
+                lines:
+                    order: 1
+                    color: black
+                    cap: round
+                    width: .5px
+    earth:
+        data: { source:  mapzen}
+        draw:
+            border:
+                order: 5
+                color: black
+                cap: round
+                width: 6px
+            
+    landuse:
+        data: { source: mapzen }
+        draw:
+            hatch:
+                order: 2
+                color: #464C40
+
+    
+    boundaries:
+        data: { source: mapzen }
+        properties: { width: 3 }
+        draw:
+            lines:
+                order: 5
+                color: black
+                width: .3px
+            outlines:
+                style: lines
+                order: 4
+                color: white
+                width: 3px
+    
+    places:
+        data: { source: mapzen }
+        filter: { name: true }
+        draw:
+            text:
+                font:
+                    typeface: Italic 14px Times
+                    fill: black
+                    stroke: { color: white , width: 3 }
+                    style: italic
+                    
+                    
+    scania:
+        data: { source:  scania}
+        draw: 
+            area: 
+                color: [.99,.82,.09]
+#                color: [.78,.05,.19] 
+                order: 5
+            
+                    
+    halland:
+        data: { source: halland }
+        draw: 
+            area:
+                color: [.99,.82,.09]
+                order: 5
+
+
+    bleckinge:
+        data: { source: blekinge }
+        draw: 
+            area: 
+                color: [.99,.82,.09]
+#                color: [.78,.05,.19]
+                order: 5 
+                
+    bohulsan:
+        data: { source: bohulsan}
+        draw: 
+            area: 
+                color: [.99,.82,.09]
+                order: 5    
+                
+    nord_trÃ¸ndelag: 
+        data: { source: nord_trÃ¸ndelag}
+        draw: 
+            area: 
+                color: [.0,.36,.6]
+                order: 5   
+ 
+    sÃ¸r_trÃ¸ndelag: 
+        data: { source: sÃ¸r_trÃ¸ndelag}
+        draw: 
+            area: 
+                color: [.0,.36,.6]
+                order: 5   
+                
+    denmark:
+        data: { source: denmark }
+        draw: 
+            polygons:
+                color: [.78,.05,.19]
+                order: 4
+            lines:
+                color: grey
+                order: 15
+                width: 3px
+
+    sweden:
+        data: { source: sweden }
+        draw: 
+            polygons:
+                color: [.0,.36,.6]
+                order: 4 
+            lines: 
+                color: grey
+                order: 15
+                width: 3px
+                
+    finland:
+        data: { source: finland }
+        draw: 
+            polygons:
+                color: [.0,.36,.6]
+                order: 4 
+            lines: 
+                color: grey
+                order: 15
+                width: 3px
+                
+    roskilde:
+        data: { source: roskilde }
+        filter: { display: false }
+        draw:
+            text:
+                font:
+                    typeface: Italic 24px Times
+                    fill: red
+                    stroke: { color: white, width: 5 }
+                    transform: uppercase
+ #           polygons:
+                order: 20
+                color: [.0,.36,.6,]
+            ants:
+                color: [.99,.82,.09]
+                order: 22
+                width: 5px
+                
+                    
+    schleswig_holstein:
+        data: { source: schleswig_holtein}
+        draw:
+            polygons:
+                color: [.78,.05,.19]
+                order: 4
+            lines:
+                color: grey
+                order: 15
+                width: 3px
+                
+    norway:
+        data: { source: norway}
+        draw:
+            polygons:
+                color: [.78,.05,.19]
+                order: 4
+            lines:
+                color: grey
+                order: 15
+                width: 3px
+        
+    
+    estonia:
+        data: { source: estonia }
+        draw:
+            polygons:
+                color: [.0,.36,.6]
+                order: 26
+            lines:
+ #               color: grey
+                order: 15
+                width: 3px
+        
+    ostvorpommern:
+        data: { source: ostvorpommern }
+        draw:
+            polygons:
+                color: [.0,.36,.6]
+                order: 4
+            lines:
+#                color: grey
+                order: 15
+                width: 3px
+                
+    rÃ¼gen:
+        data: { source: rÃ¼gen } 
+        draw:
+            polygons:
+                color: [.0,.36,.6]
+                order: 4
+            lines:
+#                color: grey
+                order: 15
+                width: 3px
+                
+    nordvorpommern:
+        data: { source: nordvorpommern } 
+        draw:
+            polygons:
+                color: [.0,.36,.6]
+                order: 3
+            lines:
+#                color: grey
+                order: 15
+                width: 3px
+    
+    straisund:
+        data: { source: straisund } 
+        draw:
+            polygons:
+                color: [.0,.36,.6]
+                order: 3
+            lines:
+#                color: grey
+                order: 15
+                width: 3px  
+    greifswald:
+        data: { source: greifswald } 
+        draw:
+            polygons:
+                color: [.0,.36,.6]
+                order: 3
+            lines:
+#                color: grey
+                order: 15
+                width: 3px  
+                
+    ucker_randow:
+        data: { source: ucker_randow } 
+        draw:
+            polygons:
+                color: [.0,.36,.6]
+                order: 3
+            lines:
+#                color: grey
+                order: 15
+                width: 3px      
+        
+    kammin:
+        data: { source: kammin } 
+        draw:
+            polygons:
+                color: [.0,.36,.6]
+                order: 3
+            lines:
+#                color: grey
+                order: 15
+                width: 3px                     
+
+    policki:
+        data: { source: policki } 
+        draw:
+            polygons:
+                color: [.0,.36,.6]
+                order: 3
+            lines:
+#                color: grey
+                order: 15
+                width: 3px   
+
+    mawinouj:
+        data: { source: mawinouj } 
+        draw:
+            polygons:
+                color: [.0,.36,.6]
+                order: 3
+            lines:
+#                color: grey
+                order: 15
+                width: 3px  
+
+    goweniowski:
+        data: { source: goweniowski } 
+        draw:
+            polygons:
+                color: [.0,.36,.6]
+                order: 3
+            lines:
+#                color: grey
+                order: 15
+                width: 3px 
+                
+    szczecin:
+        data: { source: szczecin } 
+        draw:
+            polygons:
+                color: [.0,.36,.6]
+                order: 3
+            lines:
+#                color: grey
+                order: 15
+                width: 3px 
+    demmin:
+        data: { source: demmin } 
+        draw:
+            polygons:
+                color: [.0,.36,.6]
+                order: 3
+            lines:
+#                color: grey
+                order: 15
+                width: 3px 
+    bremen:
+        data: { source: bremen } 
+        draw:
+            polygons:
+                color: [.0,.36,.6]
+                order: 3
+            lines:
+                color: grey
+                order: 15
+                width: 3px 
+    st_petersburg:
+        data: { source: st_peterburg }  
+        draw:
+            polygons:
+                color: [.0,.36,.6]
+                order: 3
+            lines:
+                color: grey
+                order: 15
+                width: 3px 
+    leningradskaja:
+        data: { source: leningradskaja }  
+        draw:
+            polygons:
+                color: [.0,.36,.6]
+                order: 3
+            lines:
+                color: grey
+                order: 15
+                width: 3px             
+

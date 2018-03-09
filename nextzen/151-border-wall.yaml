@@ -1,0 +1,19 @@
+import:
+    https://www.nextzen.org/carto/refill-style-more-labels/refill-style-more-labels.yaml
+
+global:
+    sdk_mapzen_api_key: mapzen-arpssXJ
+
+sources:
+    border_wall:
+        type: GeoJSON
+        url: https://gist.githubusercontent.com/burritojustice/5825df761bf60d51e7ec8846c6e2ce46/raw/wall.geojson
+
+layers:
+    _border_wall:
+        data: {source: border_wall }
+        draw:
+            lines:
+                color: red
+                width: 5px
+                order: 1000 #sdk_order_over_everything_but_text_0

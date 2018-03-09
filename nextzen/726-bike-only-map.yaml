@@ -1,0 +1,28 @@
+import:
+    - https://www.nextzen.org/carto/walkabout-style-no-labels/5/walkabout-style-no-labels.yaml
+    - https://mapzen-assets.s3.amazonaws.com/resources/demo.yaml
+
+global:
+  sdk_path_overlay: false
+  sdk_bike_overlay: true
+  
+layers:
+    roads:
+        filter:
+            is_bicycle_related: true 
+            not: 
+                kind: ferry
+    earth:
+        enabled: false
+    water:
+        enabled: false
+    landuse:
+        enabled: false
+    buildings:
+        enabled: false
+    places:
+        enabled: false
+    pois:
+        enabled: false
+    transit:
+        enabled: false

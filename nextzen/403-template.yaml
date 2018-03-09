@@ -1,0 +1,95 @@
+# all mapzen basemap styles
+import:
+   # https://www.nextzen.org/carto/bubble-wrap-style/bubble-wrap.yaml
+   # https://www.nextzen.org/carto/refill-style-more-labels/refill-style-more-labels.yaml
+   # https://www.nextzen.org/carto/refill-style-no-labels/refill-style-no-labels.yaml
+  - https://www.nextzen.org/carto/refill-style/refill-style.yaml
+   # https://www.nextzen.org/carto/walkabout-style-more-labels/walkabout-style-more-labels.yaml
+   # https://www.nextzen.org/carto/walkabout-style-no-labels/walkabout-style-no-labels.yaml
+   # https://www.nextzen.org/carto/walkabout-style/walkabout-style.yaml
+   # https://www.nextzen.org/carto/tron-style/tron-style.zip
+   # https://www.nextzen.org/carto/tron-style-more-labels/tron-style-more-labels.zip
+   # https://www.nextzen.org/carto/tron-style-no-labels/tron-style-no-labels.zip
+   # https://www.nextzen.org/carto/cinnabar-style-more-labels/cinnabar-style-more-labels.yaml
+   # https://www.nextzen.org/carto/cinnabar-style-no-labels/cinnabar-style-no-labels.yaml
+   # https://www.nextzen.org/carto/cinnabar-style/cinnabar-style.yaml
+   # https://www.nextzen.org/carto/zinc-style-more-labels/zinc-style-more-labels.yaml
+   # https://www.nextzen.org/carto/zinc-style-no-labels/zinc-style-no-labels.yaml
+   # https://www.nextzen.org/carto/zinc-style/zinc-style.yaml
+  - https://mapzen-assets.s3.amazonaws.com/resources/demo.yaml
+
+
+# set a background color
+# scene:
+#     background:
+#         color: white
+
+sources:
+   # use mapzen vector tiles
+   mapzen:
+       type: TopoJSON
+       url: https://tile.nextzen.org/tilezen/vector/v1/all/{z}/{x}/{y}.topojson
+       url_params: 
+         api_key: global.sdk_mapzen_api_key
+   import a custom geojson overlay
+   building-geojson:
+       type: GeoJSON
+       url: https://gist.githubusercontent.com/kkowalsky/a830683d0430bda45377465d746dc17e/raw/e276639b2a605161d6bfaa8359808d92ea3bbe08/map.geojson
+   route-data:
+       type: GeoJSON
+       url: https://gist.githubusercontent.com/kkowalsky/f755a5e77c32a70a10778e4baaa63c80/raw/4670ee730eaa0d175b6be56af535c5726761c160/map.geojson
+# earth, water, roads, etc. layers are from mapzen's vector tiles and use their layer names. custom data sources start with an underscore as a nice reference.
+layers:
+   # earth:
+   #     data: { source: mapzen }
+   #     draw:
+   #         polygons:
+   #             order: 0
+   #             color: grey
+   # water:
+   #     data: { source: mapzen }
+   #     draw:
+   #         polygons:
+   #             order: 1
+   #             color: lightblue
+   # roads:
+   #     data: { source: mapzen}
+   #     draw:
+   #         lines:
+   #             order: global.order
+   #             fill: [0.780, 0.153, 0.153, 1.00]
+   #             width: 1px
+   _office-building:
+       data: { source: building-geojson }
+       filter: { name: '111 New Montgomery' }  
+       draw:
+           lines:
+               order: global.sdk_order_over_everything_but_text_0
+               width: 5px
+               color: green #colors can use HTML color names
+           polygons:
+               order: global.sdk_order_over_everything_but_text_0
+               color: '#FFA500 ' #colors can also be in HEX
+   _routes:
+       data: { source: route-data}
+       _bikeRoute:
+           filter: { name: 'bus route' }
+           draw:
+               lines:
+                   order: global.sdk_order_over_everything_but_text_0
+                   width: 5px
+                   color: blue
+       _walkRoute:
+           filter: { name: 'walk route' }
+           draw:
+               route:
+                   order: global.sdk_order_over_everything_but_text_0
+                   width: 5px
+                   color: red
+styles:
+   transparent-polygon:
+       base: polygons
+       blend: inlay
+   route:
+       base: lines
+       dash: [2,1]

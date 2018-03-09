@@ -1,0 +1,214 @@
+import: https://www.nextzen.org/carto/walkabout-style/2/walkabout-style.yaml
+
+global:
+    # usgs:
+    volcanic:
+        1: '#FFE4FF'
+        2: '#F1BDCF'
+        3: '#E893B5'
+        4: '#E46D9F'
+        5: '#D8127D'
+        6: '#D47BA7'
+        7: '#B9639A'
+        8: '#A3257C'
+        9: '#CC8AB0'
+        10: '#A76199'
+        11: '#812C7C'
+        12: '#EB8F5B'
+        13: '#E3672A'
+        14: '#F4B774'
+        15: '#EFA15F'
+        16: '#EB8C2D'
+        17: '#F3BAA1'
+        18: '#EB9074'
+        19: '#E36A51'
+        20: '#D8232A'
+    Q:
+        0: '#FFF36F'
+        1: '#FFFCDF'
+        2: '#FFE37F'
+        3: '#FFF799'
+        4: '#FFF9BF'
+    T:
+        0: #F4B564
+        1: '#FDE7B6'
+        2: '#DD9B2F'
+        3: '#E1AF63'
+        4: '#F8CA79'
+        5: '#FBDBA0'
+        6: '#E4C488'
+        7: '#F8CD9A'
+    K:
+        0: '#7FC074'
+        1: '#DFE8A8'
+        2: '#83AB6D'
+        3: '#99B58B'
+        4: '#98CA83'
+        5: '#B3D594'
+    J:
+        0: '#5FBBA1'
+        1: '#CBE4CB'
+        2: '#3BB291'
+        3: '#7CC3A1'
+        4: '#B2D8B7'
+    Tr:
+        0: '#5ABEC1'
+        1: '#C8E6E2'
+        2: '#63B0AA'
+        3: '#95D0C5'
+        4: '#AFDBD4'
+    P:
+        0: '#4EC0E3'
+        1: '#ACDCEC'
+        2: '#25B7C8'
+        3: '#77C7CD'
+        4: '#91D1D9'
+    _P:
+        0: '#5E9FCA'
+        1: '#90C3DF'
+        2: '#4399BC'
+        3: '#60AAC5'
+        4: '#75B2D5'
+    M:
+        0: '#959EB0'
+        1: '#C4CAD0'
+        2: '#8097AE'
+        3: '#8097AE'
+        4: '#ACB5C5'
+    D:
+        0: '#7D88B5'
+        1: '#C2BED5'
+        2: '#6B74A9'
+        3: '#948EB8'
+        4: '#AAA5C6'    
+    S:
+        0: '#A981AD'
+        1: '#E1CAD9'
+        2: '#946EA2'
+        3: '#AB92AE'
+        4: '#C0ACC8'
+    O:
+        0: '#EA90A0'
+        1: '#F7D0CD'
+        2: '#D88CA0'
+        3: '#EEA5AD'
+        4: '#F2BBB9'
+    O:
+        0: '#EA90A0'
+        1: '#F7D0CD'
+        2: '#D88CA0'
+        3: '#EEA5AD'
+        4: '#F2BBB9'            
+    _C:
+        0: '#EA9180'
+        1: '#F7CEB9'
+        2: '#EEA497'
+        3: '#E0B39F'
+        4: '#F2BBB9'
+    p_C:
+        0: '#988A6C'
+            
+styles:
+    _alpha_polygons:
+        base: polygons
+        blend: multiply
+    _dashed_lines:
+        base: lines
+        dash: [3, 1]
+        dash_background_color: rgb(149, 188, 141)
+
+sources:
+    _nps_boundary:
+        type: GeoJSON
+        url: https://gist.githubusercontent.com/rfriberg/684645c22f495b4a46f29fb312b6d268/raw/843ed38a3920ed199082636fe198ba995f5cfc04/san_juan_nhp.geojson
+
+    _nps_geology:
+        type: TopoJSON
+        url: https://gist.githubusercontent.com/burritojustice/5bcdf9a7874b1eceedffef8a8c7db17e/raw/4ddf2765e99101bcfc9875ba7fc5c8a530f4749d/lake_mead_4326.topojson
+        generate_label_centroids: true
+
+layers:
+    _national_park:
+        data: { source: _nps_boundary }
+        draw:
+            _dashed_lines:
+                width: [[8, 0.5px], [18, 5px]]
+                color: '#518946'
+                order: global.sdk_order_over_everything_but_text_1
+
+    _geology:
+        data: { source: _nps_geology }
+        filter:
+            all:
+                - { $zoom: { min: 7 } }
+                - not: { GEOFNT100K: lake }
+        draw:
+            # lines:
+            #     width: 2px
+            #     color: black
+            _alpha_polygons:
+                order: global.sdk_order_over_everything_but_text_0
+                color: |
+                    function() {
+                        // Note: this is a block of JavaScript so we can use JS comment syntax
+                        var category = feature.PTYPE100K;
+                        var color = category == 'Qa'       ? '#FFF79A' :
+                                    category == 'Qb'       ? '#FFF46E' :
+                                    category == 'Qd'       ? '#fff377' :
+                                    category == 'Qf'       ? '#dddddd' :
+                                    category == 'Qp'       ? '#EAC88D' :
+                                    category == 'Qgdm'     ? '#FCBB62' :
+                                    category == 'Qgdm(es)' ? '#FEE9BB' :
+                                    category == 'Qgdm(e)'  ? '#E8A121' :
+                                    category == 'Qgom(e)'  ? '#EAB564' :
+                                    category == 'Qgom'     ? '#FECE7A' :
+                                    category == 'Qgd'      ? '#FEDDA3' :
+                                    category == 'Qgt'      ? '#FCBB62' :
+                                    category == 'KJmm(c)'  ? '#86C879' :
+                                    category == 'KJm(ll)'  ? '#9FD08A' :
+                                    category == 'JTRmc(o)' ? '#27BB9D' :
+                                    category == 'TRn'      ? '#ED028C' :
+                                    category == 'TRPMv'    ? '#F172AC' :
+                                    category == 'TRPv'     ? '#F499C2' :
+                                    category == 'PDmt'     ? '#40C7F4' :
+                                    category == 'pPsh'     ? '#9BA5BE' :
+                                    category == 'pDi'      ? '#848FC7' :
+                                    category == 'pDit(t)'  ? '#B28ABF' :
+                                    // lake mead
+                                    category == 'Tg'       ? global.Tr[0] :
+                                    category == 'T2k'       ? global.Tr[1] :
+                                    category == 'Tmf'       ? global.Tr[2] :
+                                    category == 'Pr'       ? global.Pr[0] :
+                                    category == 'Q1a'      ? global.Q[1] :
+                                    category == 'QTk'      ? global.Q[2] :
+                                    category == 'QTa'      ? global.Q[3] :
+                                    category == 'Ja'      ? global.J[0] :
+                                    category == 'Cbk'      ? global._C[0] :
+                                    category == 'PMb'      ? global.P[0] :
+                                    // end
+                                    '#000';
+                                    
+
+                        return color;
+                    }
+
+        _geology_labels:
+          filter: { label_placement: true,  $zoom: { min: 13 } }
+          draw:
+              text:
+                  text_source: PTYPE100K
+                  font:
+                      # fill: rgba(130, 84, 41, 0.9)
+                      size: [[10, 12px], [20, 24px]]
+                      weight: bold
+                      stroke:
+                          # color: rgba(242, 218, 193, 0.3)
+                          color: black
+                          width: 3
+
+    # Override Walkabout's layers
+    landuse:
+        visible: false
+    roads:
+        minor_road:
+            visible: false

@@ -1,0 +1,150 @@
+import:
+    - https://www.nextzen.org/carto/refill-style-more-labels/refill-style-more-labels.yaml
+    - https://s3.amazonaws.com/mapzen-assets/images/blocks/colorbrewer.yaml
+
+
+global:
+    sdk_mapzen_api_key: mapzen-arpssXJ
+#     YlGn:
+#         3:
+#             1: "#f7fcb9"
+#             2: "#addd8e"
+#             3: "#31a354"
+#         4:
+#             1: "#ffffcc"
+#             2: "#c2e699"
+#             3: "#78c679"
+#             4: "#238443"
+#         5:
+#             1: "#ffffcc"
+#             2: "#c2e699"
+#             3: "#78c679"
+#             4: "#31a354"
+#             5: "#006837"
+#         6:
+#             1: "#ffffcc"
+#             2: "#d9f0a3"
+#             3: "#addd8e"
+#             4: "#78c679"
+#             5: "#31a354"
+#             6: "#006837"
+#         7:
+#             1: "#ffffcc"
+#             2: "#d9f0a3"
+#             3: "#addd8e"
+#             4: "#78c679"
+#             5: "#41ab5d"
+#             6: "#238443"
+#             7: "#005a32"
+#         8:
+#             1: "#ffffe5"
+#             2: "#f7fcb9"
+#             3: "#d9f0a3"
+#             4: "#addd8e"
+#             5: "#78c679"
+#             6: "#41ab5d"
+#             7: "#238443"
+#             8: "#005a32"
+#         9:
+#             1: "#ffffe5"
+#             2: "#f7fcb9"
+#             3: "#d9f0a3"
+#             4: "#addd8e"
+#             5: "#78c679"
+#             6: "#41ab5d"
+#             7: "#238443"
+#             8: "#006837"
+#             9: "#004529"
+#     _YlGn:
+#         _3:
+#             _1: "#f7fcb9"
+#             _2: "#addd8e"
+#             _3: "#31a354"
+#         four:
+#             one: "#ffffcc"
+#             two: "#c2e699"
+#             three: "#78c679"
+#             four: "#238443"
+#         -5:
+#             -1: "#ffffcc"
+#             -2: "#c2e699"
+#             -3: "#78c679"
+#             -4: "#31a354"
+#             -5: "#006837"
+#         d6:
+#             d1: "#ffffcc"
+#             d2: "#d9f0a3"
+#             d3: "#addd8e"
+#             d4: "#78c679"
+#             d5: "#31a354"
+#             d6: "#006837"
+#         7:
+#             1: "#ffffcc"
+#             2: "#d9f0a3"
+#             3: "#addd8e"
+#             4: "#78c679"
+#             5: "#41ab5d"
+#             6: "#238443"
+#             7: "#005a32"
+#         8:
+#             1: "#ffffe5"
+#             2: "#f7fcb9"
+#             3: "#d9f0a3"
+#             4: "#addd8e"
+#             5: "#78c679"
+#             6: "#41ab5d"
+#             7: "#238443"
+#             8: "#005a32"
+#         9:
+#             1: "#ffffe5"
+#             2: "#f7fcb9"
+#             3: "#d9f0a3"
+#             4: "#addd8e"
+#             5: "#78c679"
+#             6: "#41ab5d"
+#             7: "#238443"
+#             8: "#006837"
+#             9: "#004529"
+
+
+sources:
+
+    states:
+        type: GeoJSON
+        url: https://gist.githubusercontent.com/burritojustice/1588fcec71c978c83fc04ebebc6ff764/raw/73dbb4799ce25e614ff88bef4d892af109e63e1e/state_national_guard.geojson
+        generate_label_centroids: true
+        
+layers:
+    _counties:
+        data: {source: states}
+        draw:
+            lines:
+                color: orange
+                width: 3px
+                order: 900
+            polygons:
+                # color: global.Blues.7.2 
+                color: |
+                    function() {
+                        var reserve = feature.Reserve_total;
+                        var color =
+                            reserve = 0 ? global.YlGn.d7.d1 :
+                            reserve < 1000 ? global.YlGn.d7.d2 :
+                            reserve < 5000 ? global.YlGn.d7.d3 :
+                            reserve < 15000 ? global.YlGn.d7.d4 :
+                            reserve < 20000 ? global.YlGn.d7.d5 :
+                            global.YlGn.d7.d6 ;                        
+                        
+                        // reserve = 0 ? global.YlGn.7.1 :
+                        // reserve < 1000 ? global.YlGn.7.2 :
+                        // reserve < 5000 ? global._YlGn._3._3 :
+                        // reserve < 15000 ? global.YlGn.four.four :
+                        // reserve < 20000 ? global.YlGn.7.5 :
+                        // global.YlGn.7.6 ;
+                        // return global._YlGn.four.four;
+                        // return global._YlGn._3._2;
+                        // return global._YlGn.-5.-2;
+                        return color;
+                        
+                        }
+                order: 800

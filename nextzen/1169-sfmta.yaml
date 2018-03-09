@@ -1,0 +1,141 @@
+import: 
+    - https://s3.amazonaws.com/carto.www.nextzen.org/carto/refill-style/9/refill-style.yaml
+    # - https://www.nextzen.org/carto/refill-style/8/themes/color-purple-green.zip
+    # - https://www.nextzen.org/carto/refill-style/9/themes/color-inverted.zip
+    - https://mapzen-assets.s3.amazonaws.com/resources/demo.yaml
+
+# global:
+    # sdk_path_overlay: false
+    # sdk_bike_overlay: true
+#    sdk_building_extrude: false
+
+global:
+    avoid_market:
+        lines:
+            color: magenta 
+            order: 100
+            cap: round
+            miter_limit: 1
+            width: [[15,10px],[18,60px]]
+            outline:
+                width: 1px
+                color: white
+    current:
+        lines:
+            color: blue
+            order: 2101
+            width: [[15,5px],[18,12px]]
+            cap: round
+            miter_limit: 1                
+            outline:
+                width: 0.5px
+                color: white
+sources:
+    bike_default:
+       type: GeoJSON
+       url: 'empty.geojson'
+    bike_custom:
+       type: GeoJSON
+       url: 'empty.geojson'
+
+    turn_restrictions:
+        type: Raster
+        url: https://s3.amazonaws.com/mapzen-assets/resources/market_st_turns/turn_restrictions/{z}/{x}/{y}.png
+        bounds: [-122.42861470, 37.76576885, -122.38695181, 37.79866898]
+        min_display_zoom: 18
+        max_display_zoom: 18
+
+    flow:
+        type: Raster
+        url: https://s3.amazonaws.com/mapzen-assets/resources/market_st_turns/flow/{z}/{x}/{y}.png
+        bounds: [-122.42830624, 37.76561603, -122.38690152, 37.79850830]
+        min_display_zoom: 16
+        max_display_zoom: 17
+    flow_vector:
+        type: GeoJSON
+        # url: https://gist.githubusercontent.com/burritojustice/9741482c8983b87b3f4babafa7033a15/raw/map.geojson
+        url: https://gist.githubusercontent.com/burritojustice/9741482c8983b87b3f4babafa7033a15/raw/9d7dd11ac063208654be9b0d785d6cfb6fc096e3/map.geojson
+styles:
+    _raster:
+        base: raster
+        #texture: pois
+        blend: overlay
+        blend_order: 1
+    _lines:
+        base: lines
+        blend: overlay
+        blend_order: 5
+    _snakes:
+        base: lines
+        blend: overlay
+        texcoords: true
+        animated: true
+        shaders:
+            blocks:
+                color: |
+                    color.a = step(.5,fract(u_time-v_texcoord.y*.1));
+
+
+layers:
+
+    test_avoid:
+        enabled: false
+        data: { source: flow_vector}
+        filter:
+            all:
+                - route: true
+                - name: avoid
+        draw:
+            global.avoid_market
+    test_market:
+        enabled: false
+        data: { source: flow_vector}
+        filter:
+            all:
+                - route: true
+                - name: market
+        draw:
+            global.current
+
+    _line_flow:
+        data: { source: flow_vector}
+        filter:
+            all:
+                - $zoom: {min: 16}
+                - route: false
+        draw:
+            _snakes:
+                order: 2002
+                color: cyan
+                # color: [0,1,0]
+                width: [[15,3px],[18,34px]]
+                outline:
+                    color: white
+                    width: 2px
+            
+            
+            
+    bike_custom:
+        data: { source: bike_custom }
+        draw:
+            global.avoid_market
+
+    bike_default:
+        data: { source: bike_default }
+        draw:
+            global.current
+
+    _turn_restrictions:
+        # enabled: false
+        data: { source: turn_restrictions}
+        draw:
+            raster:
+                order: 1000
+    _flow:
+        enabled: false
+        data: { source: flow}
+        draw:
+            raster:
+                order: 1001
+    buildings:
+        enabled: false

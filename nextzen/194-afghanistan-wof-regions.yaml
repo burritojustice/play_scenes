@@ -1,0 +1,33 @@
+import:
+    - https://www.nextzen.org/carto/refill-style/6/refill-style.zip
+
+sources:
+    afghanistan_counties:
+        type: GeoJSON
+        url: https://mapzen-assets.s3.amazonaws.com/images/descender/Afghanistan_counties.geojson
+        generate_label_centroids: true
+
+layers:
+    ireland:
+        data: { source: afghanistan_counties}
+        draw:
+            lines:
+                order: global.sdk_order_over_everything_but_text_0
+                color: [0.153, 0.455, 0.800, 1.00]
+                width: 2px
+        labels:
+            filter: { label_placement: true }
+            draw:
+                text-blend-order-overlay:
+                    text_source: "wof:name"
+                    font:
+                        fill: [0.153, 0.455, 0.800, 1.00]
+                        size:  12px
+                        stroke:
+                            color: white
+                            width: 1
+
+styles:
+    text-blend-order-overlay:
+        base: text
+        blend_order: 2

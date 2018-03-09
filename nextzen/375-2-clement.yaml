@@ -1,0 +1,133 @@
+# import: https://s3.amazonaws.com/carto.www.nextzen.org/carto/zinc-style-no-labels/zinc-style-no-labels.yaml
+import: 
+    - https://s3.amazonaws.com/carto.www.nextzen.org/carto/refill-style-no-labels/refill-style-no-labels.yaml
+    - https://mapzen-assets.s3.amazonaws.com/resources/demo.yaml
+
+
+styles:
+    _points:
+        base: points
+        #texture: pois
+        blend: overlay
+        blend_order: 3
+        
+sources:
+    # mapzen:
+    #     type: TopoJSON
+    #     url: https://tile.nextzen.org/tilezen/vector/v1/all/{z}/{x}/{y}.topojson
+    #     url_params: 
+    #         api_key: global.sdk_mapzen_api_key
+        
+    1_california:
+        type: GeoJSON
+        url: https://transit.land/api/v1/routes.geojson?onestop_id=r-9q8yv-1
+    2_clement:
+        type: GeoJSON
+        url: https://transit.land/api/v1/routes.geojson?onestop_id=r-9q8yv-2
+    38_geary:
+        type: GeoJSON
+        url: https://transit.land/api/v1/routes.geojson?onestop_id=r-9q8yv-38
+
+    2_clement_venues:
+        type: GeoJSON
+        url: https://gist.githubusercontent.com/burritojustice/298194ac3236c3f1effadb021072b758/raw/ac891db7b6bf08be3ea73ba2840f0d631cba74e5/map.geojson
+
+
+
+layers:
+    _2_clement:
+        data: {source: 2_clement}
+        draw:
+            lines:
+               color: [1,0,0]
+               width: 4px
+               order: 1001
+        labels:
+            draw:
+                text:
+                    text_source: |
+                        function(){
+                            return feature.name + '-' + feature.tags.route_long_name;
+                            }
+                    font:
+                        fill: white
+                        size: 12px
+                        stroke:
+                            color: red
+                            width: 3
+                    offset: [-12px]
+
+
+    _1_california:
+        data: {source: 1_california}
+        draw:
+            lines:
+               color: [1,0,0,0.3]
+               width: 4px
+               order: 1000
+        labels:
+            draw:
+                text:
+                    text_source: |
+                        function(){
+                            return feature.name + '-' + feature.tags.route_long_name;
+                            }
+                    font:
+                        fill: grey
+                        size: 12px
+                        stroke:
+                            color: white
+                            width: 2
+    _38_geary:
+        data: {source: 38_geary}
+        draw:
+            lines:
+               color: [1,0,0,0.3]
+               width: 4px
+               order: 1000
+        labels:
+            draw:
+                text:
+                    text_source: |
+                        function(){
+                            return feature.name + '-' + feature.tags.route_long_name;
+                            }
+                    font:
+                        fill: grey
+                        size: 12px
+                        stroke:
+                            color: white
+                            width: 2
+
+    _2_celement_venues:
+       data: {source: 2_clement_venues}
+       _dots:
+            draw:
+                _points:
+                    collide: false
+                    color: [0,0,1,.5]
+                    size: [[10,5px],[17,20px]]
+                    collide: true
+                    text:
+                        text_source: 'wof:name'
+                        optional: true
+                        font:
+                            # family: Helvetica
+                            fill: black
+                            size: [[13,10px],[17,16px]]
+                            stroke:
+                                color: white
+                                width: 3
+                   
+       # _labels:
+       #      draw:
+       #          text:
+       #             collide: false
+       #             text_source: 'wof:name'
+       #             font:
+       #                 # family: Helvetica
+       #                 fill: black
+       #                 size: [[13,10px],[17,24px]]
+       #                 stroke:
+       #                     color: white
+       #                     width: 2

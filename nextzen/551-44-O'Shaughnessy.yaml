@@ -1,0 +1,387 @@
+import:
+    - https://www.nextzen.org/carto/refill-style-no-labels/refill-style-no-labels.yaml
+    # - https://www.nextzen.org/carto/refill-style-more-labels/refill-style-more-labels.yaml
+    - https://mapzen-assets.s3.amazonaws.com/resources/demo.yaml
+
+global:
+    coast_survey: |
+            function(){
+                if (feature.coast_survey_1853 || feature.coast_survey_1859) {
+            return "limegreen";
+            }
+            else {
+                return "red";
+                }
+            }
+
+styles:
+    _pois:
+        base: points
+        #texture: pois
+        blend: overlay
+        blend_order: 4
+    _points:
+        base: points
+        #texture: pois
+        blend: overlay
+        blend_order: 3
+    _polygons:
+        base: polygons
+        #texture: pois
+        blend: inlay
+        # blend_order: 3
+    _text:
+        base: text
+        blend_order: 3
+        
+sources:
+    # mapzen:
+    #     type: TopoJSON
+    #     url: https://tile.nextzen.org/tilezen/vector/v1/all/{z}/{x}/{y}.topojson
+    #     url_params: 
+    #         api_key: global.sdk_mapzen_api_key
+
+    44_oshaughnassey:
+        type: GeoJSON
+        url: https://transit.land/api/v1/routes.geojson?onestop_id=r-9q8yw-44
+
+    44_stops:
+        type: GeoJSON
+        url: https://gist.githubusercontent.com/burritojustice/84a5914b1cd605a3edbea81daad919f7/raw/94ccb922b286b4bb2af0048858762424afce216d/44-stops.geojson
+        # url: https://transit.land/api/v1/stops.geojson?served_by=r-9q8yw-44&per_page=false
+
+    _venues:
+        type:
+            GeoJSON
+        url: https://whosonfirst.mapzen.com/data/588/408/737/588408737.geojson
+    neighbourhoods:
+        type: GeoJSON
+        url: https://gist.githubusercontent.com/burritojustice/126ae6987a80aa39c71f7e184302f1d6/raw/706bc0a336bd4d02c6fcd12ee533684d81aa35fe/44_neighbourhoods_with_stops.geojson
+        generate_label_centroids: true
+
+    cisterns:
+        type: GeoJSON
+        url: https://gist.githubusercontent.com/burritojustice/cca826d760e9bc4ffdd67d18d3fc1c20/raw/sf_cisterns.geojson
+        # url: https://gist.githubusercontent.com/burritojustice/cca826d760e9bc4ffdd67d18d3fc1c20/raw/map.geojson
+    suldrew_pois:
+        type: GeoJSON
+        url: https://gist.githubusercontent.com/burritojustice/6e76a419616555cdb555f16fbd20f9a2/raw/map.geojson
+
+layers:
+    _suldrew_pois:
+        data: { source: suldrew_pois}
+        _tunnels:
+            draw:
+                lines:
+                    color: lightblue
+                    width: 2px
+                    order: 1000
+                    outline:
+                        color: blue
+                        width: 1px
+                text:
+                    # collide: false
+                    font:
+                        fill: blue
+                        size: 10px
+                        stroke:
+                            color: white
+                            width: 2px
+                    offset: [0px,-12px]
+                # polygons:
+                #      draw:
+                #          color: [0,0,1,0.4]
+                #          order: 1000
+
+        _pois:
+            filter: { name: false }
+            draw:
+                _pois:
+                    color: [1,1,0,.5]
+                    size: [[10,15px],[17,10px]]
+                    collide: false
+                    outline:
+                        color: orange
+                        width: 2px
+                    text:
+                        text_source: wof:name
+                        font:
+                            fill: yellow
+                            size: 14px
+                            stroke:
+                                color: black
+                                width: 4px
+                        optional: true
+
+
+            
+    _cisterns:
+        data: { source: cisterns}
+        _z13:
+            filter: { $zoom: {min: 13, max: 14}}
+            draw:
+                _points:
+                    collide: false
+                    color: [0,0,1,0.3]
+                    # size: [[10,5px],[17,25px]]
+                    size: |
+                        function(){
+                            return ((feature.vol / 100000) * 20)
+                            }
+                    outline:
+                        color: red
+                        # color: global.coast_survey
+                        
+                        # color: |
+                        #         function(){
+                        #             if (feature.coast_survey_1853 || feature.coast_survey_1859) {
+                        #                 return "blue";
+                        #                 }
+                        #             else {
+                        #                 return "red";
+                        #                 }
+                        #             }
+                        width: 2px
+        _z14:
+            filter: { $zoom: {min: 14}}
+            draw:
+                _points:
+                    collide: false
+                    color: [0,0,1,0.3]
+                    # size: [[10,5px],[17,25px]]
+                    size: |
+                        function(){
+                            return ((feature.vol / 80000) * 30)
+                            }
+                    outline:
+                        color: red
+                        # color: global.coast_survey
+                        # color: |
+                        #         function(){
+                        #             if (feature.coast_survey_1853 || feature.coast_survey_1859) {
+                        #                 return "blue";
+                        #                 }
+                        #             else {
+                        #                 return "red";
+                        #                 }
+                        #             }
+                        width: 2px
+                    text:
+                        text_source: description
+                        font:
+                            fill: red
+                            size: 10px
+                            stroke:
+                                color: white
+                                width: 2px
+                        optional: true
+
+        _z15:
+            filter: { $zoom: {min: 15}}
+            draw:
+                _points:
+                    collide: false
+                    color: [0,0,1,0.3]
+                    # size: [[10,5px],[17,25px]]
+                    size: |
+                        function(){
+                            return ((feature.vol / 70000) * 50)
+                            }
+                    outline:
+                        color: global.coast_survey
+
+                        # color: |
+                        #         function(){
+                        #             if (feature.coast_survey_1853 || feature.coast_survey_1859) {
+                        #                 return "blue";
+                        #                 }
+                        #             else {
+                        #                 return "red";
+                        #                 }
+                        #             }
+                        width: 3px
+                    text:
+                        optional: true
+                        text_source: |
+                            function(){
+                                return feature.description + "\n" + feature.vol.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " gal" + "\n"
+                                }
+                        font:
+                            # fill: red
+                            fill: |
+                                function(){
+                                    if (feature.coast_survey_1853 || feature.coast_survey_1859) {
+                                        return "green";
+                                        }
+                                    else {
+                                        return "red";
+                                        }
+                                    }
+                            size: 10px
+                            stroke:
+                                color: white
+                                width: 2px
+        _z16:
+            filter: { $zoom: {min: 16}}
+            draw:
+                _points:
+                    collide: false
+                    color: [0,0,1,0.3]
+                    # size: [[10,5px],[17,25px]]
+                    size: |
+                        function(){
+                            return ((feature.vol / 70000) * 50)
+                            }
+                    outline:
+                        color: global.coast_survey
+
+                        # color: |
+                        #         function(){
+                        #             if (feature.coast_survey_1853 || feature.coast_survey_1859) {
+                        #                 return "blue";
+                        #                 }
+                        #             else {
+                        #                 return "red";
+                        #                 }
+                        #             }
+                        width: 3px
+                    text:
+                        optional: true
+                        text_source: |
+                            function(){
+                                return feature.description + "\n" + feature.vol.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " gal" + "\n"
+                                }
+                        font:
+                            fill: |
+                                function(){
+                                    if (feature.coast_survey_1853 || feature.coast_survey_1859) {
+                                        return "green";
+                                        }
+                                    else {
+                                        return "red";
+                                        }
+                                    }
+                            size: 12px
+                            stroke:
+                                color: white
+                                width: 3px
+
+        _z17:
+            filter: { $zoom: {min: 17}}
+            draw:
+                _points:
+                    collide: false
+                    color: [0,0,1,0.3]
+                    # size: [[10,5px],[17,25px]]
+                    size: |
+                        function(){
+                            return ((feature.vol / 50000) * 50)
+                            }
+                    outline:
+                        color: global.coast_survey
+                        # color: |
+                        #         function(){
+                        #             if (feature.coast_survey_1853 || feature.coast_survey_1859) {
+                        #                 return "blue";
+                        #                 }
+                        #             else {
+                        #                 return "red";
+                        #                 }
+                        #             }
+                        width: 3px
+                    text:
+                        optional: true
+                        text_source: |
+                            function(){
+                                if (feature.coast_survey_1853 > 0) {
+                                    date = "1853 Coast Survey #" + feature.coast_survey_1853;
+                                    }
+                                else if (feature.coast_survey_1859 == 1) {
+                                    date = "1859 Coast Survey"
+                                    }
+                                else {
+                                    date = ""
+                                    }
+                                return feature.description + "\n" + feature.vol.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + " gal" + "\n" + date
+                                }
+                        font:
+                            fill: |
+                                function(){
+                                    if (feature.coast_survey_1853 || feature.coast_survey_1859) {
+                                        return "green";
+                                        }
+                                    else {
+                                        return "red";
+                                        }
+                                    }
+                            size: 14px
+                            stroke:
+                                color: white
+                                width: 3px
+
+    _neighbourhoods:
+        filter: { $zoom: {min: 12}}
+        data: {source: neighbourhoods}
+        draw:
+            _polygons:
+                color: [0,1,0,0.3]
+                order: 100
+            lines: 
+                color: green
+                width: 2px
+                order: 500
+                stroke:
+                    color: white
+                    width: 2px
+        labels:
+            filter: {label_placement: true}
+            draw:
+                _text:
+                    text_source: wof:name
+                    font:
+                        transform: uppercase
+                        fill: green
+                        size: [[13,10px],[18,20px]]
+                        stroke:
+                            color: white
+                            width: 2px
+            
+    _44_oshaughnessy:
+        data: {source: 44_oshaughnassey}
+        draw:
+            lines:
+               color: [1,1,0]
+               width: 4px
+               order: 1001
+               outline:
+                   color: black
+                   width: 1px
+        labels:
+            draw:
+                text:
+                    text_source: |
+                        function(){
+                            return feature.name + '-' + feature.tags.route_long_name;
+                            }
+                    font:
+                        fill: yellow
+                        size: 12px
+                        stroke:
+                            color: black
+                            width: 3
+                    offset: [0px,12px]
+
+    _stops:
+       data: {source: 44_stops}
+       filter: { $zoom: {min: 14}}
+       _dots:
+            draw:
+                _points:
+                    collide: false
+                    color: yellow
+                    size: [[10,2px],[17,15px]]
+                    outline:
+                        color: orange
+                        width: 1px
+
+ 

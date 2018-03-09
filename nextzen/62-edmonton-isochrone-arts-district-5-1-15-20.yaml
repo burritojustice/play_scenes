@@ -1,0 +1,67 @@
+# Author @patriciogv - 2015
+
+import:
+    - https://tangrams.github.io/blocks/global.yaml
+    - https://tangrams.github.io/blocks/filter/height.yaml
+    - https://www.nextzen.org/carto/refill-style/refill-style.yaml
+    # - https://www.nextzen.org/carto/bubble-wrap-style/bubble-wrap.yaml
+    # - https://www.nextzen.org/carto/zinc-style/zinc-style.yaml
+
+sources:
+    isochrone_polygons:
+        type: GeoJSON
+        url: https://s3.amazonaws.com/mapzen-assets/images/isochrone/isochrone_polygons.geojson
+    # isochrone_lines:
+    #     type: GeoJSON
+    #     url: https://gist.githubusercontent.com/burritojustice/928315fbb9a318c36cb8f5351cee10ff/raw/8fe29cf90d778c1ae7844442c18b0cfa3cf515d7/mexico_city.geojson
+        # isochrone API response saved as geojson for demo purposes
+
+        
+    isochrone_live:
+        type: GeoJSON
+        url: 'https://matrix.mapzen.com/isochrone?json={"locations":[{"lat":53.5421,"lon":-113.4860}],"costing":"pedestrian","contours":[{"time":5},{"time":10},{"time":15},{"time":20}],"polygons":true,"denoise":0.2,"generalize":150}'
+    #     url_params:
+    #         api_key: mapzen-xxxxxx # (be sure to add your API key to pull in polygons from the server https://mapzen.com/developers)
+layers:
+
+    isochrone_polygons:
+        data: { source: isochrone_live }
+        draw:
+            polygons:
+                order: |
+                    function() {
+                        return 100 - feature.contour ;
+                        }
+                color: |
+                    function() {
+                        return feature.fill;
+                        }
+            lines:
+                order: 4000
+                color: |
+                    function() {
+                        return feature.fill;
+                        }
+                width: [[10,2px],[18,10px]]
+                outline:
+                    color: white
+                    width: [[10,2px],[18,4px]]
+                
+
+
+    # isochrone_lines:
+    #     data: { source: isochrone_lines}
+    #     draw:
+    #         lines:
+    #             width: 5px
+    #             order: 3500
+    #             color: |
+    #                 function() {
+    #                     return feature.color; // 
+    #                     }
+
+
+# styles:
+#     _alpha_polygons:
+#         base: polygons
+#         blend: inlay

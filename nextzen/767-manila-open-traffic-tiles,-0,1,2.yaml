@@ -1,0 +1,238 @@
+import:
+    # basemap style
+    - https://www.nextzen.org/carto/refill-style/7/refill-style.zip
+    # recolor basemap style with a theme color
+    # - https://www.nextzen.org/carto/refill-style/7/themes/gray-gold.zip
+    - https://www.nextzen.org/carto/refill-style/7/themes/gray-gold.yaml
+
+    # - https://www.nextzen.org/carto/bubble-wrap-style/6/bubble-wrap-style.zip
+    # - https://www.nextzen.org/carto/refill-style-more-labels/6/refill-style-more-labels.zip
+    - https://mapzen-assets.s3.amazonaws.com/resources/demo.yaml
+
+global:
+    # search_query: YMCA
+    # lat: '38.0293'
+    # lon: '-78.4767'
+    lat: 30.45064
+    lon: -91.1266
+    radius: '1000'
+
+# cameras:
+#     perspective:
+#         type: isometric
+#         vanishing_point: [1000, -500]
+# lights:
+    directional1:
+        type: directional
+        direction: [.1, .5, -1]
+        diffuse: .7
+        ambient: .5
+
+# scene:
+#     background:
+#         color: [0.,0.5,0.8]
+styles:
+    _text:
+        base: text
+        blend_order: 3
+    _points:
+        base: points
+        blend_order: 3
+    _osm_points:
+        base: points
+        blend_order: 4
+    _lines:
+        base: lines
+        blend_order: 1
+    _dashed:
+        base: lines
+        dash: [2,1]
+sources:
+    sf_0:
+        type: GeoJSON
+        # url: https://s3.amazonaws.com/mapzen-assets/resources/osmlr/0c-smaller.json
+        url: https://s3.amazonaws.com/mapzen-assets/resources/osmlr/0c.json
+        # url: https://s3.amazonaws.com/mapzen-assets/resources/osmlr/sf_0_804.json
+    sf_1:
+        type: GeoJSON
+        # url: https://s3.amazonaws.com/mapzen-assets/resources/osmlr/1c-smaller.json
+        url: https://s3.amazonaws.com/mapzen-assets/resources/osmlr/1c.json
+        # url: https://s3.amazonaws.com/mapzen-assets/resources/osmlr/sf_1_777.json
+    sf_2:
+        type: GeoJSON
+        # url: https://s3.amazonaws.com/mapzen-assets/resources/osmlr/2c-smaller.json
+        url: https://s3.amazonaws.com/mapzen-assets/resources/osmlr/2c.json
+        # url: https://s3.amazonaws.com/mapzen-assets/resources/osmlr/sf_2.geojson
+    # osm:
+    #     type: TopoJSON
+    #     url: https://vector.mapzen.com/osm/all/{z}/{x}/{y}.topojson
+    #     url_params:
+    #         api_key: global.sdk_mapzen_api_key
+
+    osmlr:
+        type: GeoJSON
+        url: https://s3.amazonaws.com/mapzen-assets/resources/osmlr/473.geojson
+layers:
+    buildings:
+        visible: false
+#     roads: #osm
+#         major_road:
+#             trunk:
+#                 primary: 
+#                     filter: {$zoom: {min: 16}}
+#                     draw:
+#                         lines:
+#                             # color: "black"
+#                             width: 10px
+#                             outline:
+#                                 # style: _dashed
+#                                 width: 2px
+#                                 color: 'blue'
+#                                 color: |
+#                                     function(){
+#                                         if ($zoom > 15) {
+#                                             var id = feature.id
+#                                             id = id.toString()
+#                                             id = id.slice(-3)
+#                                             id = Math.floor(id/2.778)
+#                                             return 'hsl(' + id + ',100%,50%)'
+#                                         }
+#                                         else {return "black"}
+#                                         }
+#                         text:
+#                             text_source: id
+
+#                             font:
+#                                 style: italic
+#                                 # fill: global.light_color
+#                                 fill:  |
+#                                     function(){
+#                                         var id = feature.id
+#                                         id = id.toString()
+#                                         id = id.slice(-3)
+#                                         id = Math.floor(id/2.778)
+#                                         return 'hsl(' + id + ',100%,50%)'
+#                                         }
+#                                 width: 3px
+#                                 size: 12
+#                                 stroke:
+#                                     width: 3px
+#                                     color: global.dark_color
+#                             offset: [0,15]
+
+    _osmlr_0:
+        data: { source: sf_0}
+
+        _segments:
+            draw:
+                lines:
+                    color: red
+                    width: [[10,4px],[14,2px],[18,4px]]
+                    order: 1002                
+#                 lines:
+#                     color: |
+#                         function(){
+#                             var id = feature.osmlr_id
+#                             id = id.toString()
+#                             id = id.slice(-3)                           
+#                             id = Math.floor(id/2.778)
+#                             return 'hsl(' + id + ',100%,50%)'
+#                             }
+#                     width: [[13,0.1px],[17,3px]]
+#                     order: 500
+#                 _text:
+#                     text_source: osmlr_id
+#                     offset: [0,-15]
+#                     font:
+#                         fill: |
+#                                 function(){
+#                                     var id = feature.osmlr_id
+#                                     id = id.toString()
+#                                     id = id.slice(-3)
+#                                     id = Math.floor(id/2.778)
+#                                     return 'hsl(' + id + ',100%,80%)'
+#                                     }
+#                         # fill: global.two_color_offwhite 
+#                         size: 12
+#                         stroke:
+#                             color: global.mid_color
+#                             width: 2px
+ 
+
+    _osmlr_1:
+        data: { source: sf_1}
+        filter: {$zoom: {min: 10}}
+
+        _segments:
+            draw:
+                lines:
+                    color: yellow
+                    width: [[10,1px],[14,3px],[18,4px]]
+                    order: 1001
+#                     color: |
+#                         function(){
+#                             var id = feature.osmlr_id
+#                             id = id.toString()
+#                             id = id.slice(-3)                           
+#                             id = Math.floor(id/2.778)
+#                             return 'hsl(' + id + ',100%,50%)'
+#                             }
+#                     width: 3px
+#                     order: 500
+
+#                 _text:
+#                     repeat_distance: 200
+#                     text_source: osmlr_id
+#                     offset: [0,-15]
+#                     font:
+#                         fill: |
+#                                 function(){
+#                                     var id = feature.osmlr_id
+#                                     id = id.toString()
+#                                     id = id.slice(-3)
+#                                     id = Math.floor(id/2.778)
+#                                     return 'hsl(' + id + ',100%,80%)'
+#                                     }
+#                         # fill: global.two_color_offwhite 
+#                         size: 12
+#                         stroke:
+#                             color: global.mid_color
+#                             width: 2px
+    _osmlr_2:
+        data: { source: sf_2}
+        filter: {$zoom: {min: 11}}
+        _segments:
+            draw:
+                lines:
+                    color: orange
+                    width: [[12,1px],[16,2px],[18,4px]]
+                    order: 1000
+#                     color: |
+#                         function(){
+#                             var id = feature.osmlr_id
+#                             id = id.toString()
+#                             id = id.slice(-3)                           
+#                             id = Math.floor(id/2.778)
+#                             return 'hsl(' + id + ',100%,50%)'
+#                             }
+#                     width: 3px
+#                     order: 500
+
+#                 _text:
+#                     repeat_distance: 200
+#                     text_source: osmlr_id
+#                     offset: [0,-15]
+#                     font:
+#                         fill: |
+#                                 function(){
+#                                     var id = feature.osmlr_id
+#                                     id = id.toString()
+#                                     id = id.slice(-3)
+#                                     id = Math.floor(id/2.778)
+#                                     return 'hsl(' + id + ',100%,80%)'
+#                                     }
+#                         # fill: global.two_color_offwhite 
+#                         size: 12
+#                         stroke:
+#                             color: global.mid_color
+#                             width: 2px

@@ -1,0 +1,66 @@
+import: 
+# - https://www.nextzen.org/carto/refill-style/6/refill-style.zip
+- https://www.nextzen.org/carto/refill-style/6/refill-style.yaml
+# - https://www.nextzen.org/carto/walkabout-style/3/walkabout-style.zip
+# - https://www.nextzen.org/carto/walkabout-style/3/walkabout-style.yaml
+
+sources:
+    _subways:
+        type: GeoJSON
+        url: https://raw.githubusercontent.com/hanbyul-here/seoul-metro-turnstile-data/master/examples/data/subway-line-shape.geojson
+    
+
+global:
+  # sdk_mapzen_api_key: mapzen-xxxxxx
+  sdk_transit_overlay: true
+  sdk_road_shields: false
+
+layers:
+    # _subway_colours:
+    #     data: {source: _subways}
+    #     draw:
+    #         lines:
+    #             color: |
+    #                 function() {
+    #                     return feature.line_color;
+    #                     }
+    #             order: 10000
+    #             width: 2px
+    
+    transit:
+        transit-overlay-rail-lines:
+            
+            has-data-color:
+                train-with-color:
+                    filter: { kind: train }
+                    draw:
+                        lines:
+                            color: |
+                                function(){
+                                    var colour = feature.colour;
+                                    if (colour.charAt(0) != '#'){
+                                        colour = '#' + colour ;
+                                        }
+                                    return colour;
+                                    }
+                            order: 514  
+            
+            
+            labels-transit-lines:
+                filter:
+                    all:
+                        - function() { return global.sdk_transit_overlay; }
+                        - all:
+                            - $zoom: { min: 10 }
+                            - ref: true
+                draw:
+                    icons:
+                        color: |
+                            function(){
+                                var colour = feature.colour;
+                                if (colour.charAt(0) != '#'){
+                                    colour = '#' + colour ;
+                                    }
+                                return colour;
+                                }
+                            

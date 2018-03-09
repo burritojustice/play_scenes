@@ -1,0 +1,48 @@
+import: 
+    - https://www.nextzen.org/carto/refill-style/refill-style.yaml
+    - https://mapzen-assets.s3.amazonaws.com/resources/demo.yaml
+    
+
+sources:
+    trees:
+        type: GeoJSON
+        url: https://s3.amazonaws.com/mapzen-assets/resources/seoul/seoul_building_centroids_year.geojson
+
+styles:
+    _tree_icons_style:
+        base: points
+        blend_order: 1
+        texture: https://s3.amazonaws.com/mapzen-assets/images/dot-mapping/tree_white.png
+
+layers:
+    _trees_layer:
+        data: { source: trees }
+        filter: { $zoom: { min: 12 } }
+        draw:
+            points:
+                color: [[12, [0.290, 0.604, 0.290, 0.30]], [18, [0.165, 0.478, 0.165, 0.85]]] 
+                size: [[12, 1px], [15, 5px], [18, 14px], [18, 20px], [22, 52px]]
+                collide: false
+        _trees_icon_sublayer:
+            filter: { $zoom: { min: 18 } }
+            draw:
+                _tree_icons_style:
+                    size: [[18, 14px], [22, 40px]]
+                    collide: false
+                points:
+                    text:
+                        text_source: |
+                            function () {
+                                return feature.qSpecies.split(':: ')[1];
+                            }
+                        font:
+                            fill: forestgreen
+                            size: 10pt
+                            stroke:
+                                width: 5px
+                                color: white
+                        optional: true
+
+    roads:
+        filter: { $zoom: { min: 18} }
+
